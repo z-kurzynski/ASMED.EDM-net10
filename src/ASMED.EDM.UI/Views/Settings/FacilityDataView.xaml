@@ -1,0 +1,11 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Settings.FacilityDataView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#FFF0E4F8">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="Dane Placowki" FontSize="24" FontWeight="Bold" Foreground="#FF1976D2" Margin="0,0,0,20"/>
+            <TextBlock Text="[Placeholder]" FontSize="14" Foreground="Gray"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,432 @@
+<Window x:Class="ASMED.WPF.Views.ListaSkierowanWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:pdf="clr-namespace:Syncfusion.Windows.PdfViewer;assembly=Syncfusion.PdfViewer.WPF"
+        Title="Lista Skierowań - Zarządzanie Plikami" 
+        Height="700" Width="1400"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False" Background="#FFF7F9FA">
+
+    <Grid Background="#FFF5F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ✅ Pasek z przyciskami zarządzania oknami -->
+        <Border Grid.Row="0" Background="#FF2196F3" Padding="10,5" VerticalAlignment="Top">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Tytuł -->
+                <TextBlock Grid.Column="0" 
+                           Text="📂 Lista Skierowań - Zarządzanie Plikami" 
+                           FontSize="16" 
+                           FontWeight="Bold"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+
+                <!-- Przyciski zarządzania oknami -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="⬅️ Lewy ekran" 
+                            Click="MoveToLeftScreen_Click"
+                            ToolTip="Przesuń okno na lewy monitor (Win+Shift+←)"
+                            Width="110" Height="30"
+                            Margin="5,0"
+                            Background="#FF455A64"
+                            Foreground="White"
+                            FontSize="11"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                    <Button Content="➡️ Prawy ekran" 
+                            Click="MoveToRightScreen_Click"
+                            ToolTip="Przesuń okno na prawy monitor (Win+Shift+→)"
+                            Width="110" Height="30"
+                            Margin="5,0"
+                            Background="#FF455A64"
+                            Foreground="White"
+                            FontSize="11"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                    <Button Content="⛶ Pełny ekran" 
+                            Click="ToggleMaximize_Click"
+                            ToolTip="Przełącz tryb pełnoekranowy"
+                            Width="110" Height="30"
+                            Margin="5,0"
+                            Background="#FF455A64"
+                            Foreground="White"
+                            FontSize="11"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Główna zawartość -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ✅ NOWA: Lewa kolumna - Lista emaili z załącznikami -->
+            <Border Grid.Column="0" Background="White" Margin="10" 
+                    BorderBrush="#FFCCCCCC" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Nagłówek -->
+                    <TextBlock Grid.Row="0" 
+                               Text="📧 Skrzynka email" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Margin="10,10,10,5"
+                               Foreground="#FF333333"/>
+
+                    <!-- Filtry czasu -->
+                    <StackPanel Grid.Row="1" Margin="10,5">
+                        <ComboBox x:Name="EmailTimeRangeComboBox" 
+                                  SelectedIndex="1"
+                                  Margin="0,0,0,5"
+                                  SelectionChanged="EmailTimeRangeComboBox_SelectionChanged">
+                            <ComboBoxItem Content="1 dzień"/>
+                            <ComboBoxItem Content="1 tydzień"/>
+                            <ComboBoxItem Content="2 tygodnie"/>
+                            <ComboBoxItem Content="1 miesiąc"/>
+                        </ComboBox>
+
+                        <Button Content="🔍 Szukaj emaili" 
+                                Click="SearchEmailsButton_Click"
+                                Height="30"
+                                Margin="0,0,0,5"
+                                Background="#FF673AB7"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+
+                        <TextBlock x:Name="EmailStatusText" 
+                                   Text="Kliknij 'Szukaj emaili' aby rozpocząć"
+                                   FontSize="10" 
+                                   Foreground="Gray"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <!-- Lista emaili -->
+                    <ListBox x:Name="EmailsListBox"
+                             Grid.Row="2"
+                             Margin="10,5"
+                             SelectionChanged="EmailsListBox_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Margin="5,5,5,10">
+                                    <TextBlock Text="{Binding Subject}" 
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,3"/>
+                                    <TextBlock Text="{Binding From}" 
+                                               FontSize="10" 
+                                               Foreground="Gray"
+                                               Margin="0,0,0,2"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding ReceivedTime, StringFormat='📅 {0:yyyy-MM-dd HH:mm}'}" 
+                                                   FontSize="10" 
+                                                   Foreground="Gray"
+                                                   Margin="0,0,10,0"/>
+                                        <TextBlock Text="{Binding PdfCount, StringFormat='📎 {0} plik(ów)'}" 
+                                                   FontSize="10" 
+                                                   Foreground="#FF2196F3"
+                                                   FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- Akcje na wybranym emailu -->
+                    <StackPanel Grid.Row="3" Margin="10,5,10,10" Orientation="Vertical">
+                        <Button Content="📥 Importuj załączniki" 
+                                Click="ImportEmailAttachmentsButton_Click"
+                                Height="30"
+                                Margin="0,0,0,5"
+                                Background="#FF4CAF50"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+
+                        <Button Content="🗑 Usuń email" 
+                                Click="DeleteEmailButton_Click"
+                                Height="30"
+                                Background="#FFF44336"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="1" 
+                          Width="5" 
+                          HorizontalAlignment="Stretch" 
+                          Background="#FFDDDDDD"/>
+
+            <!-- Środkowa kolumna: Podgląd PDF lub Info o dokumencie -->
+            <Border Grid.Column="2" Background="White" Margin="10" 
+                    BorderBrush="#FFCCCCCC" BorderThickness="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" MinHeight="59"/>
+                        <RowDefinition Height="Auto" MinHeight="42"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" 
+                               Text="Podgląd dokumentu" 
+                               FontSize="16" 
+                               FontWeight="Bold" 
+                               Margin="10,10,10,10"
+                               Foreground="#FF333333"/>
+
+                    <!-- ✅ NOWE: Informacja o źródle pliku -->
+                    <StackPanel Orientation="Horizontal" Margin="10,41,10,5" Grid.RowSpan="2">
+                        <TextBlock x:Name="PreviewSourceText" 
+                                   Text="Wybierz plik lub email aby wyświetlić podgląd"
+                                   FontSize="11" 
+                                   Foreground="Gray"/>
+                    </StackPanel>
+
+                    <!-- Przycisk Otwórz -->
+                    <Button Grid.Row="1"
+                            Content="📄 Otwórz w zewnętrznym programie"
+                            Click="OtworzPlik_Click"
+                            Margin="10,6,10,5"
+                            Background="#FF2196F3"
+                            Foreground="White"
+                            FontSize="13"
+                            FontWeight="Bold"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="IsEnabled" Value="True"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding WybranyPlik}" Value="{x:Null}">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Setter Property="Background" Value="Gray"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- Grid z dwoma widokami -->
+                    <Grid Grid.Row="2" Margin="0,1,0,0">
+                        <!-- ✅ POPRAWIONE: Podgląd PDF - bez automatycznego bindingu Visibility -->
+                        <pdf:PdfViewerControl x:Name="PdfViewer"
+                                              Margin="5"
+                                              Visibility="Collapsed"/>
+
+                        <!-- Info o dokumencie (dla plików Word/Excel) -->
+                        <StackPanel x:Name="DocInfoPanel" 
+                                    Margin="20,10"
+                                    Visibility="Collapsed">
+                            <TextBlock Text="ℹ️ Dokument Word/Excel" 
+                                       FontSize="16" 
+                                       FontWeight="Bold"
+                                       Margin="0,20,0,20"
+                                       HorizontalAlignment="Center"/>
+
+                            <TextBlock Text="Nazwa pliku:" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding WybranyPlik.FileName}"
+                                       TextWrapping="Wrap"
+                                       FontSize="14"
+                                       Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Pełna ścieżka:" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding WybranyPlik.FullPath}"
+                                       TextWrapping="Wrap"
+                                       FontSize="11"
+                                       Foreground="Gray"
+                                       Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Data modyfikacji:" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding WybranyPlik.DateDisplay}"
+                                       FontSize="12"
+                                       Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Rozmiar:" FontWeight="Bold" FontSize="12" Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding WybranyPlik.SizeFormatted}"
+                                       FontSize="12"
+                                       Margin="0,0,0,15"/>
+
+                            <TextBlock Text="💡 Kliknij przycisk &quot;Otwórz w zewnętrznym programie&quot; aby otworzyć ten dokument w Word lub Excel"
+                                       TextWrapping="Wrap"
+                                       FontSize="12"
+                                       Foreground="#FF2196F3"
+                                       Margin="0,30,0,0"
+                                       TextAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Komunikat gdy nic nie wybrano -->
+                        <TextBlock x:Name="EmptyMessage"
+                                   Text="Wybierz plik z listy aby wyświetlić podgląd"
+                                   FontSize="14"
+                                   Foreground="Gray"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="Visible"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="3" 
+                          Width="5" 
+                          HorizontalAlignment="Stretch" 
+                          Background="#FFDDDDDD"/>
+
+            <!-- Prawa kolumna: Lista plików -->
+            <Grid Grid.Column="4" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ✅ NOWY: Przełącznik Aktywne/Archiwum -->
+                <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                    <TextBlock Text="Lista dokumentów" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Margin="0,0,0,5"/>
+
+                    <!-- Przełącznik widoku -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton Content="📁 Aktywne" 
+                                     IsChecked="{Binding ShowActiveFiles, Mode=TwoWay}"
+                                     GroupName="FileView"
+                                     Margin="0,0,15,0"
+                                     VerticalAlignment="Center"
+                                     FontWeight="SemiBold"/>
+                        <RadioButton Content="📦 Archiwum" 
+                                     IsChecked="{Binding ShowArchivedFiles, Mode=TwoWay}"
+                                     GroupName="FileView"
+                                     VerticalAlignment="Center"
+                                     FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="🔄 Odśwież" 
+                            Command="{Binding OdswiezListeCommand}"
+                            Width="100" 
+                            Height="25"
+                            Background="#FF4CAF50"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                        <TextBlock FontSize="11" 
+                            Foreground="Gray" 
+                            Margin="10,0,0,0" 
+                            VerticalAlignment="Center">
+                            <Run Text="{Binding CurrentFolderPath, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+
+                <ListBox Grid.Row="1" 
+                         ItemsSource="{Binding PlikiSkierowan}"
+                         SelectedItem="{Binding WybranyPlik, Mode=TwoWay}"
+                         Margin="0,0,0,10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="5">
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- Ikona typu pliku -->
+                                    <TextBlock FontSize="14" Margin="0,0,5,0" VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="📄"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding FileExtension}" Value=".pdf">
+                                                        <Setter Property="Text" Value="📕"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding FileExtension}" Value=".doc">
+                                                        <Setter Property="Text" Value="📘"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding FileExtension}" Value=".docx">
+                                                        <Setter Property="Text" Value="📘"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding FileExtension}" Value=".xls">
+                                                        <Setter Property="Text" Value="📗"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding FileExtension}" Value=".xlsx">
+                                                        <Setter Property="Text" Value="📗"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding FileName}" 
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding DateDisplay}" 
+                                           FontSize="10" 
+                                           Foreground="Gray"/>
+                                <TextBlock Text="{Binding SizeFormatted}" 
+                                           FontSize="10" 
+                                           Foreground="Gray"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel Grid.Row="2" Orientation="Vertical">
+                    <Button Content="📦 Archiwizuj plik" 
+                            Command="{Binding ArchiwizujPlikCommand}"
+                            Height="35"
+                            Margin="0,0,0,10"
+                            Background="#FFFF9800"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                    <Button Content="🗑 Usuń plik" 
+                            Command="{Binding UsunPlikCommand}"
+                            Height="35"
+                            Margin="0,0,0,10"
+                            Background="#FFF44336"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+
+                    <Button Content="✖ Zamknij okno" 
+                            Command="{Binding ZamknijOknoCommand}"
+                            Height="35"
+                            Background="#FF9E9E9E"
+                            Foreground="White"
+                            FontWeight="Bold"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

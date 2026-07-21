@@ -1,0 +1,176 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Visits.VisitsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="750" d:DesignWidth="1480"
+             Background="White">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="20,10,20,10" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Wizyty" 
+                           FontSize="30" 
+                           FontWeight="Bold" 
+                           Foreground="#FF1976D2"/>
+               <TextBlock Text="- Rejestracja wizyt" 
+                           FontSize="16" 
+                           FontStyle="Italic" 
+                           Foreground="Gray" 
+                           VerticalAlignment="Bottom" 
+                           Margin="20,0,0,5"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Content="Odswiez" 
+                        Command="{Binding RefreshCommand}"
+                        Width="120" Height="38" Background="#FF2196F3" Foreground="White"
+                        FontSize="14" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand" Margin="0,0,10,0"/>
+                <Button Content="Nowa Wizyta" 
+                        Command="{Binding AddNewVisitCommand}"
+                        Width="140" Height="38" Background="#FF4CAF50" Foreground="White"
+                        FontSize="14" FontWeight="SemiBold" BorderThickness="0" Cursor="Hand"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="20,0,20,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="500"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Kalendarz Wizyt - Simplified Version -->
+            <Border Grid.Column="0" 
+                    BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" 
+                    CornerRadius="8" 
+                    Padding="10" 
+                    Background="#FF6D6D6D">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header kalendarza -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="📅 Kalendarz Wizyt" 
+                                   FontSize="18" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="#FFEDEB47"
+                                   Margin="0,0,0,5"/>
+                        <Button Content="🔄 Odśwież" 
+                                Height="32"
+                                Background="#FF4CAF50"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Command="{Binding RefreshCommand}"/>
+                    </StackPanel>
+
+                    <!-- Prosty Calendar WPF - TODO: Replace with SfScheduler later -->
+                    <Border Grid.Row="1" Background="White" CornerRadius="4" Padding="10">
+                        <StackPanel>
+                            <Calendar SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                                      DisplayDate="{Binding DisplayDate, Mode=TwoWay}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,10"/>
+
+                            <TextBlock Text="⚠️ Pełny SfScheduler (Day/Week/Month views) będzie dodany w następnej iteracji" 
+                                       FontSize="11" 
+                                       Foreground="Gray" 
+                                       TextWrapping="Wrap"
+                                       HorizontalAlignment="Center"
+                                       Margin="10"/>
+
+                            <!-- Placeholder for appointments on selected date -->
+                            <Border BorderBrush="#FFDDDDDD" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedDateFormatted}" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold" 
+                                               Foreground="#FF1976D2"
+                                               Margin="0,0,0,10"/>
+                                    <TextBlock Text="Wizyty na wybrany dzień będą wyświetlane po prawej stronie →" 
+                                               FontSize="12" 
+                                               Foreground="Gray"
+                                               TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" Background="#FFDDDDDD"/>
+
+            <Border Grid.Column="2" BorderBrush="#FFDDDDDD" BorderThickness="1" CornerRadius="4" Padding="10" Background="#FFF8F9FA">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Lista Pacjentow" FontSize="18" FontWeight="SemiBold" Foreground="#FF1976D2"/>
+                            <TextBlock Text="{Binding SelectedDateFormatted}" FontSize="14" Foreground="Gray" Margin="10,0,0,0" VerticalAlignment="Bottom"/>
+                        </StackPanel>
+                        <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32" FontSize="13" Padding="8,6" BorderBrush="#FFCCCCCC" BorderThickness="1"/>
+                    </StackPanel>
+
+                    <ListBox Grid.Row="1" ItemsSource="{Binding FilteredPacjenciNaDzien}" SelectedItem="{Binding SelectedPacjent, Mode=TwoWay}"
+                             BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="#FFDDDDDD" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,8" Background="White">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding FullName}" FontSize="14" FontWeight="SemiBold" Foreground="#FF2C3E50"/>
+                                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                                            <TextBlock Text="{Binding AppointmentTime}" FontSize="12" Foreground="Gray" Margin="2,0,15,0"/>
+                                            <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold" Padding="6,2" Background="#FFFFC107" Foreground="White"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <Border Grid.Row="2" Background="#FFF1F3F5" Padding="10" CornerRadius="4" Margin="0,10,0,0">
+                        <TextBlock FontSize="12" Foreground="#FF2C3E50">
+                            <Run Text="Statistyki: "/>
+                            <Run Text="{Binding TotalCount, StringFormat='Wszystkich: {0}'}" FontWeight="Bold"/>
+                            <Run Text=" | "/>
+                            <Run Text="{Binding CompletedCount, StringFormat='Odbytych: {0}'}"/>
+                        </TextBlock>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

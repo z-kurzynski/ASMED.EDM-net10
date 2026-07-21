@@ -1,0 +1,26 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Settings.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:local="clr-namespace:ASMED.EDM.UI.Views.Settings"
+             Background="#FFB9D1EA">
+    <Grid Background="#FFFDFDFD" Margin="10">
+        <syncfusion:TabControlExt Margin="1">
+            <syncfusion:TabItemExt Header="Konfiguracja" Background="#FF29EDF1">
+                <local:ConfigurationView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="Cenniki" Background="#FFF9F127">
+                <local:PriceListsView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="Dane Placówki" Background="#FFDA11E6">
+                <local:FacilityDataView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="Użytkownicy" Background="#FF09F34E">
+                <local:UsersView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt Header="Narzędzia" Background="#FFF7AF0F">
+                <local:ToolsView />
+            </syncfusion:TabItemExt>
+        </syncfusion:TabControlExt>
+    </Grid>
+</UserControl>

@@ -1,0 +1,589 @@
+<UserControl x:Class="ASMED.WPF.Views.BadaniaListaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:ASMED.WPF.ViewModels"
+    xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    xmlns:local="clr-namespace:ASMED.WPF.Views" 
+    xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+    xmlns:av="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="av"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100">
+
+    <UserControl.Resources>
+        <!-- Poprawka: usunięto zbędny dwukrotek na końcu TargetType -->
+        <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
+            <Setter Property="Fill" Value="Cyan"/>
+        </Style>
+        <!-- Poprawka: usunięto zbędny dwukrotek na końcu TargetType -->
+        <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="BorderBrush" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="Cyan"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" 
+              MaxWidth="1500" MinWidth="1100"
+              Width="1500">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="425"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="8"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel x:Name="Filtr" Grid.Column="1" VerticalAlignment="Center" Height="46">
+                <TextBlock Text="Wyszukaj :" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
+                <DockPanel HorizontalAlignment="Left">
+                    <TextBox x:Name="txtFilterTop" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Height="28" Width="247" FontSize="14" />
+                    <Button Width="32" Height="28" Margin="10,0,0,0" ToolTip="Wyczyść pole" Click="ClearFilter_Click">
+                        <Image Source="/ASMED.WPF;component/Assets/no.png" Width="10" Height="10" />
+                    </Button>
+                    <ComboBox Width="100" Height="28" FontSize="14" Margin="10,0,8,0"
+                        SelectedItem="{Binding SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{Binding FilterOptions}"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- buttons -->
+            <syncfusion:ButtonAdv x:Name="Dadaj_badan"
+                    Grid.Column="5"
+                    HorizontalAlignment="Center"
+                    Height="45"
+                    Label=" ? Dodaj Badań"
+                    VerticalAlignment="Top"
+                    Width="220"
+                    Background="#FF3F51B5"
+                    Foreground="#FFFBFBFB"
+                    FontStyle="Italic"
+                    FontSize="16" Margin="0,10,0,0" IsCheckable="True" Visibility="Hidden"  >
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
+
+            <syncfusion:ButtonAdv x:Name="Nowe_Badanie"
+                    Grid.Column="6"
+                    HorizontalAlignment="Center"
+                    Height="45"
+                    Label="  Nowe Badanie"
+                    VerticalAlignment="Top"
+                    Width="220"
+                    Background="#FF009688"
+                    Foreground="#FFFBFBFB"
+                    FontStyle="Italic"
+                    FontSize="16" IsCheckable="True" Margin="0,10,0,0" Click="Nowe_Badanie_Click"  >
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
+        </Grid>
+        <Grid Grid.Row="1" Height="NaN" Margin="10,10,10,10" Width="1500">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="555"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="0"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="930"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel x:Name="Lewy_lista" Orientation="Vertical" HorizontalAlignment="Left" Width="565" Margin="5,10,0,0" Grid.ColumnSpan="4">
+                <syncfusion:SfDataGrid x:Name="Lista_Badan" ItemsSource="{Binding Badania}"
+                    AutoGenerateColumns="False"
+                    LiveDataUpdateMode="AllowChildViewUpdate"
+                    SelectedItem="{Binding SelectedWizyta, Mode=TwoWay}"
+                    AlternationCount="2"
+                    RowHeight="80"
+                    ColumnSizer="Star"
+                    FontSize="17"
+                    AllowFiltering="True"
+                    AllowSorting="True"
+                    SelectionMode="Single"
+                    SelectionUnit="Row"
+                    FontFamily="Arial Narrow"
+                    Padding="2,2,2,2"
+                    RowSelectionBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" 
+                    MaxWidth="600" MinWidth="450"
+                    CurrentCellBorderBrush="{x:Null}" OpacityMask="#FFFFFDFD" HorizontalAlignment="Left" Height="600" RenderTransformOrigin="0.5,0.5" Width="560"   >
+                    <syncfusion:SfDataGrid.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform AngleY="0"/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="0"/>
+                        </TransformGroup>
+                    </syncfusion:SfDataGrid.RenderTransform>
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:GridTextColumn MappingName="B_ID" HeaderText="ID" Width="50" IsReadOnly="True" />
+                        <syncfusion:GridTemplateColumn HeaderText="Pacjent" Width="250" AllowFiltering="False" MappingName="P_nazwisko">
+                            <syncfusion:GridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="6,4,6,4">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" FontSize="16" Padding="0" Background="Transparent" FontWeight="Bold">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0} {1}">
+                                                    <Binding Path="P_imie"/>
+                                                    <Binding Path="P_nazwisko"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <Grid Grid.Row="1" Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="3*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" FontSize="13"
+                                                      Background="Transparent" Padding="0" Text="{Binding FormattedPesel}" FontWeight="Bold" />
+                                            <TextBlock Grid.Column="1" FontSize="13"
+                                                     Background="Transparent" Padding="0" Text="{Binding B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}" FontWeight="Bold" />
+                                        </Grid>
+                                        <!-- Third row: Badanie details (Bad_Data, Bad_Data_Do, Bad_Razem) -->
+                                        <Grid Grid.Row="2" Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Bad:" Margin="0,0,3,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                                                <TextBlock FontSize="13" Text="{Binding Bad_Data, StringFormat=\{0:dd-MM-yyyy\}}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="#FF038653" FontWeight="Bold" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Do:" Margin="0,0,3,0" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                                                <TextBlock FontSize="13" Text="{Binding Bad_Data_Do, StringFormat=\{0:dd-MM-yyyy\}}" Foreground="#FF038653" FontWeight="Bold" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Razem:" Margin="0,0,3,0" VerticalAlignment="Bottom" />
+                                                <TextBlock FontSize="13" Foreground="DarkGreen" Text="{Binding Bad_Razem, StringFormat=N2}" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </syncfusion:GridTemplateColumn.CellTemplate>
+                        </syncfusion:GridTemplateColumn>
+                        <syncfusion:GridTemplateColumn HeaderText="Firma" Width="250" AllowFiltering="False" MappingName="Firma_Nazwa">
+                            <syncfusion:GridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Firma_Nazwa}" TextWrapping="Wrap" FontSize="14" Margin="6,6,6,6"/>
+                                </DataTemplate>
+                            </syncfusion:GridTemplateColumn.CellTemplate>
+                        </syncfusion:GridTemplateColumn>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </StackPanel>
+            <Grid x:Name="Edit_prawa" Grid.Column="4" HorizontalAlignment="Left" Width="900" Height="610" Margin="20,0,0,0" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="130"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="55"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Border x:Name="Pacjent" Grid.Column="0"
+                        BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+                        BorderThickness="1" CornerRadius="4"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                        Margin="0,0,455,0" Padding="8" Height="130">
+                    <StackPanel Margin="0,0,0,-11">
+                        <TextBlock Text="Dane Pacjenta" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                        <Grid Margin="6,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="140" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" FontSize="18" FontWeight="Bold" TextWrapping="Wrap">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="{}{0} {1}">
+                                        <Binding Path="SelectedWizyta.P_imie" />
+                                        <Binding Path="SelectedWizyta.P_nazwisko" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" FontSize="18" Text="{Binding SelectedWizyta.FormattedPesel}" HorizontalAlignment="Right" FontWeight="Bold" TextWrapping="Wrap" />
+                        </Grid>
+                        <TextBlock Margin="6,6,0,0" FontSize="18" Text="{Binding SelectedWizyta.P_zawod}" FontWeight="Bold" />
+                        <Grid Margin="6,8,0,0" VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="155*" />
+                                <ColumnDefinition Width="266*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,4,0,4" Width="150" HorizontalAlignment="Left" VerticalAlignment="Bottom">
+                                <TextBlock FontWeight="Bold" FontSize="12" VerticalAlignment="Bottom" FontStyle="Italic" Height="20"><Run Text="Typ badania"/></TextBlock>
+                                <Border Width="44" Margin="10,0,0,0" Height="25" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" CornerRadius="2" BorderThickness="1" Padding="4,2,4,2" >
+                                    <TextBlock Text="{Binding SelectedWizyta.B_TypBadania}" FontSize="16" FontWeight="Bold" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Height="28" VerticalAlignment="Center">
+                                <TextBlock FontSize="12" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic" Width="70" Text="Data Skier."/>
+                                <Border Margin="10,0,0,0" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" BorderThickness="1" CornerRadius="2" Padding="4,2,4,2" Height="24" VerticalAlignment="Center" Width="120">
+                                    <TextBlock Text="{Binding SelectedWizyta.B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}" FontSize="16" VerticalAlignment="Center" Height="18" HorizontalAlignment="Center" />
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+                <Border x:Name="Firma"
+                        BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+                        BorderThickness="1" CornerRadius="4"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                        Margin="455,0,0,0" Padding="8" Height="130">
+                    <StackPanel>
+                        <TextBlock Text="Dane Firmy" FontWeight="Bold" FontSize="14" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                        <TextBlock Margin="6,6,0,0" FontSize="18" Text="{Binding SelectedWizyta.Firma_Nazwa}" TextWrapping="Wrap" FontWeight="Bold" Height="50" />
+                        <Grid Margin="6,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock FontWeight="Bold" FontSize="12"><Run Text="NIP"/></TextBlock>
+                                <TextBlock Text="{Binding SelectedWizyta.Firma_NIP}" FontSize="13" Width="125" Margin="10,0,0,0" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock FontWeight="Bold" FontSize="12"><Run Text="Cennik"/></TextBlock>
+                                <ComboBox ItemsSource="{Binding CennikOptions}" SelectedItem="{Binding SelectedCennik, Mode=TwoWay}" Width="156" Margin="10,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Rząd z datami, wynikiem, nr księgi i ikonami -->
+
+                <StackPanel x:Name="Dane_Daty" Margin="0,10,0,0" Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Left">
+                    <!-- Data Badania: DatePicker default today bound to ViewModel.DataBadania -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Data Badania" FontWeight="Bold" FontSize="12" />
+                        <DatePicker SelectedDate="{Binding DataBadania, Mode=TwoWay}" Width="160" />
+                    </StackPanel>
+
+                    <!-- Data Ważności: DatePicker default DataBadania + 3 lata -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Data Ważności" FontWeight="Bold" FontSize="12" />
+                        <DatePicker SelectedDate="{Binding DataWaznosci, Mode=TwoWay}" Width="160" />
+                    </StackPanel>
+
+                    <!-- Wynik: ComboBox 1 - Pozytywne, 2 - Negatywne -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Wynik" FontWeight="Bold" FontSize="12" />
+                        <ComboBox ItemsSource="{Binding WynikOptions}" SelectedItem="{Binding SelectedWynik, Mode=TwoWay}" Width="160" />
+                    </StackPanel>
+
+                    <!-- Nr Księgi: TextBox -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Nr Księgi" FontWeight="Bold" FontSize="12" />
+                        <TextBox Text="{Binding NrKsiegi, Mode=TwoWay}" Width="160" Height="22" TextChanged="TextBox_TextChanged" />
+                    </StackPanel>
+
+                    <!-- Badanie Sanitarne: icon colored green when true (B_ksiazeczka), gray when false -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Książeczka" FontWeight="Bold" FontSize="12" />
+                        <Ellipse Width="24" Height="24" Stroke="Transparent">
+                            <Ellipse.Style>
+                                <Style TargetType="{x:Type Ellipse}">
+                                    <Setter Property="Fill" Value="#FFC1C0C0" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedWizyta.B_ksiazeczka}" Value="True">
+                                            <Setter Property="Fill" Value="#FF09D070" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                            <Ellipse.ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Text" Value="Nie" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedWizyta.B_ksiazeczka}" Value="True">
+                                                    <Setter Property="Text" Value="Tak" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Ellipse.ToolTip>
+                        </Ellipse>
+                    </StackPanel>
+
+                    <!-- Urlop dla poratowania zdrowia: icon colored green when true, gray when false -->
+                    <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                        <TextBlock Text="Urlop (zdrowie)" FontWeight="Bold" FontSize="12" />
+                        <Ellipse Width="24" Height="24" Stroke="Transparent">
+                            <Ellipse.Style>
+                                <Style TargetType="{x:Type Ellipse}">
+                                    <Setter Property="Fill" Value="#FFC1C0C0" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding SelectedWizyta.B_Zaswiadczenie}" Value="True">
+                                            <Setter Property="Fill" Value="#FF09D070" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                            <Ellipse.ToolTip>
+                                <TextBlock>
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                            <Setter Property="Text" Value="Nie" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedWizyta.B_Zaswiadczenie}" Value="True">
+                                                    <Setter Property="Text" Value="Tak" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Ellipse.ToolTip>
+                        </Ellipse>
+                    </StackPanel>
+                </StackPanel>
+                <Border x:Name="wycena_Badania" Grid.Row="2" BorderBrush="#ddd" BorderThickness="1" CornerRadius="5" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,50,0,0" Height="200" VerticalAlignment="Top">
+                    <Grid Width="900" HorizontalAlignment="Left">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Nagłówki tabeli -->
+                        <Grid Grid.Row="0" Background="#E9ECEF" Width="900" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Badanie" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="1" Text="Laryngolog" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="2" Text="Okulista" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="3" Text="Książeczka" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="4" Text="Lipidogram" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="5" Text="EKG" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="6" Text="Urlop (zdrowie )" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                            <TextBlock Grid.Column="7" Text="Inne" FontWeight="Bold" FontSize="12" 
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Padding="5"/>
+                        </Grid>
+
+                        <!-- Ceny z cennika -->
+                        <Grid x:Name="Grid_Ceny" Grid.Row="1" Background="#E8F4FD" Width="900" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock x:Name="lblBasicPriceList" Grid.Column="0" Text="{Binding Edit.PriceBasicText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblLaryngologistPriceList" Grid.Column="1" Text="{Binding Edit.PriceLaryngologistText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblOphthalmologistPriceList" Grid.Column="2" Text="{Binding Edit.PriceOphthalmologistText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblSanitaryPriceList" Grid.Column="3" Text="{Binding Edit.PriceSanitaryText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblLipidogramPriceList" Grid.Column="4" Text="{Binding Edit.PriceLipidogramText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblEKGPriceList" Grid.Column="5" Text="{Binding Edit.PriceEKGText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblHealthClinicPriceList" Grid.Column="6" Text="{Binding Edit.PriceHealthClinicText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                            <TextBlock x:Name="lblOtherPriceList" Grid.Column="7" Text="{Binding Edit.PriceLipidogramText}" FontSize="11"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkBlue"/>
+                        </Grid>
+
+                        <!-- Wartości -->
+                        <Grid x:Name="Grid_Wartość" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Width="900" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="txtBasicPrice" Grid.Column="0" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30" 
+                                TextChanged="PriceTextBox_TextChanged" Width="100"/>
+                            <TextBox x:Name="txtLaryngologistPrice" Grid.Column="1" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged" Width="100"/>
+                            <TextBox x:Name="txtOphthalmologistPrice" Grid.Column="2" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged" Width="100"/>
+                            <TextBox x:Name="txtSanitaryPrice" Grid.Column="3" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged" Width="100"/>
+                            <TextBox x:Name="txtLipidogramPrice" Grid.Column="4" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged" Width="100"/>
+                            <TextBox x:Name="txtEKGPrice" Grid.Column="5" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged"/>
+                            <TextBox x:Name="txtHealthClinicPrice" Grid.Column="6" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged"/>
+                            <TextBox x:Name="txtOtherPrice" Grid.Column="7" FontSize="18" FontWeight="Bold"
+                                VerticalAlignment="Center" Margin="2,2,4,2" Height="30"
+                                TextChanged="PriceTextBox_TextChanged"/>
+                        </Grid>
+
+                        <!-- Pola wyboru z kolorami -->
+                        <Grid x:Name="Grid_Przyciski" Grid.Row="3" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Width="900" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button x:Name="btnBasic" Grid.Column="0" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Basic"/>
+                            <Button x:Name="btnLaryngologist" Grid.Column="1" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Laryngologist"/>
+                            <Button x:Name="btnOphthalmologist" Grid.Column="2" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Ophthalmologist"/>
+                            <Button x:Name="btnSanitary" Grid.Column="3" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Sanitary"/>
+                            <Button x:Name="btnLipidogram" Grid.Column="4" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Lipidogram"/>
+                            <Button x:Name="btnEKG" Grid.Column="5" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="EKG"/>
+                            <Button x:Name="btnHealthClinic" Grid.Column="6" Content="✗ NIEAKTYWNE" Height="35" Margin="2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="HealthClinic"/>
+                            <Button x:Name="btnOther" Grid.Column="7" Content="✗ NIEAKTYWNE" Height="35" Margin="2,2,4,2"
+                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="11" Click="ToggleExamination_Click" Tag="Other"/>
+                        </Grid>
+
+                        <!-- Rząd z sumą -->
+                        <Grid Grid.Row="4" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="7" Text="SUMA:" FontSize="14" FontWeight="Bold"
+                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Wartość sumy -->
+                        <Grid Grid.Row="5" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock x:Name="lblTotalPrice" Grid.Column="7" Text="" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" Foreground="DarkGreen" Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" Margin="0,0,10,0"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+                <StackPanel x:Name="przyciski" Grid.Row="3" Grid.Column="0"
+                    HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Center" Height="56" Width="390" Margin="500,0,0,0">
+                    <syncfusion:ButtonAdv
+                        x:Name="btnDeleteBadanie"
+                        Height="45"
+                        Label=" 🗑️ Usuń Badanie  "
+                        Width="180"
+                        Background="#FFD32F2F"
+                        Foreground="#FFFBFBFB"
+                        FontStyle="Italic"
+                        FontSize="16" IsCheckable="True" Margin="10,0,0,0">
+
+                        <syncfusion:ButtonAdv.BorderBrush>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                        </syncfusion:ButtonAdv.BorderBrush>
+                        <syncfusion:ButtonAdv.IconTemplate>
+                            <DataTemplate/>
+                        </syncfusion:ButtonAdv.IconTemplate>
+                    </syncfusion:ButtonAdv>
+
+                    <syncfusion:ButtonAdv
+                        x:Name="btnSaveBadanie"
+                        Height="45"
+                        Label=" ✏️ Zapisz Badanie  "
+                        Width="180"
+                        Background="#FF1976D2"
+                        Foreground="#FFFBFBFB"
+                        FontStyle="Italic"
+                        FontSize="16" IsCheckable="True" Margin="10,0,0,0">
+                        <syncfusion:ButtonAdv.BorderBrush>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                        </syncfusion:ButtonAdv.BorderBrush>
+                        <syncfusion:ButtonAdv.IconTemplate>
+                            <DataTemplate/>
+                        </syncfusion:ButtonAdv.IconTemplate>
+                    </syncfusion:ButtonAdv>
+                </StackPanel>
+                <!-- rest of layout omitted for brevity in new file -->
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

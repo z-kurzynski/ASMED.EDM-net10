@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ASMED.EDM.Core/ASMED.EDM.Core.csproj" />
+    <Project Path="src/ASMED.EDM.Data/ASMED.EDM.Data.csproj" />
+    <Project Path="src/ASMED.EDM.Migration/ASMED.EDM.Migration.csproj" />
+    <Project Path="src/ASMED.EDM.UI/ASMED.EDM.UI.csproj" />
+  </Folder>
+</Solution>

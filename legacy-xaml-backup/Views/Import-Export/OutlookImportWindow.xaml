@@ -1,0 +1,215 @@
+<Window x:Class="ASMED.WPF.Views.OutlookImportWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+        Title="Import zalacznikow PDF z Email" 
+        Height="750" Width="1200" 
+        WindowStartupLocation="CenterScreen"
+        Background="#FFF7F9FA">
+    
+    <!-- ✅ DODANO: Resources -->
+    <Window.Resources>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+    </Window.Resources>
+
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="Przeszukiwanie skrzynki email pod katem zalacznikow" 
+                       FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock Text="Obsługiwane formaty: PDF, Word (.doc/.docx/.rtf), Excel (.xls/.xlsx/.xlsm)" 
+                       FontSize="11" Foreground="#FF666666" Margin="0,0,0,10"/>
+            
+            <!-- Time Range Selection -->
+            <GroupBox Header="Zakres czasowy" Margin="0,0,0,10" Padding="10">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="Szukaj e-maili z okresu:" 
+                                   VerticalAlignment="Center" 
+                                   Margin="0,0,10,0"
+                                   FontWeight="SemiBold"/>
+                        <ComboBox x:Name="TimeRangeComboBox" 
+                                  Width="200" 
+                                  SelectedIndex="1"
+                                  SelectionChanged="TimeRangeComboBox_SelectionChanged">
+                            <ComboBoxItem Content="1 dzien"/>
+                            <ComboBoxItem Content="1 tydzien"/>
+                            <ComboBoxItem Content="2 tygodnie"/>
+                            <ComboBoxItem Content="1 miesiac"/>
+                            <ComboBoxItem Content="3 miesiace"/>
+                            <ComboBoxItem Content="6 miesiecy"/>
+                            <ComboBoxItem Content="Wlasny zakres"/>
+                        </ComboBox>
+                        
+                        <StackPanel x:Name="CustomDaysPanel" 
+                                    Orientation="Horizontal" 
+                                    Margin="10,0,0,0"
+                                    Visibility="Collapsed">
+                            <TextBlock Text="Liczba dni wstecz:" 
+                                       VerticalAlignment="Center" 
+                                       Margin="0,0,5,0"/>
+                            <TextBox x:Name="CustomDaysTextBox" 
+                                     Width="80" 
+                                     Text="7"
+                                     VerticalContentAlignment="Center"
+                                     TextChanged="CustomDaysTextBox_TextChanged"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <TextBlock x:Name="TimeRangeInfoText" 
+                               Text=""
+                               FontSize="11" 
+                               Foreground="#FF666666"
+                               Margin="0,5,0,0"/>
+                </StackPanel>
+            </GroupBox>
+            
+            <TextBlock x:Name="StatusText" Text="Gotowy do wyszukiwania..." 
+                       FontSize="12" Foreground="#FF666666"/>
+            <ProgressBar x:Name="SearchProgressBar" Height="4" Margin="0,5,0,0" 
+                         IsIndeterminate="{Binding IsSearching}"/>
+        </StackPanel>
+
+        <!-- Main Content - Email List -->
+        <syncfusion:SfDataGrid x:Name="EmailsGrid"
+                               Grid.Row="1"
+                               AutoGenerateColumns="False"
+                               ItemsSource="{Binding EmailResults}"
+                               RowHeight="50"
+                               ColumnSizer="Auto"
+                               FontSize="12"
+                               AllowFiltering="True"
+                               AllowSorting="True"
+                               SelectionMode="Multiple"
+                               SelectionUnit="Row">
+
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridCheckBoxColumn MappingName="IsSelected" 
+                                               HeaderText="" 
+                                               Width="50" 
+                                               AllowEditing="True" 
+                                               AllowFiltering="False" 
+                                               AllowSorting="False"/>
+                
+                <syncfusion:GridTextColumn MappingName="Subject" 
+                                           HeaderText="Temat" 
+                                           Width="300" 
+                                           TextWrapping="Wrap"/>
+                
+                <syncfusion:GridTextColumn MappingName="From" 
+                                           HeaderText="Od" 
+                                           Width="200"/>
+                
+                <syncfusion:GridTextColumn MappingName="ReceivedTime" 
+                                           HeaderText="Data" 
+                                           Width="150"
+                                           DisplayBinding="{Binding ReceivedTime, StringFormat='yyyy-MM-dd HH:mm'}"/>
+                
+                <syncfusion:GridTextColumn MappingName="PdfCount" 
+                                           HeaderText="Załączniki" 
+                                           Width="80"
+                                           TextAlignment="Center"/>
+                
+                <syncfusion:GridTextColumn MappingName="FolderPath" 
+                                           HeaderText="Folder" 
+                                           Width="200"
+                                           TextWrapping="Wrap"/>
+                
+                <!-- ✅ DODANO: Kolumna z przyciskiem podglądu -->
+                <syncfusion:GridTemplateColumn HeaderText="Akcje" 
+                                               Width="180" 
+                                               AllowFiltering="False" 
+                                               AllowSorting="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="Podglad" 
+                                        Height="28" 
+                                        Width="70"
+                                        Margin="2"
+                                        Background="#FF2196F3"
+                                        Foreground="White"
+                                        FontSize="11"
+                                        BorderThickness="0"
+                                        Click="PreviewButton_Click"
+                                        Tag="{Binding}"/>
+                                
+                                <Button Content="Usun" 
+                                        Height="28" 
+                                        Width="70"
+                                        Margin="2"
+                                        Background="#FFF44336"
+                                        Foreground="White"
+                                        FontSize="11"
+                                        BorderThickness="0"
+                                        Click="DeleteEmailButton_Click"
+                                        Tag="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+            </syncfusion:SfDataGrid.Columns>
+        </syncfusion:SfDataGrid>
+
+        <!-- Footer - Actions -->
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="Znaleziono:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBlock x:Name="ResultCountText" Text="0" VerticalAlignment="Center" Margin="0,0,20,0"/>
+                
+                <TextBlock Text="Zaznaczono:" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBlock x:Name="SelectedCountText" Text="0" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Zaznacz wszystkie" 
+                        Width="150" Height="35" Margin="0,0,10,0"
+                        Background="#FF9E9E9E"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Click="SelectAllButton_Click"/>
+                
+                <Button Content="Odznacz wszystkie" 
+                        Width="150" Height="35" Margin="0,0,10,0"
+                        Background="#FF9E9E9E"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Click="DeselectAllButton_Click"/>
+
+                <Button Content="🔍 Szukaj" 
+                        Width="150" Height="35" Margin="0,0,10,0"
+                        Background="#FF673AB7"
+                        Foreground="White"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Click="SearchButton_Click"
+                        IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}"/>
+                
+                <Button Content="📥 Importuj" 
+                        Width="180" Height="35" Margin="0,0,10,0"
+                        Background="#FF4CAF50"
+                        Foreground="White"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Click="ImportButton_Click"
+                        IsEnabled="{Binding IsSearching, Converter={StaticResource InverseBoolConverter}}"/>
+                
+                <Button Content="Zamknij" 
+                        Width="120" Height="35"
+                        Background="#FFF44336"
+                        Foreground="White"
+                        BorderThickness="0"
+                        Click="CloseButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

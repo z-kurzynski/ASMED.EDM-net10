@@ -1,0 +1,12 @@
+﻿<UserControl x:Class="ASMED.EDM.UI.Views.Settings.PriceListsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#FFF9F8F0">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="💰 Cenniki" FontSize="24" FontWeight="Bold" Foreground="#FF1976D2" Margin="0,0,0,20"/>
+            <TextBlock Text="[Placeholder - Do implementacji]" FontSize="14" Foreground="Gray"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
+

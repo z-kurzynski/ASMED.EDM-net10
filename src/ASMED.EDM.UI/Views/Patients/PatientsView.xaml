@@ -1,0 +1,180 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Patients.PatientsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="680" d:DesignWidth="1500"
+             Background="#FFF7F9FA">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
+            <Setter Property="Fill" Value="Cyan"/>
+        </Style>
+        <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="BorderBrush" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="Cyan"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header z wyszukiwarką i przyciskiem -->
+        <Grid Grid.Row="0" Margin="10,0,10,0" VerticalAlignment="Center">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25"/>
+                <ColumnDefinition Width="465"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="195"/>
+                <ColumnDefinition Width="25"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Wyszukiwarka -->
+            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Top" Height="46">
+                <TextBlock Text="Wyszukaj pacjenta:" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
+                <DockPanel HorizontalAlignment="Left">
+                    <TextBox x:Name="txtSearchPacjent" 
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" 
+                             Height="28" Width="247" FontSize="14" />
+                    <Button Width="32" Height="28" Margin="8,0,0,0" 
+                            ToolTip="Wyczyść pole" 
+                            Command="{Binding ClearSearchTextCommand}">
+                        <TextBlock Text="✖" FontSize="10" FontWeight="Bold" Foreground="Red"/>
+                    </Button>
+                    <ComboBox Width="100" Height="28" FontSize="14" Margin="10,0,0,0"
+                              SelectedItem="{Binding ActiveFilterType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              ItemsSource="{Binding FilterTypes}" 
+                              HorizontalAlignment="Left"/>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- Przycisk Dodaj Pacjenta -->
+            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Top">
+                <syncfusion:ButtonAdv
+                    x:Name="btnDodajPacjenta"
+                    Height="45"
+                    Label="➕  Dodaj Pacjenta"
+                    Width="180"
+                    Background="#FF009688"
+                    Foreground="#FFFBFBFB"
+                    FontSize="16" 
+                    Margin="0,7,0,0" 
+                    Command="{Binding AddPatientCommand}">
+                    <syncfusion:ButtonAdv.BorderBrush>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                    </syncfusion:ButtonAdv.BorderBrush>
+                </syncfusion:ButtonAdv>
+            </StackPanel>
+        </Grid>
+
+        <!-- Tabela z danymi pacjentów -->
+        <syncfusion:SfDataGrid Grid.Row="1"
+                               ItemsSource="{Binding PacjenciFiltered}"
+                               AutoGenerateColumns="False"
+                               RowHeight="45"
+                               ColumnSizer="Star"
+                               FontSize="16"
+                               AllowFiltering="True"
+                               AllowSorting="True"
+                               SelectionMode="Single"
+                               AllowEditing="False"
+                               SelectionUnit="Row"
+                               FontFamily="Arial Narrow"
+                               CurrentCellBorderBrush="{x:Null}"
+                               SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
+                               Margin="10,0,10,10">
+
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridTextColumn MappingName="Id" 
+                                           HeaderText="ID" 
+                                           Width="70" 
+                                           IsReadOnly="True" 
+                                           TextAlignment="Center"/>
+
+                <syncfusion:GridTextColumn MappingName="FirstName" 
+                                           HeaderText="Imię" 
+                                           Width="150" 
+                                           TextAlignment="Left" 
+                                           VerticalAlignment="Center"
+                                           Padding="5,0,5,0" 
+                                           IsReadOnly="True"/>
+
+                <syncfusion:GridTextColumn MappingName="LastName" 
+                                           HeaderText="Nazwisko" 
+                                           Width="200" 
+                                           TextAlignment="Left" 
+                                           VerticalAlignment="Center"
+                                           Padding="5,0,5,0" 
+                                           IsReadOnly="True"/>
+
+                <syncfusion:GridTextColumn MappingName="IdentificationNumber" 
+                                           HeaderText="PESEL" 
+                                           Width="120" 
+                                           TextAlignment="Center" 
+                                           VerticalAlignment="Center"
+                                           IsReadOnly="True"/>
+
+                <syncfusion:GridTextColumn MappingName="DateOfBirth" 
+                                           HeaderText="Data urodzenia" 
+                                           Width="130" 
+                                           TextAlignment="Center"
+                                           DisplayBinding="{Binding DateOfBirth, StringFormat='dd.MM.yyyy'}"
+                                           IsReadOnly="True"/>
+
+                <syncfusion:GridTextColumn MappingName="PhoneNumber" 
+                                           HeaderText="Telefon" 
+                                           Width="130" 
+                                           TextAlignment="Center"
+                                           IsReadOnly="True"/>
+
+                <syncfusion:GridTextColumn MappingName="Email" 
+                                           HeaderText="Email" 
+                                           TextAlignment="Left"
+                                           Padding="5,0,5,0"
+                                           IsReadOnly="True"/>
+
+                <!-- Akcje -->
+                <syncfusion:GridTemplateColumn HeaderText="Akcje" Width="200" AllowFiltering="False" AllowSorting="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button Content="📝 Edytuj" 
+                                        Width="75" 
+                                        Height="30" 
+                                        Margin="2"
+                                        Background="#FF2196F3"
+                                        Foreground="White"
+                                        FontSize="12"
+                                        Command="{Binding DataContext.EditPatientCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                                <Button Content="🗑️ Usuń" 
+                                        Width="75" 
+                                        Height="30" 
+                                        Margin="2"
+                                        Background="#FFF44336"
+                                        Foreground="White"
+                                        FontSize="12"
+                                        Command="{Binding DataContext.DeletePatientCommand, RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+            </syncfusion:SfDataGrid.Columns>
+        </syncfusion:SfDataGrid>
+    </Grid>
+</UserControl>

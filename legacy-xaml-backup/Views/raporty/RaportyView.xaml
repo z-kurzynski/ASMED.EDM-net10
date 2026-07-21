@@ -1,0 +1,27 @@
+<UserControl x:Class="ASMED.WPF.Views.RaportyView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:ASMED.WPF.ViewModels"
+    xmlns:local="clr-namespace:ASMED.WPF.Views"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="#FFB9D1EA">
+
+    <Grid Background="#FFFDFDFD" Margin="10" VerticalAlignment="Top">
+        <TabControl>
+            <TabItem Header="Wizyty">
+                <local:WizytyView />
+            </TabItem>
+            <TabItem Header="Statystyki">
+                <local:StatystykiView />
+            </TabItem>
+            <TabItem Header="WOMP">
+                <local:WompView />
+            </TabItem>
+            <TabItem Header="Medyczne">
+                <local:MedyczneView />
+            </TabItem>
+            <TabItem Header="Raport-MZ-35A">
+                <local:RaportMZ35AView />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

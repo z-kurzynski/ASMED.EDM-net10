@@ -1,0 +1,45 @@
+<Window x:Class="ASMED.WPF.Views.PdfPreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ASMED.WPF.Views"
+        xmlns:syncfusion="clr-namespace:Syncfusion.Windows.PdfViewer;assembly=Syncfusion.PdfViewer.WPF"
+        Title="Podglad PDF" Height="800" Width="900" WindowState="Maximized" WindowStartupLocation="CenterScreen" Background="#FFF7F9FA">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <syncfusion:PdfViewerControl x:Name="PdfViewer" Grid.Row="0" />
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="8">
+            <!-- ✅ NOWY: ProgressBar dla wskaźnika drukowania -->
+            <ProgressBar x:Name="ProgressBar2" 
+             Grid.Row="1"
+             Height="3"
+             Margin="0,0,0,0"
+             IsIndeterminate="True"
+             Visibility="Collapsed"
+             Background="#FFE0E0E0"
+             Foreground="#FF4CAF50"/>
+            
+            <!-- ✅ NOWY: Przycisk Email (widoczny gdy dostępny adres email) -->
+            <Button x:Name="BtnEmail" 
+                    Content="📧 Email" 
+                    Width="120" 
+                    Height="44"
+                    Margin="4" 
+                    Click="BtnEmail_Click"
+                    Background="#FF8E44AD"
+                    Foreground="White"
+                    FontSize="18"
+                    Cursor="Hand"
+                    ToolTip="Wyślij PDF emailem" Visibility="Collapsed"/>
+            
+            <Button x:Name="BtnPrint" Content="Drukuj" Width="100" Margin="4" Click="BtnPrint_Click" Height="44" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="18" />
+            <Button x:Name="BtnClose" Content="Zamknij" Width="100" Margin="4" Click="BtnClose_Click" FontSize="18" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Background="#FF945304" />
+
+        </StackPanel>
+    </Grid>
+</Window>

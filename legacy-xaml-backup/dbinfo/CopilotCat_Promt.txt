@@ -1,0 +1,26 @@
+﻿System.Windows.MessageBox.
+
+
+#clas - Podsumuj mój kod
+#opis - Podsumuj kod, aby zrozumieć jego funkcję i cel.
+#język - pl
+#kod - 
+// Podaj kod, który chcesz podsumować
+// Przykład:
+/*
+function add(a, b) {
+	return a + b;
+}
+*/
+testy jednostkowe dla wszystkich metodów w #pliku
+// Podaj kod, który chcesz przetestować
+Napraw mój kod
+
+
+@ aby uzyć rozszerzonia CopilotCat
+# lub & dołącz kontekst
+/ uzyj poleceń
+
+Wyjaśnij, jak działa kod w #
+Jak mogę ulepszyć # ? Zaproponuj kod dla wszelkich ulepszeń
+Pisz testy jednostkowe dla wszystkich metod w # pliku

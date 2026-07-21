@@ -1,0 +1,276 @@
+<UserControl x:Class="ASMED.WPF.Views.UzytkownicyView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:ASMED.WPF.ViewModels"
+    xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
+
+    <UserControl.DataContext>
+        <vm:UzytkownicyViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    </UserControl.Resources>
+
+    <Grid Margin="20" VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ? LEWA KOLUMNA: Lista użytkowników -->
+        <Border Grid.Column="0" 
+                BorderBrush="#FF1976D2" 
+                CornerRadius="8" 
+                Padding="15"
+                Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Height="540">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Text="👥 Użytkownicy systemu" 
+                           FontSize="20" 
+                           FontWeight="Bold" 
+                           Foreground="{DynamicResource {x:Static SystemColors.GradientInactiveCaptionBrushKey}}"
+                           Margin="0,0,0,15"/>
+
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding Users}"
+                          SelectedItem="{Binding SelectedUser, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          SelectionMode="Single"
+                          GridLinesVisibility="Horizontal"
+                          AlternatingRowBackground="#FFF5F5F5"
+                          HeadersVisibility="Column"
+                          FontSize="12" 
+                          Background="{x:Null}"
+                          MouseDoubleClick="DataGrid_MouseDoubleClick">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="45"/>
+                        <DataGridTextColumn Header="🔑 Login" Binding="{Binding Username}" Width="80" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="👤 Imię i nazwisko" Binding="{Binding FullName}" Width="150"/>
+                        <DataGridTextColumn Header="📧 Email" Binding="{Binding Email}" Width="150"/>
+                        <DataGridTextColumn Header="👔 Rola" Binding="{Binding RoleDisplay}" Width="100"/>
+                        <DataGridTextColumn Header="📊 Status" Binding="{Binding StatusDisplay}" Width="100"/>
+                        <DataGridTextColumn Header="🕐 Ostatnie logowanie" Binding="{Binding LastLoginDisplay}" Width="150"/>
+                        <DataGridTextColumn Header="🚪 Wylogowanie" Binding="{Binding EndLoginDisplay}" Width="150"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <GridSplitter Grid.Column="1" 
+                      Width="10" 
+                      HorizontalAlignment="Stretch" 
+                      Background="{x:Null}"/>
+
+        <!-- ? PRAWA KOLUMNA: Formularz -->
+        <Border Grid.Column="2" 
+                BorderBrush="#FF4CAF50" 
+                CornerRadius="8" 
+                Padding="15"
+                Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
+            
+            <!-- ✅ TabControl: Formularz i Historia logowań -->
+            <TabControl BorderThickness="0" Background="Transparent">
+                
+                <!-- ✅ Zakładka 1: Formularz użytkownika -->
+                <TabItem Header="📝 Formularz" FontSize="12">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="📝 Formularz użytkownika" 
+                           FontSize="18" 
+                           FontWeight="Bold" 
+                           Foreground="#FF5AF160"
+                           Margin="0,0,0,20"/>
+
+                <!-- Username -->
+                <TextBlock Text="Login:" FontSize="12" Margin="0,0,0,3" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                <TextBox Text="{Binding FormUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="14"
+                         Height="30"
+                         Margin="0,0,0,5"
+                         IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBooleanConverter}}" VerticalAlignment="Center"/>
+
+                <!-- Password -->
+                <TextBlock Text="Hasło:" FontSize="12" Margin="0,0,0,3" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                <Grid Margin="0,0,0,5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="35"/>
+                        <ColumnDefinition Width="35"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- PasswordBox (ukryte hasło) -->
+                    <PasswordBox x:Name="PasswordBox"
+                                 Grid.Column="0"
+                                 FontSize="14"
+                                 Height="30"
+                                 PasswordChanged="PasswordBox_PasswordChanged"
+                                 IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBooleanConverter}}"
+                                 Visibility="{Binding ShowPassword, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+                    
+                    <!-- TextBox (widoczne hasło) -->
+                    <TextBox x:Name="PasswordTextBox"
+                             Grid.Column="0"
+                             Text="{Binding FormPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="14"
+                             Height="25"
+                             IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBooleanConverter}}"
+                             Visibility="{Binding ShowPassword, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                    <!-- Przycisk Pokaż/Ukryj -->
+                    <Button Grid.Column="1"
+                            Content="{Binding ShowPasswordIcon}"
+                            Height="25"
+                            Background="#FF9E9E9E"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Pokaż/Ukryj hasło"
+                            Command="{Binding TogglePasswordVisibilityCommand}"/>
+
+                    <!-- Przycisk Generator -->
+                    <Button Grid.Column="2"
+                            Content="🎲"
+                            Height="25"
+                            Background="#FF2196F3"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            ToolTip="Generuj losowe hasło"
+                            Command="{Binding GeneratePasswordCommand}"/>
+                </Grid>
+
+                <!-- Full Name -->
+                <TextBlock Text="Imię i nazwisko:" FontSize="12" Margin="0,0,0,3" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                <TextBox Text="{Binding FormFullName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="14"
+                         Height="30"
+                         Margin="0,0,0,5"/>
+
+                <!-- Email -->
+                <TextBlock Text="Email:" FontSize="12" Margin="0,0,0,3" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                <TextBox Text="{Binding FormEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="14"
+                         Height="25"
+                         Margin="0,0,0,5"/>
+
+                <!-- Role -->
+                <TextBlock Text="Rola:" FontSize="12" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                <ComboBox ItemsSource="{Binding AvailableRoles}"
+                          SelectedItem="{Binding FormRole, Mode=TwoWay}"
+                          FontSize="14"
+                          Height="30"
+                          Margin="0,0,0,10">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <!-- IsActive -->
+                <CheckBox Content="✅ Konto aktywne"
+                          IsChecked="{Binding FormIsActive, Mode=TwoWay}"
+                          FontSize="12"
+                          Margin="0,0,-2,10" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+
+                <!-- Przyciski -->
+                <Button Content="{Binding SaveButtonLabel}"
+                        Click="SaveButton_Click"
+                        Height="35"
+                        Background="#FF4CAF50"
+                        Foreground="White"
+                        FontSize="16"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,0,5"/>
+
+                <Button Content="🔒 Zmień hasło"
+                        Command="{Binding ChangePasswordCommand}"
+                        Height="35"
+                        Background="#FF2196F3"
+                        Foreground="White"
+                        FontSize="14"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,0,5"
+                        Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="🗑️ Dezaktywuj użytkownika"
+                        Command="{Binding DeleteUserCommand}"
+                        Height="35"
+                        Background="#FFF44336"
+                        Foreground="White"
+                        FontSize="14"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Margin="0,0,0,5"
+                        Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                <Button Content="🆕 Nowy użytkownik"
+                        Command="{Binding ClearFormCommand}"
+                        Height="35"
+                        Background="#FF607D8B"
+                        Foreground="White"
+                        FontSize="14"
+                        BorderThickness="0"
+                        Cursor="Hand"/>
+            </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+                
+                <!-- ✅ Zakładka 2: Historia logowań -->
+                <TabItem Header="📜 Historia" FontSize="12">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Grid.Row="0"
+                                   Text="📜 Historia logowań" 
+                                   FontSize="16" 
+                                   FontWeight="Bold" 
+                                   Foreground="#FF2196F3"
+                                   Margin="0,10,0,10"/>
+                        
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding LoginHistory}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  SelectionMode="Single"
+                                  GridLinesVisibility="Horizontal"
+                                  AlternatingRowBackground="#FFF5F5F5"
+                                  HeadersVisibility="Column"
+                                  FontSize="11"
+                                  Background="White">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="📅 Logowanie" Binding="{Binding LoginTimeDisplay}" Width="140"/>
+                                <DataGridTextColumn Header="🚪 Wylogowanie" Binding="{Binding LogoutTimeDisplay}" Width="140"/>
+                                <DataGridTextColumn Header="⏱️ Czas sesji" Binding="{Binding SessionDuration}" Width="90"/>
+                                <DataGridTextColumn Header="💻 Komputer" Binding="{Binding ComputerName}" Width="120"/>
+                                <DataGridTextColumn Header="🌐 IP" Binding="{Binding IpAddress}" Width="110"/>
+                                <DataGridTextColumn Header="✅ Status" Binding="{Binding StatusDisplay}" Width="80"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Border>
+    </Grid>
+</UserControl>
+

@@ -1,0 +1,81 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\ASMED.EDM.Data\ASMED.EDM.Data.csproj" />
+    <ProjectReference Include="..\ASMED.EDM.Core\ASMED.EDM.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.*" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.*" />
+    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.1.32" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Exclude temporary/broken files from compilation -->
+    <Page Remove="Views\Settings\SettingsView2.xaml" />
+    <Compile Remove="Views\Settings\SettingsView2.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Views folders -->
+    <Folder Include="Views\badania\" />
+    <Folder Include="Views\cenniki\" />
+    <Folder Include="Views\Dialogs\" />
+    <Folder Include="Views\faktura\" />
+    <Folder Include="Views\firma\" />
+    <Folder Include="Views\Import-Export\" />
+    <Folder Include="Views\lista_do_faktur\" />
+    <Folder Include="Views\pacjent\" />
+    <Folder Include="Views\Patients\" />
+    <Folder Include="Views\raporty\" />
+    <Folder Include="Views\Reports\" />
+    <Folder Include="Views\Scheduler\" />
+    <Folder Include="Views\Settings\" />
+    <Folder Include="Views\Skierowania\" />
+    <Folder Include="Views\skierowanialistapacjentow\" />
+    <Folder Include="Views\skierowaniepacjentdodajview\" />
+    <Folder Include="Views\ustawienia\" />
+    <Folder Include="Views\Visits\" />
+    <Folder Include="Views\wizytyview\" />
+    <Folder Include="Views\wz_template\" />
+
+    <!-- ViewModels folders -->
+    <Folder Include="ViewModels\Badania\" />
+    <Folder Include="ViewModels\Dialogs\" />
+    <Folder Include="ViewModels\faktura\" />
+    <Folder Include="ViewModels\firma\" />
+    <Folder Include="ViewModels\Import-Export\" />
+    <Folder Include="ViewModels\lista_do_faktur\" />
+    <Folder Include="ViewModels\raporty\" />
+    <Folder Include="ViewModels\Skierowania\" />
+  </ItemGroup>
+
+</Project>

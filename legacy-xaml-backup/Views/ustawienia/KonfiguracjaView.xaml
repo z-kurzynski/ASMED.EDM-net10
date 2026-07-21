@@ -1,0 +1,364 @@
+<UserControl x:Class="ASMED.WPF.Views.KonfiguracjaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:ASMED.WPF.ViewModels"
+    xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="#FFB9D1EA">
+
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="10" VerticalAlignment="Top" Background="#FFB6D4F3">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <GroupBox Header="Konfiguracja bazy danych" Margin="10" Padding="15">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Baza produkcyjna:" Width="160" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding DbPathProdukcyjna, UpdateSourceTrigger=PropertyChanged}" 
+                                     Width="400" Margin="5,0"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Baza testowa:" Width="160" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding DbPathTestowa, UpdateSourceTrigger=PropertyChanged}" 
+                                     Width="400" Margin="5,0"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,10">
+                            <TextBlock Text="Aktywna baza:" Width="150" VerticalAlignment="Center"/>
+                            <RadioButton Content="Produkcyjna" 
+                                         IsChecked="{Binding CzyBazaProdukcyjna}" 
+                                         GroupName="BazaDanych" 
+                                         Margin="5,0,20,0"/>
+                            <RadioButton Content="Testowa" 
+                                         IsChecked="{Binding CzyBazaTestowa}" 
+                                         GroupName="BazaDanych"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding AktualnaBazaDanych}" 
+                                   FontWeight="Bold" 
+                                   Foreground="#FF0066CC"
+                                   Margin="0,10,0,10"
+                                   TextWrapping="Wrap" FontSize="11"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Zapisz ustawienia" 
+                                    Command="{Binding ZapiszUstawieniaDbCommand}"
+                                    Width="150" 
+                                    Height="30" 
+                                    Margin="0,0,10,0"
+                                    Background="#FF4CAF50"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand" FontSize="11"/>
+                            <Button Content="Testuj polaczenie" 
+                                    Command="{Binding TestPolaczeniaCommand}"
+                                    Width="150" 
+                                    Height="30"
+                                    Background="#FF2196F3"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Header="Inicjalizacja bazy danych" Margin="10" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Sprawdza plik .accdb, polaczenie ODBC oraz obecnosc wymaganych tabel."
+                                   Foreground="#FF666666" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <Button Content="Uruchom inicjalizacje"
+                                Command="{Binding InitializeDatabaseCommand}"
+                                Width="200" Height="32" HorizontalAlignment="Left"
+                                Background="#FF1976D2" Foreground="White"
+                                BorderThickness="0" Cursor="Hand" FontSize="12" FontWeight="SemiBold"/>
+
+                        <Border Margin="0,10,0,0" Padding="10" CornerRadius="5" Background="#FFF5F5F5">
+                            <TextBlock Text="{Binding DbInitStatus}"
+                                       FontWeight="SemiBold" FontSize="12" TextWrapping="Wrap"/>
+                        </Border>
+
+                        <Expander Header="Szczegoly" Margin="0,8,0,0" IsExpanded="False">
+                            <ScrollViewer MaxHeight="180" VerticalScrollBarVisibility="Auto">
+                                <TextBox Text="{Binding DbInitDetails, Mode=OneWay}"
+                                         IsReadOnly="True" FontFamily="Consolas" FontSize="11"
+                                         Background="#FFF5F5F5" BorderThickness="0"
+                                         TextWrapping="Wrap" AcceptsReturn="True"/>
+                            </ScrollViewer>
+                        </Expander>
+                    </StackPanel>
+                </GroupBox>
+                <GroupBox Header="Konfiguracja importu z Outlook" Margin="10" Padding="15">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Plik PST Outlook:" Width="160" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding OutlookPstPath, UpdateSourceTrigger=PropertyChanged}" 
+                                     Width="340" Margin="5,0"/>
+                            <Button Content="..." Width="30" Height="25" Margin="5,0,0,0" 
+                                    Command="{Binding BrowseOutlookPstCommand}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Folder eksportu PDF:" Width="160" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding PdfExportPath, UpdateSourceTrigger=PropertyChanged}" 
+                                     Width="340" Margin="5,0"/>
+                            <Button Content="..." Width="30" Height="25" Margin="5,0,0,0" 
+                                    Command="{Binding BrowsePdfExportCommand}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Zakres czasowy mozna wybrac w oknie importu." 
+                                   FontSize="11" 
+                                   Foreground="#FF666666"
+                                   Margin="0,0,0,10"
+                                   TextWrapping="Wrap"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Szukaj w Outlook" 
+                                    Command="{Binding SearchOutlookCommand}"
+                                    Width="150" 
+                                    Height="30"
+                                    Background="#FF673AB7"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand" FontSize="11" Margin="0,0,10,0"/>
+                            <Button Content="Zapisz konfiguracje" 
+                                    Command="{Binding ZapiszUstawieniaDbCommand}"
+                                    Width="150" 
+                                    Height="30"
+                                    Background="#FF4CAF50"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+
+            </StackPanel>
+
+            <!-- Prawa kolumna -->
+            <StackPanel Grid.Column="2">
+                <!-- Statystyki bazy danych przeniesione z lewej kolumny -->
+                <GroupBox Header="Archiwum kopii zapasowych" Margin="10" Padding="15">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Katalog archiwum:" Width="150" VerticalAlignment="Center"/>
+                            <TextBox Text="{Binding ArchivePath, UpdateSourceTrigger=PropertyChanged}" 
+                                 Width="300" Margin="5,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+
+                            <Button Content="Zapisz ustawienia" 
+                            Command="{Binding ZapiszUstawieniaDbCommand}"
+                            Width="150" 
+                            Height="30"
+                            Background="#FF4CAF50"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand" Margin="0,0,10,0" FontSize="11"/>
+
+                            <Button Content="Wykonaj kopie zapasowa" 
+                            Command="{Binding CreateBackupCommand}"
+                            Width="200" 
+                            Height="30"
+                            Background="#FFFF9800"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand" FontSize="11"
+                            />
+
+                        </StackPanel>
+
+                        <TextBlock Text="Ostatnie kopie zapasowe:" 
+                               FontWeight="Bold" 
+                               Margin="0,10,0,5"/>
+
+                        <ListBox ItemsSource="{Binding ArchivesList}"
+                             SelectedItem="{Binding SelectedArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Height="150"
+                             Margin="0,0,0,10"
+                             SelectionMode="Single" FontSize="11">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <Setter Property="Padding" Value="5"/>
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="Background" Value="#FF2196F3"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical" Margin="5">
+                                        <TextBlock Text="{Binding DisplayName}" 
+                                               FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding SizeFormatted}" 
+                                               FontSize="10" 
+                                               Foreground="Gray"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Przywroc wybrana kopie" 
+                                Command="{Binding RestoreBackupCommand}"
+                                Width="180" 
+                                Height="30" 
+                                Margin="0,0,10,0"
+                                Background="#FFF44336"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand" FontSize="11"/>
+                            <Button Content="Odswiez liste" 
+                                Command="{Binding RefreshArchivesCommand}"
+                                Width="120" 
+                                Height="30"
+                                Background="#FF9E9E9E"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand" FontSize="11"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <!-- Statystyki bazy danych przeniesione z lewej kolumny -->
+                <GroupBox Header="Statystyki bazy danych" Margin="10" Padding="15">
+                    <StackPanel Width="630">
+                        <Grid Margin="0,5" HorizontalAlignment="Center" Width="630">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Grid.Column="0" 
+                                    BorderBrush="#FFE0E0E0" 
+                                    BorderThickness="1" 
+                                    Background="#FFF5F5F5"
+                                    Margin="5,5,5,5" Padding="10" CornerRadius="5">
+                                <StackPanel>
+                                    <TextBlock Text="Skierowania" 
+                                               FontSize="11" 
+                                               Foreground="#FF666666"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IloscSkierowan, StringFormat=\{0:N0\}}" 
+                                               FontWeight="Bold" 
+                                               FontSize="22"
+                                               Foreground="#FF2196F3"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="0" Grid.Column="1" 
+                                    BorderBrush="#FFE0E0E0" 
+                                    BorderThickness="1" 
+                                    Background="#FFF5F5F5"
+                                    Margin="5,5,5,5" Padding="10" CornerRadius="5">
+                                <StackPanel>
+                                    <TextBlock Text="Badania" 
+                                               FontSize="11" 
+                                               Foreground="#FF666666"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IloscBadan, StringFormat=\{0:N0\}}" 
+                                               FontWeight="Bold" 
+                                               FontSize="22"
+                                               Foreground="#FF4CAF50"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="0" Grid.Column="2" 
+                                    BorderBrush="#FFE0E0E0" 
+                                    BorderThickness="1" 
+                                    Background="#FFF5F5F5"
+                                    Margin="5,5,5,5" Padding="10" CornerRadius="5" Grid.ColumnSpan="2" Width="120" HorizontalAlignment="Left">
+                                <StackPanel>
+                                    <TextBlock Text="Faktury" 
+                                               FontSize="11" 
+                                               Foreground="#FF666666"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IloscFaktur, StringFormat=\{0:N0\}}" 
+                                               FontWeight="Bold" 
+                                               FontSize="22"
+                                               Foreground="#FFFF9800"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Grid.Row="0" Grid.Column="3" 
+                                    BorderBrush="#FFE0E0E0" 
+                                    BorderThickness="1" 
+                                    Background="#FFF5F5F5"
+                                    Margin="5,5,5,5" Padding="10" CornerRadius="5">
+                                <StackPanel>
+                                    <TextBlock Text="Listy do faktur" 
+                                               FontSize="11" 
+                                               Foreground="#FF666666"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IloscListDoFaktur, StringFormat=\{0:N0\}}" 
+                                               FontWeight="Bold" 
+                                               FontSize="22"
+                                               Foreground="#FF9C27B0"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="4" 
+                                    BorderBrush="#FFE0E0E0" 
+                                    BorderThickness="1" 
+                                    Background="#FFF5F5F5"
+                                    Margin="5,5,5,5" Padding="10" CornerRadius="5">
+                                <StackPanel>
+                                    <TextBlock Text="Pacjenci (aktywni)" 
+                                               FontSize="11" 
+                                               Foreground="#FF666666"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IloscPacjentow, StringFormat=\{0:N0\}}" 
+                                               FontWeight="Bold" 
+                                               FontSize="22"
+                                               Foreground="#FF009688"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                        </Grid>
+
+                        <Button Content="Odswiez statystyki" 
+                                Command="{Binding OdswiezStatystykiCommand}"
+                                Width="200" 
+                                Height="35"
+                                Margin="0,15,0,0"
+                                Background="#FF607D8B"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand" 
+                                FontSize="12"
+                                FontWeight="SemiBold"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

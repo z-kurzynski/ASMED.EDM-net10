@@ -1,0 +1,757 @@
+<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="clr-namespace:ASMED.WPF.ViewModels"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf" 
+    xmlns:av="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+
+    xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+    mc:Ignorable="av" 
+    x:Class="ASMED.WPF.Views.SkierPacjentaEditView"
+    Width="Auto" 
+    VerticalAlignment="Top" 
+    MaxWidth="1800" 
+    MinWidth="1100" 
+    Height="720" 
+    Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
+
+    <UserControl.Resources>
+        <!-- Konwerter BooleanToVisibilityConverter -->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <!-- ✅ DODANY: Konwerter IntToVisibilityConverter -->
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+
+        <!-- ✅ NOWY: Konwerter MultiIntToVisibilityConverter (dla wielu wartości) -->
+        <converters:MultiIntToVisibilityConverter x:Key="MultiIntToVisibilityConverter"/>
+
+
+        <!-- Existing styles -->
+        <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- ✅ GŁÓWNA SIATKA: 2 WIERSZE -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <Grid Margin="20,10,20,10" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <!-- Row 0: Nagłówek + przyciski -->
+            <RowDefinition Height="*"/>
+            <!-- Row 1: Główna zawartość -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- ✅ ROW 0: NAGŁÓWEK (5 kolumn) -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Col 0: Tytuł -->
+                <ColumnDefinition Width="*"/>
+                <!-- Col 1: Spacer -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Col 2: Spacer -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Col 3: Utwórz kartę -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Col 4: Lista pacjentów -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Column 0: Tytuł -->
+            <TextBlock Grid.Column="0" 
+                       Text="👤 Edycja Pacjenta" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       VerticalAlignment="Center"
+                       Foreground="#FF1976D2"/>
+
+            <!-- Column 3: Button Utwórz kartę badań -->
+
+            <!-- Column 4: Button Lista pacjentów -->
+            <Button Grid.Column="4"
+                    x:Name="Button_Lista_Pacjentow"
+                    Width="200"
+                    Height="40"
+                    Background="#FFFF9800"
+                    Foreground="White"
+                    Command="{Binding PowrotDoListyCommand}"
+                    Cursor="Hand">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8EF;" FontSize="16" Margin="0,0,5,0"/>
+                    <TextBlock Text="Lista pacjentów" FontWeight="Bold"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <!-- ✅ ROW 1: GŁÓWNA ZAWARTOŚĆ (3 kolumny z Border) -->
+        <!-- ═══════════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" Margin="0,0,0,10" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <!-- Col 0: Historia -->
+                <ColumnDefinition Width="8"/>
+                <!-- Spacer -->
+                <ColumnDefinition Width="470"/>
+                <!-- Col 2: Firma -->
+                <ColumnDefinition Width="8"/>
+                <!-- Col 4: Dane pacjenta -->
+                <ColumnDefinition Width="600"/>
+                <!-- Col 4: Firma -->
+            </Grid.ColumnDefinitions>
+
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+            <!-- ✅ COLUMN 0: HISTORIA PACJENTA -->
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+            <Border x:Name="Border_Historia" Grid.Column="0" 
+                    BorderBrush="#FF4CAF50" 
+                    CornerRadius="8" 
+                    Padding="10"
+                    Background="#FF6D6D6D"
+                    VerticalAlignment="Stretch" BorderThickness="1,1,1,1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <!-- Nagłówek -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Info box -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Karty badań -->
+                            <RowDefinition Height="5"/>
+                            <!-- Spacer -->
+                            <RowDefinition Height="Auto"/>
+                            <!-- Wizyty/Badania -->
+                        </Grid.RowDefinitions>
+
+                        <!-- NAGŁÓWEK -->
+                        <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                            <TextBlock Text="📊 Historia pacjenta" 
+                                       FontSize="18" 
+                                       FontWeight="Bold" 
+                                       Foreground="#FF65EB6A"
+                                       HorizontalAlignment="Left"
+                                       Margin="0,0,0,5"/>
+
+                            <!-- Info box - statystyki -->
+                            <Border Background="#FFA3D0F3" 
+                                    CornerRadius="4" 
+                                    Padding="10"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Liczba kart badań -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Karty badań" 
+                                                   FontSize="10" 
+                                                   Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="txtLiczbaKartBadan" 
+                                                   Text="0" 
+                                                   FontSize="24" 
+                                                   FontWeight="Bold"
+                                                   Foreground="#FF4CAF50"
+                                                   HorizontalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Liczba wizyt -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Wizyty" 
+                                                   FontSize="10" 
+                                                   Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock x:Name="txtLiczbaWizyt" 
+                                                   Text="0" 
+                                                   FontSize="24" 
+                                                   FontWeight="Bold"
+                                                   Foreground="#FF2196F3"
+                                                   HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- SEKCJA 1: KARTY BADAŃ (Skierowania) -->
+                        <StackPanel Grid.Row="2">
+                            <TextBlock Text="📋 Karty badań" 
+                                       FontSize="14" 
+                                       Foreground="#FF65EB6A"
+                                       Margin="0,0,0,8"/>
+
+                            <syncfusion:SfDataGrid x:Name="gridHistoriaSkierowania"
+                                                   AutoGenerateColumns="False"
+                                                   AllowSorting="True"
+                                                   AllowFiltering="False"
+                                                   SelectionMode="Single"
+                                                   RowHeight="30"
+                                                   FontSize="11"
+                                                   AlternationCount="2"
+                                                   HeaderRowHeight="30"
+                                                   BorderBrush="#FF4CAF50"
+                                                   BorderThickness="1"
+                                                   Height="200" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" RowHoverHighlightingBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" SelectionForegroundBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Background="{x:Null}" CurrentCellBorderBrush="{x:Null}" GroupRowSelectionBrush="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}" RowSelectionBrush="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}">
+                                <syncfusion:SfDataGrid.Columns>
+                                    <syncfusion:GridTextColumn MappingName="Lp" 
+                                                               HeaderText="Lp" 
+                                                               Width="35" 
+                                                               TextAlignment="Center"/>
+
+                                    <syncfusion:GridTextColumn MappingName="B_TypBadania"
+                                                               HeaderText="Typ"
+                                                               Width="35"
+                                                               TextAlignment="Center"/>
+
+                                    <syncfusion:GridTextColumn MappingName="B_DataSkierowania" 
+                                                               HeaderText="Data" 
+                                                               Width="85" 
+                                                               TextAlignment="Center">
+                                        <syncfusion:GridTextColumn.DisplayBinding>
+                                            <Binding Path="B_DataSkierowania" StringFormat="dd-MM-yyyy"/>
+                                        </syncfusion:GridTextColumn.DisplayBinding>
+                                    </syncfusion:GridTextColumn>
+
+                                    <syncfusion:GridTextColumn MappingName="B_Comments" 
+                                                               HeaderText="Uwagi" 
+                                                               Width="180" 
+                                                               TextWrapping="Wrap"
+                                                               Padding="5,5,0,0"/>
+                                </syncfusion:SfDataGrid.Columns>
+                            </syncfusion:SfDataGrid>
+                        </StackPanel>
+
+                        <!-- SEPARATOR -->
+                        <Separator Grid.Row="3" Background="#FFDDDDDD" Margin="0,10"/>
+
+                        <!-- SEKCJA 2: WIZYTY/BADANIA -->
+                        <StackPanel Grid.Row="4">
+                            <TextBlock Text="🏥 Wizyty / Badania" 
+                                       FontSize="14" 
+                                       Foreground="#FFA3D0F3"
+                                       Margin="0,10,0,8"/>
+
+                            <syncfusion:SfDataGrid x:Name="gridHistoriaBadania"
+                                                   AutoGenerateColumns="False"
+                                                   AllowSorting="True"
+                                                   AllowFiltering="False"
+                                                   SelectionMode="Single"
+                                                   RowHeight="30"
+                                                   FontSize="11"
+                                                   AlternationCount="2"
+                                                   HeaderRowHeight="30"
+                                                   BorderBrush="#FF2196F3"
+                                                   BorderThickness="1"
+                                                   Height="200" SelectionForegroundBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" CurrentCellBorderBrush="{x:Null}" GroupRowSelectionBrush="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}" RowHoverHighlightingBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" RowSelectionBrush="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}">
+                                <syncfusion:SfDataGrid.Columns>
+                                    <syncfusion:GridTextColumn MappingName="Lp" 
+                                                               HeaderText="Lp" 
+                                                               Width="35" 
+                                                               TextAlignment="Center"/>
+
+                                    <syncfusion:GridTextColumn MappingName="Bad_Typ" 
+                                                               HeaderText="Typ" 
+                                                               Width="35" 
+                                                               TextAlignment="Center"/>
+
+                                    <syncfusion:GridTextColumn MappingName="Bad_Data"
+                                                               HeaderText="Data" 
+                                                               Width="85" 
+                                                               TextAlignment="Center">
+                                        <syncfusion:GridTextColumn.DisplayBinding>
+                                            <Binding Path="Bad_Data" StringFormat="dd-MM-yyyy"/>
+                                        </syncfusion:GridTextColumn.DisplayBinding>
+                                    </syncfusion:GridTextColumn>
+
+                                    <syncfusion:GridTextColumn MappingName="Bad_Wynik" 
+                                                               HeaderText="Wynik" 
+                                                               Width="180" 
+                                                               TextAlignment="Center"/>
+                                </syncfusion:SfDataGrid.Columns>
+                            </syncfusion:SfDataGrid>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Border>
+            <Border x:Name="Border_Firma_Select" Grid.Column="2" 
+                    BorderBrush="#FFFF9800" 
+                    CornerRadius="8" 
+                    Padding="10"
+                    Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Width="470" BorderThickness="1,1,0,1">
+                <StackPanel>
+
+                    <!-- Wyszukana firma + ID -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="🏢 Firma" 
+                            FontSize="18" 
+                            FontWeight="Bold" 
+                            Foreground="#FFFFD38A" Margin="0,0,20,0"
+                               />
+
+                        <StackPanel Width="109" Orientation="Horizontal">
+                            <TextBlock Text="ID firmy:" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" FontSize="10"/>
+                            <TextBox Text="{Binding WybranaFirma.Id, Mode=OneWay}" 
+                                     FontSize="14" 
+                                     Height="30" 
+                                     IsReadOnly="True" 
+                                     IsEnabled="False" Width="50" Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <Button Content="🔄 Odśwież" 
+                        Command="{Binding RefreshCommand}"
+                        Background="#FF1565C0" Foreground="White"
+                        Padding="8,4"
+                        BorderThickness="1,1,1,1" Cursor="Hand"
+                        FontSize="11" BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                        <Button Content="+ Nowa Firma" 
+                            Command="{Binding NowaFirmaDialogCommand}"
+                            Background="#F8009688" Foreground="White"
+                            Padding="8,4"
+                            BorderThickness="1.3,1,1,1" Cursor="Hand"
+                            FontSize="11" Margin="10,0,0,0" Width="123" IsDefault="True" BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+
+                    </StackPanel>
+
+                    <!-- Wyszukana firma + ID -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Width="425" HorizontalAlignment="Left">
+                        <StackPanel Width="420" Margin="0,0,10,0">
+                            <TextBlock Text="Wyszukana firma:" Margin="20,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                            <TextBox Text="{Binding WybranaFirma.Name, Mode=OneWay}" 
+                                     FontSize="14" 
+                                     Height="45" 
+                                     IsReadOnly="True" 
+                                     Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" TextWrapping="Wrap" Width="420" Margin="20,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Wyszukiwanie firmy -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Width="420" HorizontalAlignment="Left">
+
+                        <StackPanel Width="419">
+                            <TextBlock Text="Firma szukaj:" 
+                                Width="85" HorizontalAlignment="Left" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="20,0,0,5"/>
+                            <StackPanel Orientation="Horizontal" Width="419">
+
+                                <TextBox x:Name="Szukaj_firma" 
+                                    Width="368"
+                                    Height="45"
+                                    Text="{Binding FrazaFirma, UpdateSourceTrigger=PropertyChanged}"
+                                    FontSize="14"
+                                    ToolTip="Wpisz nazwę lub NIP firmy" TextWrapping="Wrap" Margin="20,0,0,0" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+
+                                <Button Width="30" 
+                                    Height="45"
+                                    Background="#FFE57373" 
+                                    ToolTip="Wyczyść wyszukiwanie"
+                                    Command="{Binding ClearSearchCommand}">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                        Text="&#xE894;" 
+                                        FontSize="14" 
+                                        Foreground="White"/>
+                                </Button>
+
+                            </StackPanel>
+
+                        </StackPanel>
+                    </StackPanel>
+                    <!-- Wyszukiwanie firmy 
+                                                               ItemsSource="{Binding FiltrowaneFirmy}"
+                                           SelectedItem="{Binding WybranaFirma, Mode=TwoWay}"
+                                           AutoGenerateColumns="False"
+                                           Height="400"
+                                           AllowSorting="True"
+                                           AllowFiltering="False"
+                                           SelectionMode="Single"
+                                           RowHeight="80"
+                                           FontSize="11"
+                                           AlternationCount="2"
+                                           HeaderRowHeight="35"
+                                           BorderBrush="#FFFF9800"
+                                           BorderThickness="1"
+                    -->
+
+
+                    <!-- Tabela firm - NOWA: SfDataGrid z jedną kolumną wielowierszową -->
+                    <syncfusion:SfDataGrid x:Name="Firma_Select" 
+                                           ItemsSource="{Binding FiltrowaneFirmy}"
+                                           SelectedItem="{Binding WybranaFirma, Mode=TwoWay}"
+                                           AutoGenerateColumns="False"
+                                           AllowSorting="True"
+                                           AllowFiltering="False"
+                                           SelectionMode="Single"
+                                           RowHeight="80"
+                                           FontSize="11"
+                                           AlternationCount="2"
+                                           HeaderRowHeight="35"
+                                           BorderBrush="#FFFF9800"
+                                           BorderThickness="1"
+                                           Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"
+                                           Width="402" HorizontalAlignment="Left" CurrentCellBorderBrush="{x:Null}" Margin="20,0,0,0" Height="400">
+
+                        <!-- Style dla nagłówka -->
+                        <syncfusion:SfDataGrid.HeaderStyle>
+                            <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+                                <Setter Property="Background" Value="#FF0A7FBD"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="FontSize" Value="14"/>
+                            </Style>
+                        </syncfusion:SfDataGrid.HeaderStyle>
+
+                        <syncfusion:SfDataGrid.Columns>
+                            <!-- JEDNA KOLUMNA wielowierszowa: Nazwa\nNIP\nAdres -->
+                            <syncfusion:GridTemplateColumn HeaderText="🏢 Dane Firmy" 
+                                                           Width="380"
+                                                           AllowSorting="False">
+                                <syncfusion:GridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="8,5,8,5" Background="Transparent">
+                                            <!-- Nazwa firmy (pogrubiona, większa) -->
+                                            <TextBlock Text="{Binding Name}" 
+                                                       FontSize="12"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="#FF1976D2"
+                                                       Margin="0,0,0,4" FontWeight="SemiBold"/>
+
+                                            <!-- Adres (ikona + tekst, wrap) -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                                                <TextBlock Text="📍 " 
+                                                           FontSize="12" 
+                                                           Foreground="Gray"
+                                                           VerticalAlignment="Top"/>
+                                                <TextBlock Text="{Binding Address}" 
+                                                           FontSize="12"
+                                                           Foreground="#FF616161"
+                                                           TextWrapping="Wrap"
+                                                           MaxWidth="460"/>
+                                            </StackPanel>
+
+                                            <!-- NIP (ikona + tekst) -->
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                                <TextBlock Text="🆔 NIP: " 
+                                                           FontSize="12" 
+                                                           Foreground="Gray"
+                                                           FontWeight="SemiBold"/>
+                                                <TextBlock Text="{Binding NIP}" 
+                                                           FontSize="12"
+                                                           Foreground="#FF424242"/>
+                                            </StackPanel>
+
+
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </syncfusion:GridTemplateColumn.CellTemplate>
+                            </syncfusion:GridTemplateColumn>
+                        </syncfusion:SfDataGrid.Columns>
+                    </syncfusion:SfDataGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+            <!-- ✅ COLUMN 1: DANE PACJENTA (Lewa_0 + Prawa_0 + PRZYCISKI) -->
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+            <Border x:Name="Border_Pacjent" Grid.Column="4" 
+                    BorderBrush="#FF2196F3" 
+                    CornerRadius="8" 
+                    Padding="10"
+                    Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" 
+                    Width="600" BorderThickness="1,1,1,1"
+                    >
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel
+                        >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="📋 Dane osobowe" 
+                                    FontSize="18" 
+                                    FontWeight="Bold" 
+                                    Foreground="#FF8CC8F5"
+                                   />
+                            <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
+
+                                <TextBlock Text="ID pacjenta:" 
+                                        FontSize="10" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+                                   />
+
+                                <TextBox Text="{Binding ID, Mode=OneWay}" 
+                                        FontSize="14" 
+                                        Width="60" 
+                                        Height="30" 
+                                        IsReadOnly="True" 
+                                        IsEnabled="False" Margin="10,0,0,0"/>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical"
+                        
+                                    >
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="20,10,0,5">
+                                <StackPanel Width="260" Margin="0,0,10,0">
+                                    <TextBlock Text="Imię/imiona *" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <syncfusion:SfTextBoxExt
+                                        Width="250"
+                                        Height="30"
+                                        Watermark="* Wpisz imię"
+                                        FontSize="18"
+                                        AutoCompleteSource="{Binding ImionaItems}"
+                                        AutoCompleteMode="SuggestAppend"
+                                        TextHighlightMode="FirstOccurrence"
+                                        HighlightedTextColor="Red"
+                                        SearchItemPath="."
+                                        SuggestionBoxPlacement="Bottom"
+                                        MaxDropDownHeight="300"
+                                        Text="{Binding WybraneImie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Background="#FFE3E3E3"/>
+                                </StackPanel>
+
+                                <StackPanel Width="260">
+                                    <TextBlock Text="Nazwisko *" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <syncfusion:SfTextBoxExt
+                                        Width="250"
+                                        Height="30"
+                                        Watermark="* Wpisz nazwisko"
+                                        FontSize="18"
+                                        AutoCompleteSource="{Binding NazwiskaItems}"
+                                        AutoCompleteMode="SuggestAppend"
+                                        TextHighlightMode="FirstOccurrence"
+                                        HighlightedTextColor="Red"
+                                        SearchItemPath="."
+                                        SuggestionBoxPlacement="Bottom"
+                                        MaxDropDownHeight="300"
+                                        Text="{Binding WybraneNazwisko, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="20,0,0,0">
+                                <StackPanel Width="120" Margin="0,0,10,0">
+                                    <TextBlock Text="PESEL" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding PESEL, Mode=TwoWay}" Height="30" FontSize="18" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+
+                                <StackPanel Width="40" Margin="10,0,10,0">
+                                    <TextBlock Text="Brak" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <CheckBox x:Name="brak_Pesel" IsChecked="{Binding BrakPESEL, Mode=TwoWay}" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Width="60" Margin="0,0,10,0">
+                                    <TextBlock Text="Płeć" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding Plec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                        FontSize="18" 
+                                        MaxLength="1" 
+                                        Height="30" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+
+                                <StackPanel Width="130" Margin="16,0,0,0">
+                                    <TextBlock Text="Data urodzenia" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <DatePicker SelectedDate="{Binding DataUrodzenia, Mode=TwoWay}" FontSize="14" Height="30" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="20,5,0,0">
+                                <StackPanel Width="549" Margin="0,0,10,0">
+                                    <TextBlock Text="Stanowisko" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <syncfusion:SfTextBoxExt
+                                        Width="533"
+                                        Height="30"
+                                        Watermark="Wpisz Stanowisko"
+                                        FontSize="16"
+                                        AutoCompleteSource="{Binding ZawodyItems}"
+                                        AutoCompleteMode="SuggestAppend"
+                                        TextHighlightMode="FirstOccurrence"
+                                        HighlightedTextColor="Red"
+                                        SearchItemPath="."
+                                        SuggestionBoxPlacement="Bottom"
+                                        MaxDropDownHeight="300"
+                                        Text="{Binding WybranyZawod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Separator Background="#FFDDDDDD" Height="15"/>
+
+                            <TextBlock Text="🏠 Adres zamieszkania i dane kontaktowe" 
+                                FontSize="18" 
+                                FontWeight="Bold" 
+                                Foreground="#FFA3D0F3" Margin="0,0,-3,10"
+                                   />
+
+                            <StackPanel Width="535" HorizontalAlignment="Left" Margin="20,0,-2,8">
+                                <TextBlock Text="Ulica numer domu" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                <syncfusion:SfTextBoxExt
+                                    Width="533"
+                                    Height="30"
+                                    Watermark="* Wpisz Ulicę nr domu mieszkania"
+                                    FontSize="18"
+                                    AutoCompleteSource="{Binding UliceItems}"
+                                    AutoCompleteMode="SuggestAppend"
+                                    TextHighlightMode="FirstOccurrence"
+                                    HighlightedTextColor="Red"
+                                    SearchItemPath="."
+                                    SuggestionBoxPlacement="Bottom"
+                                    MaxDropDownHeight="300"
+                                    Text="{Binding WybranaUlica, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    HorizontalAlignment="Left" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="20,0,0,0">
+                                <StackPanel Width="110" Margin="0,0,10,0">
+                                    <TextBlock Text="Kod pocztowy" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding KodPocztowy, Mode=TwoWay}" FontSize="18" Height="30" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+
+                                <StackPanel Width="422">
+                                    <TextBlock Text="Miejscowość" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <syncfusion:SfTextBoxExt
+                                        Width="412"
+                                        Height="30"
+                                        Watermark="* Wpisz miejscowość"
+                                        FontSize="18"
+                                        AutoCompleteSource="{Binding MiastaItems}"
+                                        AutoCompleteMode="SuggestAppend"
+                                        TextHighlightMode="FirstOccurrence"
+                                        HighlightedTextColor="Red"
+                                        SearchItemPath="."
+                                        SuggestionBoxPlacement="Bottom"
+                                        MaxDropDownHeight="300"
+                                        Text="{Binding WybraneMiasto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        HorizontalAlignment="Left" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Width="545" HorizontalAlignment="Left" Margin="20,0,0,0">
+                                <StackPanel Width="140" Margin="0,0,10,0">
+                                    <TextBlock Text="Telefon" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding phone, Mode=TwoWay}" 
+                                        FontSize="16" 
+                                        Height="30" 
+                                        IsEnabled="False" HorizontalAlignment="Left" Width="134"/>
+                                </StackPanel>
+
+                                <StackPanel Width="200" Margin="8,0,0,0">
+                                    <TextBlock Text="E-mail" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding email, Mode=TwoWay}" 
+                                        FontSize="16" 
+                                        Height="30" 
+                                        IsEnabled="False"/>
+                                </StackPanel>
+                                <StackPanel Width="180" Margin="8,0,0,0">
+                                    <TextBlock Text="Uwagi" Margin="0,0,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                    <TextBox Text="{Binding comments, Mode=TwoWay}" 
+                                        FontSize="16" 
+                                        Height="30" 
+                                        IsEnabled="False" Width="163" HorizontalAlignment="Left"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Separator Background="#FFDDDDDD" Height="15"/>
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10" 
+                                    >
+                                <Button x:Name="Button_Usun" 
+                                    Width="260" 
+                                    Height="45"
+                                    Background="#FFF44336"
+                                    Foreground="White"
+                                    Command="{Binding AnulujCommand}"
+                                    Cursor="Hand" BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Visibility="Hidden">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE76B;" FontSize="18" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Usuń pacjenta" FontWeight="Bold" FontSize="14"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="Button_Karta_Badan"
+                                    Width="260"
+                                    Height="45"
+                                    Background="#FF009688"
+                                    Foreground="White"
+                                    Command="{Binding UtworzSkierowanieCommand}"
+                                    Cursor="Hand" 
+                                    BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" 
+                                    FontWeight="Bold" 
+                                    FontSize="16" 
+                                    Margin="10,0,0,0">
+
+                                    <!-- ✅ ZMIENIONE: MultiBinding sprawdzający ID pacjenta I ID firmy -->
+                                    <Button.Visibility>
+                                        <MultiBinding Converter="{StaticResource MultiIntToVisibilityConverter}">
+                                            <Binding Path="ID"/>
+                                            <Binding Path="WybranaFirma.Id"/>
+                                        </MultiBinding>
+                                    </Button.Visibility>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8D2;" FontSize="16" Margin="0,0,5,0"/>
+                                        <TextBlock Text="Utwórz kartę badań" FontWeight="Normal" FontSize="18"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" 
+                                    >
+                                <Button
+                                    x:Name="Button_Lista_Pacjentow_Kopiuj"
+                                    Width="260"
+                                    Height="45"
+                                    Background="#FF9E2C24"
+                                    Foreground="White"
+                                    Command="{Binding PowrotDoListyCommand}"
+                                    Cursor="Hand" BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="❌ Anuluj" FontSize="18"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button x:Name="Button_Zapisz" 
+                                    Width="260" 
+                                    Height="45"
+                                    Background="#FF0078D7"
+                                    Foreground="White"
+                                    Command="{Binding SaveCommandskr}"
+                                    Visibility="{Binding CzyWybranoFirme, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    Cursor="Hand" Margin="10,0,0,0" BorderBrush="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE105;" FontSize="20" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Zapisz zmiany" FontSize="18"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                        <!-- ✅ SEKCJA 1: Dane osobowe (Lewa_0) -->
+
+                        <!-- Imię + Nazwisko -->
+
+                        <!-- Imię + Nazwisko -->
+
+                        <!-- Imię + Nazwisko -->
+
+                        <!-- PESEL + Brak + Płeć + Data urodzenia -->
+
+                        <!-- Stanowisko + Uwagi -->
+
+                        <!-- ✅ SEKCJA 2: Adres i kontakt (Prawa_0) -->
+
+                        <!-- Ulica -->
+
+                        <!-- Kod pocztowy + Miejscowość -->
+
+                        <!-- Telefon + Email -->
+
+                        <!-- ✅ SEKCJA 3: PRZYCISKI AKCJI (przeniesione z Row 2) -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+            <!-- ✅ COLUMN 2: FIRMA -->
+            <!-- ═══════════════════════════════════════════════════════════════════ -->
+        </Grid>
+    </Grid>
+</UserControl>

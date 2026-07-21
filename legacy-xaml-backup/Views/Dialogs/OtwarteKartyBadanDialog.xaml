@@ -1,0 +1,250 @@
+<Window x:Class="ASMED.WPF.Views.Dialogs.OtwarteKartyBadanDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:ASMED.WPF.Converters"
+    Title="⚠️ Pacjent ma otwarte karty badań"
+    Width="700" 
+    Height="500"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="CanResize"
+    Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
+    
+<Window.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
+</Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Nagłówek -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15">
+            <TextBlock Text="⚠️ Pacjent ma już otwarte karty badań" 
+                       FontSize="20" 
+                       FontWeight="Bold" 
+                       Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"
+                       Margin="0,0,0,10"/>
+            
+            <Border Background="#FFFFE0B2" 
+                    BorderBrush="#FFFF9800" 
+                    BorderThickness="2" 
+                    CornerRadius="4" 
+                    Padding="15">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="👤 Pacjent: " 
+                                   FontSize="14" 
+                                   FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ImieNazwisko}" 
+                                   FontSize="18" 
+                                   FontWeight="Bold"
+                                   Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="PESEL: " 
+                                   FontSize="14" 
+                                   Foreground="#FF666666"/>
+                        <TextBlock Text="{Binding Pesel}" 
+                                   FontSize="12" 
+                                   Foreground="#FF666666"
+                                   Margin="5,0,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                        <TextBlock Text="🏢 Firma: " 
+                                   FontSize="12" 
+                                   Foreground="#FF666666"/>
+                        <TextBlock Text="{Binding Firma}" 
+                                   FontSize="12" 
+                                   Foreground="#FF666666"
+                                   Margin="5,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Wybierz kartę do edycji lub utwórz nową:" 
+                       FontSize="14" 
+                       Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                       Margin="0,15,0,0"/>
+        </StackPanel>
+
+        <!-- Lista otwartych kart -->
+        <Border Grid.Row="1" 
+                BorderBrush="#FF2196F3" 
+                BorderThickness="2" 
+                CornerRadius="8" 
+                Padding="0,10,0,10"
+                Background="White" HorizontalAlignment="Stretch">
+            <ListBox ItemsSource="{Binding OtwarteKarty}"
+                     SelectedItem="{Binding WybranaKarta, Mode=TwoWay}"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     BorderThickness="0" HorizontalAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#FFDDDDDD" 
+                                BorderThickness="1" 
+                                CornerRadius="4" 
+                                Padding="8,5" 
+                                Margin="0,3"
+                                Height="38"
+                                Background="#FFFAFAFA">
+                            <!-- ✅ POJEDYNCZY WIERSZ - wszystko w poziomie -->
+                            <Grid VerticalAlignment="Center">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Karta # + ID -->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Typ badania (kolorowy) -->
+                                    <ColumnDefinition Width="15"/>
+                                    <!-- Spacer -->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Data skierowania -->
+                                    <ColumnDefinition Width="15"/>
+                                    <!-- Spacer -->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Rejestracja -->
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Status (kolorowy) -->
+                                    <ColumnDefinition Width="*"/>
+                                    <!-- Wypełniacz -->
+                                </Grid.ColumnDefinitions>
+
+                                <!-- 1. Numer karty -->
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="📋 #" 
+                                               FontSize="14" 
+                                               FontWeight="Bold" 
+                                               Foreground="#FF1976D2"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding B_ID}" 
+                                               FontSize="16" 
+                                               FontWeight="Bold" 
+                                               Foreground="#FF1976D2"
+                                               Margin="3,0,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- 2. Typ badania (kolorowy Border) -->
+                                <Border Grid.Column="1" 
+                                        Background="#FF2196F3" 
+                                        CornerRadius="3" 
+                                        Padding="8,3" 
+                                        Margin="8,0,8,-3"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding TypBadaniaFull}" 
+                                               FontSize="11" 
+                                               Foreground="White"
+                                               FontWeight="Bold"/>
+                                </Border>
+
+                                <!-- 3. Data skierowania -->
+                                <StackPanel Grid.Column="3" 
+                                            Orientation="Horizontal" 
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="📅 Data Skierow." 
+                                               FontSize="12" 
+                                               Foreground="#FF666666"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,3,0"/>
+                                    <TextBlock Text="{Binding DataSkierowaniaFormatted}" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"
+                                               Foreground="#FF333333"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- 4. Rejestracja -->
+                                <StackPanel Grid.Column="5" 
+                                            Orientation="Horizontal" 
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="📋 Rejest. na :" 
+                                               FontSize="12" 
+                                               Foreground="#FF666666"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,3,0"/>
+                                    <TextBlock Text="{Binding DataRejestracjiFormatted}" 
+                                               FontSize="14" 
+                                               FontWeight="SemiBold"
+                                               Foreground="#FF333333"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- 5. Status rejestracji (kolorowy Border) -->
+                                <Border Grid.Column="6" 
+                                        Background="{Binding R_Status, Converter={StaticResource StatusToBrushConverter}}"
+                                        CornerRadius="3"
+                                        Padding="8,3"
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding HasRejestracja, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding StatusDisplay}" 
+                                               FontSize="10" 
+                                               Foreground="White"
+                                               FontWeight="Bold"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <!-- Przyciski -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,15,0,0">
+            <Button Command="{Binding EdytujKarteCommand}"
+                    Width="200"
+                    Height="45"
+                    Background="#FF4CAF50"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Margin="0,0,10,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE70F;" FontSize="18" Margin="0,0,8,0"/>
+                    <TextBlock Text="Edytuj wybraną kartę" FontSize="16"/>
+                </StackPanel>
+            </Button>
+
+            <Button Command="{Binding NowaKartaCommand}"
+                    Width="200"
+                    Height="45"
+                    Background="#FF2196F3"
+                    Foreground="White"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="18" Margin="0,0,8,0"/>
+                    <TextBlock Text="Nowa karta badań" FontSize="16"/>
+                </StackPanel>
+            </Button>
+
+            <Button Command="{Binding AnulujCommand}"
+                    Width="150"
+                    Height="45"
+                    Background="#FF607D8B"
+                    Foreground="White"
+                    FontSize="14"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE10A;" FontSize="16" Margin="0,0,5,0"/>
+                    <TextBlock Text="Anuluj" FontSize="14"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>
