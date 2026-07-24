@@ -64,12 +64,18 @@ public partial class App : Application
         services.AddSingleton<MainWindow>();
         services.AddTransient<Views.Patients.PatientsView>();
         services.AddTransient<Views.Settings.SettingsView>();
+        services.AddTransient<Views.Settings.ConfigurationView>();
+        services.AddTransient<Views.Settings.PriceListsView>();
+        services.AddTransient<Views.Settings.FacilityDataView>();
+        services.AddTransient<Views.Settings.UsersView>();
+        services.AddTransient<Views.Settings.ToolsView>();
         services.AddTransient<Views.Visits.VisitsView>();
 
         // Rejestracja ViewModels
         services.AddSingleton<ViewModels.MainWindowViewModel>();
         services.AddSingleton<ViewModels.MainViewModel>();
         services.AddTransient<ViewModels.PatientsViewModel>();
+        services.AddTransient<ViewModels.ConfigurationViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ViewModels.VisitsViewModel>();
     }

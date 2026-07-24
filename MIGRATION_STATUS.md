@@ -1,6 +1,6 @@
 # 📊 STATUS MIGRACJI UI - ASMED.EDM
 
-**Data aktualizacji**: 2025-01-xx  
+**Data aktualizacji**: 2025-01-23  
 **Lokalizacja**: D:\Visual\Asmed_EDM  
 **Projekt źródłowy**: A:\source\repos\ASMED-WPF-Application\src\ASMED_5
 
@@ -38,7 +38,20 @@
 - [x] PatientsView - pełna funkcjonalność ✅
 - [x] PatientsViewModel ✅
 
-### 🚧 **ETAP 3 - PHASE 4: IN PROGRESS** (Visits Module)
+### ✅ **ETAP 3 - PHASE 4.1-4.3: DONE** (Settings Module)
+- [x] SettingsView z zagnieżdżonym TabControl ✅
+- [x] **ConfigurationView** - Konfiguracja MySQL ✅
+  - [x] ConfigurationViewModel (MVVM)
+  - [x] UI dla 3 typów połączeń (Primary, Backup, Local)
+  - [x] Test Connection per każde połączenie
+  - [x] Save Configuration button
+  - [x] Enable Failover checkbox
+  - [x] Connection Timeout slider
+  - [x] InverseBooleanConverter
+  - [x] DI registration
+  - **Dokumentacja**: `ETAP3_PHASE4.3_MYSQL_CONFIG_COMPLETE.md`
+
+### 🚧 **ETAP 3 - PHASE 4.4: IN PROGRESS** (Visits Module)
 
 #### **VisitsView** - Status: 🟡 Basic implementation
 **Lokalizacja**: `src\ASMED.EDM.UI\Views\Visits\VisitsView.xaml`
@@ -78,9 +91,16 @@
 
 ---
 
-## 🎯 NASTĘPNE KROKI - PHASE 4 Iteration 1
+## 🎯 NASTĘPNE KROKI
 
-### **Priorytet 1: Analiza Legacy Scheduler**
+### **Priorytet 1: Dokończenie ConfigurationView**
+- [ ] **TODO**: Implementacja zapisu do `appsettings.json`
+  - Obecnie `SaveConfigurationAsync()` tylko loguje
+  - Użyć System.Text.Json do modyfikacji pliku
+- [ ] **TODO**: Refresh `MainViewModel.DatabaseInfo` po zapisie konfiguracji
+- [ ] **Runtime test**: Uruchomić aplikację i przetestować UI
+
+### **Priorytet 2: Analiza Legacy Scheduler**
 
 #### Krok 1: Zbadaj legacy `WizytyViewView.xaml`
 **Lokalizacja**: `A:\source\repos\ASMED-WPF-Application\src\ASMED_5\Views\wizytyview\WizytyViewView.xaml`
