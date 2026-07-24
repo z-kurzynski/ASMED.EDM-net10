@@ -54,4 +54,9 @@ public abstract class ViewModelBase : ObservableObject
     {
         return Task.CompletedTask;
     }
+
+    public static implicit operator ViewModelBase(PatientsViewModel v)
+    {
+        throw new NotImplementedException();
+    }
 }

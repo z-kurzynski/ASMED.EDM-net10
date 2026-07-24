@@ -93,12 +93,25 @@
 
 ## 🎯 NASTĘPNE KROKI
 
-### **Priorytet 1: Dokończenie ConfigurationView**
-- [ ] **TODO**: Implementacja zapisu do `appsettings.json`
-  - Obecnie `SaveConfigurationAsync()` tylko loguje
-  - Użyć System.Text.Json do modyfikacji pliku
-- [ ] **TODO**: Refresh `MainViewModel.DatabaseInfo` po zapisie konfiguracji
-- [ ] **Runtime test**: Uruchomić aplikację i przetestować UI
+### **Priorytet 1: ConfigurationView - Real Database Operations**
+**Dokumentacja**: [`ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md`](ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md)
+
+**UI gotowy** (2-kolumnowy layout):
+- ✅ Lewa kolumna: Konfiguracja połączeń MySQL
+- ✅ Prawa kolumna: 4 sekcje zarządzania bazą (Init/Backup/Stats/Maintenance)
+- ✅ 17 nowych properties + 5 nowych commands (symulowane)
+
+**TODO - Implementacja rzeczywistych operacji**:
+- [ ] **InitializeDatabaseAsync()**: DDL scripts lub EF migrations
+- [ ] **CreateBackupAsync()**: mysqldump przez Process lub MySqlConnector
+- [ ] **GetDatabaseStatisticsAsync()**: Query do `information_schema.tables`
+- [ ] **OptimizeTablesAsync()**: `OPTIMIZE TABLE` dla wszystkich tabel
+- [ ] **RepairTablesAsync()**: `REPAIR TABLE` dla wszystkich tabel
+- [ ] **SaveConfigurationAsync()**: Zapis do `appsettings.json` (System.Text.Json)
+- [ ] **Refresh MainViewModel.DatabaseInfo** po zapisie konfiguracji
+- [ ] **Runtime test**: Uruchomić aplikację i przetestować 2-kolumnowy UI
+
+---
 
 ### **Priorytet 2: Analiza Legacy Scheduler**
 

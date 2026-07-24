@@ -83,6 +83,50 @@ public partial class ConfigurationViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSaving = false;
 
+    // ========== Prawa kolumna: Zarządzanie bazą ==========
+
+    [ObservableProperty]
+    private bool _isInitializing = false;
+
+    [ObservableProperty]
+    private string _initializationStatus = "Kliknij przycisk aby zainicjalizować bazę danych";
+
+    [ObservableProperty]
+    private bool _isBackingUp = false;
+
+    [ObservableProperty]
+    private string _backupPath = @"D:\Backups\asmed_edm";
+
+    [ObservableProperty]
+    private string _backupStatus = "Wybierz ścieżkę i kliknij przycisk aby utworzyć backup";
+
+    [ObservableProperty]
+    private bool _isLoadingStats = false;
+
+    [ObservableProperty]
+    private string _dbName = "-";
+
+    [ObservableProperty]
+    private string _tableCount = "0";
+
+    [ObservableProperty]
+    private string _totalRecords = "0";
+
+    [ObservableProperty]
+    private string _databaseSize = "0 MB";
+
+    [ObservableProperty]
+    private string _lastBackupDate = "Nigdy";
+
+    [ObservableProperty]
+    private bool _isOptimizing = false;
+
+    [ObservableProperty]
+    private bool _isRepairing = false;
+
+    [ObservableProperty]
+    private string _maintenanceStatus = "Gotowy do wykonania operacji konserwacyjnych";
+
     #endregion
 
     public ConfigurationViewModel(
@@ -360,6 +404,252 @@ public partial class ConfigurationViewModel : ObservableObject
         finally
         {
             IsSaving = false;
+        }
+    }
+
+    // ==================== PRAWA KOLUMNA: COMMANDS ====================
+
+    /// <summary>
+    /// Inicjalizuje bazę danych (tworzy tabele, indeksy, relacje)
+    /// </summary>
+    [RelayCommand]
+    private async Task InitializeDatabaseAsync()
+    {
+        IsInitializing = true;
+        InitializationStatus = "🔄 Inicjalizacja bazy danych w toku...";
+
+        try
+        {
+            // TODO: Implementacja inicjalizacji bazy danych
+            // - Sprawdzenie czy baza istnieje
+            // - Utworzenie tabel jeśli nie istnieją
+            // - Utworzenie indeksów
+            // - Utworzenie relacji FK
+            // - Seed initial data
+
+            _logger.LogInformation("🗄️ Rozpoczęto inicjalizację bazy danych...");
+
+            // Symulacja (na razie)
+            await Task.Delay(2000);
+
+            InitializationStatus = "✅ Baza danych zainicjalizowana pomyślnie! (TODO: implementacja)";
+            _logger.LogInformation("✅ Inicjalizacja bazy danych zakończona sukcesem");
+
+            MessageBox.Show(
+                "✅ Baza danych została zainicjalizowana!\n\n⚠️ UWAGA: To jest symulacja. Implementacja w następnym kroku.",
+                "Sukces",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            InitializationStatus = $"❌ Błąd inicjalizacji: {ex.Message}";
+            _logger.LogError(ex, "Błąd podczas inicjalizacji bazy danych");
+
+            MessageBox.Show(
+                $"❌ Błąd podczas inicjalizacji bazy danych:\n{ex.Message}",
+                "Błąd",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsInitializing = false;
+        }
+    }
+
+    /// <summary>
+    /// Tworzy backup bazy danych MySQL
+    /// </summary>
+    [RelayCommand]
+    private async Task CreateBackupAsync()
+    {
+        if (string.IsNullOrWhiteSpace(BackupPath))
+        {
+            BackupStatus = "⚠️ Podaj ścieżkę do backupu";
+            return;
+        }
+
+        IsBackingUp = true;
+        BackupStatus = "🔄 Tworzenie backupu...";
+
+        try
+        {
+            // TODO: Implementacja MySQL backup
+            // - Użyć mysqldump lub MySqlConnector
+            // - Zapisać dump do pliku w BackupPath
+            // - Format: asmed_edm_backup_YYYYMMDD_HHMMSS.sql
+
+            _logger.LogInformation("💾 Rozpoczęto tworzenie backupu bazy danych do {Path}", BackupPath);
+
+            // Symulacja (na razie)
+            await Task.Delay(3000);
+
+            var backupFileName = $"asmed_edm_backup_{DateTime.Now:yyyyMMdd_HHmmss}.sql";
+            var fullPath = System.IO.Path.Combine(BackupPath, backupFileName);
+
+            BackupStatus = $"✅ Backup utworzony: {backupFileName} (TODO: implementacja)";
+            LastBackupDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            _logger.LogInformation("✅ Backup utworzony: {FileName}", backupFileName);
+
+            MessageBox.Show(
+                $"✅ Backup utworzony!\n\nPlik: {backupFileName}\nŚcieżka: {BackupPath}\n\n⚠️ UWAGA: To jest symulacja. Implementacja w następnym kroku.",
+                "Sukces",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            BackupStatus = $"❌ Błąd podczas tworzenia backupu: {ex.Message}";
+            _logger.LogError(ex, "Błąd podczas tworzenia backupu");
+
+            MessageBox.Show(
+                $"❌ Błąd podczas tworzenia backupu:\n{ex.Message}",
+                "Błąd",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsBackingUp = false;
+        }
+    }
+
+    /// <summary>
+    /// Pobiera statystyki bazy danych
+    /// </summary>
+    [RelayCommand]
+    private async Task GetDatabaseStatisticsAsync()
+    {
+        IsLoadingStats = true;
+
+        try
+        {
+            // TODO: Implementacja pobierania statystyk z MySQL
+            // - SELECT DATABASE() dla nazwy bazy
+            // - COUNT(*) z information_schema.tables dla liczby tabel
+            // - SUM(TABLE_ROWS) z information_schema.tables dla liczby rekordów
+            // - SUM(DATA_LENGTH + INDEX_LENGTH) dla rozmiaru bazy
+
+            _logger.LogInformation("📊 Pobieranie statystyk bazy danych...");
+
+            // Symulacja (na razie)
+            await Task.Delay(1000);
+
+            DbName = "asmed_edm";
+            TableCount = "42";
+            TotalRecords = "15,384";
+            DatabaseSize = "128.5 MB";
+            // LastBackupDate już jest ustawiony w CreateBackupAsync
+
+            _logger.LogInformation("✅ Statystyki pobrane pomyślnie");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd podczas pobierania statystyk");
+
+            MessageBox.Show(
+                $"❌ Błąd podczas pobierania statystyk:\n{ex.Message}",
+                "Błąd",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsLoadingStats = false;
+        }
+    }
+
+    /// <summary>
+    /// Optymalizuje tabele w bazie danych
+    /// </summary>
+    [RelayCommand]
+    private async Task OptimizeTablesAsync()
+    {
+        IsOptimizing = true;
+        MaintenanceStatus = "🔄 Optymalizacja tabel...";
+
+        try
+        {
+            // TODO: Implementacja OPTIMIZE TABLE
+            // - Pobierz listę wszystkich tabel
+            // - Wykonaj OPTIMIZE TABLE dla każdej tabeli
+            // - Loguj wyniki
+
+            _logger.LogInformation("🧹 Rozpoczęto optymalizację tabel...");
+
+            await Task.Delay(2000);
+
+            MaintenanceStatus = "✅ Tabele zoptymalizowane pomyślnie! (TODO: implementacja)";
+            _logger.LogInformation("✅ Optymalizacja tabel zakończona");
+
+            MessageBox.Show(
+                "✅ Tabele zostały zoptymalizowane!\n\n⚠️ UWAGA: To jest symulacja. Implementacja w następnym kroku.",
+                "Sukces",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MaintenanceStatus = $"❌ Błąd optymalizacji: {ex.Message}";
+            _logger.LogError(ex, "Błąd podczas optymalizacji tabel");
+
+            MessageBox.Show(
+                $"❌ Błąd podczas optymalizacji:\n{ex.Message}",
+                "Błąd",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsOptimizing = false;
+        }
+    }
+
+    /// <summary>
+    /// Naprawia tabele w bazie danych
+    /// </summary>
+    [RelayCommand]
+    private async Task RepairTablesAsync()
+    {
+        IsRepairing = true;
+        MaintenanceStatus = "🔄 Naprawa tabel...";
+
+        try
+        {
+            // TODO: Implementacja REPAIR TABLE
+            // - Pobierz listę wszystkich tabel
+            // - Wykonaj REPAIR TABLE dla każdej tabeli
+            // - Loguj wyniki
+
+            _logger.LogInformation("🔍 Rozpoczęto naprawę tabel...");
+
+            await Task.Delay(2000);
+
+            MaintenanceStatus = "✅ Tabele naprawione pomyślnie! (TODO: implementacja)";
+            _logger.LogInformation("✅ Naprawa tabel zakończona");
+
+            MessageBox.Show(
+                "✅ Tabele zostały naprawione!\n\n⚠️ UWAGA: To jest symulacja. Implementacja w następnym kroku.",
+                "Sukces",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MaintenanceStatus = $"❌ Błąd naprawy: {ex.Message}";
+            _logger.LogError(ex, "Błąd podczas naprawy tabel");
+
+            MessageBox.Show(
+                $"❌ Błąd podczas naprawy:\n{ex.Message}",
+                "Błąd",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsRepairing = false;
         }
     }
 }

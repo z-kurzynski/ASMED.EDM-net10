@@ -204,6 +204,11 @@
                                 </Grid>
                             </TabItem>
 
+                            <!-- Podzakładka 5: Narzędzia -->
+                            <TabItem Header="🛠️ Narzędzia" FontSize="13" Padding="12,8">
+                                <viewssettings:ToolsView />
+                            </TabItem>
+
                         </TabControl>
                     </Grid>
                 </TabItem>

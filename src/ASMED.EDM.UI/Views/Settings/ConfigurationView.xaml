@@ -5,19 +5,36 @@
              Background="#FFB6D4F3">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid Margin="20">
-            <StackPanel>
-                <!-- Nagłówek -->
-                <TextBlock Text="🔧 Konfiguracja Połączeń MySQL" 
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/><!-- Nagłówek -->
+                <RowDefinition Height="*"/><!-- 2-kolumnowy content -->
+            </Grid.RowDefinitions>
+
+            <!-- ==================== NAGŁÓWEK ==================== -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="🔧 Konfiguracja i Zarządzanie Bazą Danych MySQL" 
                           FontSize="24" 
                           FontWeight="Bold" 
                           Foreground="#FF1976D2" 
-                          Margin="0,0,0,20"/>
+                          Margin="0,0,0,10"/>
 
-                <TextBlock Text="Skonfiguruj połączenia do baz danych MySQL w chmurze (Primary, Backup, Local)" 
+                <TextBlock Text="Skonfiguruj połączenia do baz danych MySQL w chmurze i zarządzaj bazą danych" 
                           FontSize="14" 
                           Foreground="#FF555555" 
-                          TextWrapping="Wrap"
-                          Margin="0,0,0,30"/>
+                          TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- ==================== 2-KOLUMNOWY LAYOUT ==================== -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/><!-- Lewa kolumna: Połączenia -->
+                    <ColumnDefinition Width="20"/><!-- Spacer -->
+                    <ColumnDefinition Width="*"/><!-- Prawa kolumna: Zarządzanie bazą -->
+                </Grid.ColumnDefinitions>
+
+                <!-- ========== LEWA KOLUMNA: POŁĄCZENIA ========== -->
+                <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
 
                 <!-- ========================== PRIMARY CONNECTION ========================== -->
                 <Border BorderBrush="#FF4CAF50" 
@@ -330,7 +347,232 @@
                     </StackPanel>
                 </Border>
 
-            </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ========== PRAWA KOLUMNA: ZARZĄDZANIE BAZĄ ========== -->
+                <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+
+                        <!-- ========================== INICJALIZACJA BAZY ========================== -->
+                        <Border BorderBrush="#FF9C27B0" 
+                                BorderThickness="2" 
+                                CornerRadius="8" 
+                                Padding="20" 
+                                Margin="0,0,0,20"
+                                Background="White">
+                            <StackPanel>
+                                <TextBlock Text="🗄️ Inicjalizacja Bazy Danych" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Foreground="#FF9C27B0"
+                                          Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Utwórz strukturę bazy danych (tabele, indeksy, relacje)" 
+                                          FontSize="12" 
+                                          Foreground="Gray"
+                                          TextWrapping="Wrap"
+                                          Margin="0,0,0,15"/>
+
+                                <syncfusion:ButtonAdv Content="⚡ Inicjalizuj Bazę Danych"
+                                                     Command="{Binding InitializeDatabaseCommand}"
+                                                     IsEnabled="{Binding IsInitializing, Converter={StaticResource InverseBooleanConverter}}"
+                                                     Background="#FF9C27B0"
+                                                     Foreground="White"
+                                                     FontSize="14"
+                                                     Padding="20,10"
+                                                     HorizontalAlignment="Stretch"
+                                                     Margin="0,0,0,10"/>
+
+                                <TextBlock Text="{Binding InitializationStatus}" 
+                                          FontSize="12" 
+                                          Foreground="#FF9C27B0"
+                                          TextWrapping="Wrap"
+                                          FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ========================== BACKUP BAZY ========================== -->
+                        <Border BorderBrush="#FFFF6F00" 
+                                BorderThickness="2" 
+                                CornerRadius="8" 
+                                Padding="20" 
+                                Margin="0,0,0,20"
+                                Background="White">
+                            <StackPanel>
+                                <TextBlock Text="💾 Backup Bazy Danych" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Foreground="#FFFF6F00"
+                                          Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Wykonaj pełną kopię zapasową bazy danych MySQL" 
+                                          FontSize="12" 
+                                          Foreground="Gray"
+                                          TextWrapping="Wrap"
+                                          Margin="0,0,0,15"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" 
+                                              Text="Ścieżka:" 
+                                              VerticalAlignment="Center" 
+                                              Margin="0,0,10,10"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" 
+                                            Text="{Binding BackupPath, UpdateSourceTrigger=PropertyChanged}" 
+                                            Margin="0,0,0,10"
+                                            FontSize="12"/>
+
+                                    <syncfusion:ButtonAdv Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                         Content="📦 Utwórz Backup"
+                                                         Command="{Binding CreateBackupCommand}"
+                                                         IsEnabled="{Binding IsBackingUp, Converter={StaticResource InverseBooleanConverter}}"
+                                                         Background="#FFFF6F00"
+                                                         Foreground="White"
+                                                         FontSize="14"
+                                                         Padding="20,10"
+                                                         HorizontalAlignment="Stretch"
+                                                         Margin="0,0,0,10"/>
+                                </Grid>
+
+                                <TextBlock Text="{Binding BackupStatus}" 
+                                          FontSize="12" 
+                                          Foreground="#FFFF6F00"
+                                          TextWrapping="Wrap"
+                                          FontStyle="Italic"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ========================== STATYSTYKI BAZY ========================== -->
+                        <Border BorderBrush="#FF00796B" 
+                                BorderThickness="2" 
+                                CornerRadius="8" 
+                                Padding="20" 
+                                Margin="0,0,0,20"
+                                Background="White">
+                            <StackPanel>
+                                <TextBlock Text="📊 Statystyki Bazy Danych" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Foreground="#FF00796B"
+                                          Margin="0,0,0,15"/>
+
+                                <syncfusion:ButtonAdv Content="🔍 Pobierz Statystyki"
+                                                     Command="{Binding GetDatabaseStatisticsCommand}"
+                                                     IsEnabled="{Binding IsLoadingStats, Converter={StaticResource InverseBooleanConverter}}"
+                                                     Background="#FF00796B"
+                                                     Foreground="White"
+                                                     FontSize="14"
+                                                     Padding="20,10"
+                                                     HorizontalAlignment="Stretch"
+                                                     Margin="0,0,0,15"/>
+
+                                <!-- Wyniki statystyk -->
+                                <Border BorderBrush="#FFE0E0E0" 
+                                        BorderThickness="1" 
+                                        CornerRadius="4" 
+                                        Padding="15"
+                                        Background="#FFF9F9F9">
+                                    <StackPanel>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+
+                                            <!-- Nazwa bazy -->
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Nazwa bazy:" FontSize="12" Margin="0,0,0,8"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding DbName}" FontWeight="Bold" FontSize="12" Margin="0,0,0,8"/>
+
+                                            <!-- Liczba tabel -->
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Liczba tabel:" FontSize="12" Margin="0,0,0,8"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TableCount}" FontWeight="Bold" FontSize="12" Margin="0,0,0,8"/>
+
+                                            <!-- Liczba rekordów -->
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Łączna liczba rekordów:" FontSize="12" Margin="0,0,0,8"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding TotalRecords}" FontWeight="Bold" FontSize="12" Margin="0,0,0,8"/>
+
+                                            <!-- Rozmiar bazy -->
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Rozmiar bazy:" FontSize="12" Margin="0,0,0,8"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DatabaseSize}" FontWeight="Bold" FontSize="12" Margin="0,0,0,8"/>
+
+                                            <!-- Data ostatniego backupu -->
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Ostatni backup:" FontSize="12"/>
+                                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LastBackupDate}" FontWeight="Bold" FontSize="12"/>
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ========================== OPERACJE KONSERWACYJNE ========================== -->
+                        <Border BorderBrush="#FF455A64" 
+                                BorderThickness="2" 
+                                CornerRadius="8" 
+                                Padding="20" 
+                                Margin="0,0,0,20"
+                                Background="White">
+                            <StackPanel>
+                                <TextBlock Text="🔧 Operacje Konserwacyjne" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Foreground="#FF455A64"
+                                          Margin="0,0,0,15"/>
+
+                                <TextBlock Text="Narzędzia do optymalizacji i konserwacji bazy danych" 
+                                          FontSize="12" 
+                                          Foreground="Gray"
+                                          TextWrapping="Wrap"
+                                          Margin="0,0,0,15"/>
+
+                                <syncfusion:ButtonAdv Content="🧹 Optymalizuj Tabele"
+                                                     Command="{Binding OptimizeTablesCommand}"
+                                                     IsEnabled="{Binding IsOptimizing, Converter={StaticResource InverseBooleanConverter}}"
+                                                     Background="#FF455A64"
+                                                     Foreground="White"
+                                                     FontSize="13"
+                                                     Padding="15,8"
+                                                     HorizontalAlignment="Stretch"
+                                                     Margin="0,0,0,10"/>
+
+                                <syncfusion:ButtonAdv Content="🔍 Napraw Tabele"
+                                                     Command="{Binding RepairTablesCommand}"
+                                                     IsEnabled="{Binding IsRepairing, Converter={StaticResource InverseBooleanConverter}}"
+                                                     Background="#FF546E7A"
+                                                     Foreground="White"
+                                                     FontSize="13"
+                                                     Padding="15,8"
+                                                     HorizontalAlignment="Stretch"
+                                                     Margin="0,0,0,10"/>
+
+                                <TextBlock Text="{Binding MaintenanceStatus}" 
+                                          FontSize="12" 
+                                          Foreground="#FF455A64"
+                                          TextWrapping="Wrap"
+                                          FontStyle="Italic"
+                                          Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+            </Grid>
         </Grid>
     </ScrollViewer>
 </UserControl>

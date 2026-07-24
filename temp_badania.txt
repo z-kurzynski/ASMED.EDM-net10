@@ -1,0 +1,81 @@
+﻿using ASMED.WPF.ViewModels;
+
+using System.Windows;
+
+using System.Windows.Controls;
+
+using System.ComponentModel;
+
+using System;
+
+using ASMED.WPF.ViewModels.Badania;
+
+using System.Linq;
+
+using ASMED.WPF.Helpers;
+
+
+
+namespace ASMED.WPF.Views
+
+{
+
+    public partial class BadaniaView : UserControl
+
+    {
+
+        public BadaniaView()
+
+        {
+
+            InitializeComponent();
+
+
+
+            if (!DesignerProperties.GetIsInDesignMode(this))
+
+            {
+
+                var vm = new BadaniaListViewModel();
+
+                DataContext = vm;
+
+
+
+                // subscribe to VM property changes if needed
+
+                if (vm is INotifyPropertyChanged inpc)
+
+                {
+
+                    inpc.PropertyChanged += Vm_PropertyChanged;
+
+                }
+
+
+
+                this.Loaded += (s, e) => { try { vm.RefreshFromDb(); LoadEditView(); } catch { } };
+
+                this.IsVisibleChanged += (s, e) => { if (this.IsVisible) { try { vm.RefreshFromDb(); LoadEditView(); } catch { } } };
+
+            }
+
+        }
+
+
+
+        private void Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+
+        {
+            throw new NotImplementedException();
+        }
+
+        private void LoadEditView()
+        {
+            // TODO: Implement LoadEditView
+            throw new NotImplementedException();
+        }
+    }
+}
+
+

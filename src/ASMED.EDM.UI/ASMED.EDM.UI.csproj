@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <!-- Views folders -->
+    <Folder Include="ViewModels\Pacjent\" />
     <Folder Include="Views\badania\" />
     <Folder Include="Views\cenniki\" />
     <Folder Include="Views\Dialogs\" />
@@ -58,7 +59,6 @@
     <Folder Include="Views\raporty\" />
     <Folder Include="Views\Reports\" />
     <Folder Include="Views\Scheduler\" />
-    <Folder Include="Views\Settings\" />
     <Folder Include="Views\Skierowania\" />
     <Folder Include="Views\skierowanialistapacjentow\" />
     <Folder Include="Views\skierowaniepacjentdodajview\" />
