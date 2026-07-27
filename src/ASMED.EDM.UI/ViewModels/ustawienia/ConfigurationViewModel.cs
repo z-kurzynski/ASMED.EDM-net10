@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using ASMED.EDM.Core.Configuration;
 using Microsoft.Extensions.Configuration;
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.Data.Helpers;
 
 namespace ASMED.EDM.UI.ViewModels;
 
@@ -436,26 +437,35 @@ public partial class ConfigurationViewModel : ObservableObject
 
         try
         {
-            // TODO: Implementacja inicjalizacji bazy danych
-            // - Sprawdzenie czy baza istnieje
-            // - Utworzenie tabel jeśli nie istnieją
-            // - Utworzenie indeksów
-            // - Utworzenie relacji FK
-            // - Seed initial data
-
             _logger.LogInformation("🗄️ Rozpoczęto inicjalizację bazy danych...");
 
-            // Symulacja (na razie)
-            await Task.Delay(2000);
+            // Wykorzystujemy DbConnectionFactory już dostępny w ViewModel
+            var result = await DatabaseInitializerMySQL.RunAsync(_dbFactory);
 
-            InitializationStatus = "✅ Baza danych zainicjalizowana pomyślnie! (TODO: implementacja)";
-            _logger.LogInformation("✅ Inicjalizacja bazy danych zakończona sukcesem");
+            if (result.HasErrors)
+            {
+                var errorMsg = string.Join("\n", result.Errors);
+                InitializationStatus = $"⚠️ Inicjalizacja zakończona z błędami:\n{errorMsg}";
+                _logger.LogWarning("⚠️ Inicjalizacja bazy danych zawiera błędy: {Errors}", errorMsg);
 
-            MessageBox.Show(
-                "✅ Baza danych została zainicjalizowana!\n\n⚠️ UWAGA: To jest symulacja. Implementacja w następnym kroku.",
-                "Sukces",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                MessageBox.Show(
+                    $"⚠️ Inicjalizacja zakończona z błędami:\n\n{errorMsg}\n\nUtworzono tabele:\n{string.Join(", ", result.Created)}",
+                    "Ostrzeżenie",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+            else
+            {
+                var createdMsg = string.Join("\n• ", result.Created);
+                InitializationStatus = $"✅ Baza danych zainicjalizowana pomyślnie!\nUtworzono: {result.Created.Count} tabel.";
+                _logger.LogInformation("✅ Inicjalizacja bazy danych zakończona sukcesem. Utworzono {Count} tabel", result.Created.Count);
+
+                MessageBox.Show(
+                    $"✅ Baza danych została zainicjalizowana!\n\nUtworzono tabele ({result.Created.Count}):\n• {createdMsg}",
+                    "Sukces",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
         }
         catch (Exception ex)
         {

@@ -1,0 +1,2530 @@
+﻿
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: B_Skierowania                                                                                    Strona: 1
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                29.12.2025 22:58:29
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([B_Skierowania].[B_ID]=33   FilterOnLoad:               False
+GUID:                        {guid {D6CF2A11-F035-        HideNewField:               False
+                             40A3-9819-
+                             B1A80DF9F1F7}}
+LastUpdated:                 7.05.2026 11:38:59           NameMap:                    Dane binarne długie
+OrderBy:                     [B_Skierowania].[B_Pacjent   OrderByOn:                  True
+                             _ID] DESC,
+                             [B_Skierowania].[B_ID]
+                             DESC,
+                             [B_Skierowania].[B_Badani
+                             e_ID],
+                             [B_Skierowania].[B_Firma_I
+                             D],
+                             [B_Skierowania].[B_DataSk
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+
+RecordCount:                 3639                         RowHeight:                  288
+ThemeFontIndex:              1                            TotalsRow:                  False
+Updatable:                   True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          B_ID                                                      Liczba całkowita długa                      4
+
+          B_Pacjent_ID                                              Liczba całkowita długa                      4
+
+          B_ID_OLD                                                  Liczba całkowita długa                      4
+
+          B_ID_pacjenta                                             Liczba całkowita długa                      4
+
+          B_Firma_ID                                                Liczba całkowita długa                      4
+          B_Badanie_ID                                              Liczba całkowita długa                      4
+
+          B_Faktura_ID                                              Liczba całkowita długa                      4
+
+          B_DataSkierowania                                         Data i godzina                              8
+
+          B_TypBadania                                              Krótki tekst                              255
+
+          B_Stanowisko                                              Krótki tekst                              255
+
+          B_RegistrationDate                                        Data i godzina                              8
+          B_czynnik_fizyczny                                        Tak/Nie                                     1
+
+          B_czynnik_fizyczny_opis                                   Krótki tekst                              255
+
+          B_czynnik_pyłowy                                          Tak/Nie                                     1
+
+          B_czynnik_pyłowy_opis                                     Krótki tekst                              255
+
+          B_czynnik_chemiczny                                       Tak/Nie                                     1
+
+          B_czynnik_chemiczny_opis                                  Krótki tekst                              255
+          B_czynnik_biologiczny                                     Tak/Nie                                     1
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: B_Skierowania                                                                                    Strona: 2
+
+
+          B_czynnik_biologiczny_opis                                Krótki tekst                              255
+          B_czynnik_inny                                            Tak/Nie                                     1
+
+          B_czynnik_inny_opis                                       Krótki tekst                              255
+
+          B_czynnik_sanepid                                         Tak/Nie                                     1
+
+          B_czynnik_sanepid_opis                                    Krótki tekst                              255
+
+          B_Comments                                                Krótki tekst                              255
+          B_Scan                                                    Tak/Nie                                     1
+
+          B_Zaswiadczenie                                           Tak/Nie                                     1
+
+          B_książeczka                                              Tak/Nie                                     1
+
+          B_Ankieta                                                 Tak/Nie                                     1
+
+          B_Bad                                                     Tak/Nie                                     1
+
+          B_Nowe                                                    Tak/Nie                                     1
+          B_karta                                                   Tak/Nie                                     1
+
+          B_rejestr                                                 Tak/Nie                                     1
+
+          B_Activ                                                   Tak/Nie                                     1
+
+          B_Wyb                                                     Tak/Nie                                     1
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          B_Faktura_ID                               1
+                    Pola:
+                    B_Faktura_ID                Rosnąco
+
+
+
+
+
+
+          B_Firma_ID                                 1
+                    Pola:
+
+                    B_Firma_ID                  Rosnąco
+
+
+
+
+
+
+          B_Pacjent_ID                               1
+                    Pola:
+                    B_Pacjent_ID                Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: B_Skierowania                                                                                    Strona: 3
+
+
+                    Pola:
+                    B_ID                        Rosnąco
+
+
+
+
+
+
+          Sanepid                                    1
+                    Pola:
+                    B_książeczka                Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: BAD_Cennik                                                                                       Strona: 4
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                4.07.2025 23:48:32
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([BAD_Cennik].[b_Cennik]="   FilterOnLoad:               False
+                             PRM")
+GUID:                        {guid {2A291502-63F5-        HideNewField:               False
+                             4622-A3C8-
+                             5BF7D8C831DC}}
+LastUpdated:                 17.12.2025 14:02:50          NameMap:                    Dane binarne długie
+OrderBy:                     [BAD_Cennik].[b_Nazwa],      OrderByOn:                  True
+                             [BAD_Cennik].[b_Cennik]
+
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+
+RecordCount:                 77                           ThemeFontIndex:             1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          b_Nazwa                                                   Krótki tekst                              255
+
+          b_Cena                                                    Waluta                                      8
+
+          b_Vat                                                     Liczba całkowita długa                      4
+          b_Cennik                                                  Krótki tekst                              255
+
+          b_activ                                                   Tak/Nie                                     1
+
+
+
+
+
+
+
+
+Indeksy tabeli
+
+          Nazw                                       Liczba pól
+
+          PrimaryKey                                 1
+                    Pola:
+
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: BAD_Lista                                                                                        Strona: 5
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                4.07.2025 23:51:26
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {81DAA11D-E0FB-
+                                                                                      4CA0-9CBA-
+HideNewField:                False                        LastUpdated:                26.07.2025 21:50:21
+
+NameMap:                     Dane binarne długie          OrderByOn:                  False
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 14                           ThemeFontIndex:             1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          bn_nazwa                                                  Krótki tekst                              255
+
+          bn_activ                                                  Tak/Nie                                     1
+
+          bn_cennik                                                 Krótki tekst                              255
+
+          bn_Cen_activ                                              Tak/Nie                                     1
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          PrimaryKey                                 1
+
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Badanie                                                                                          Strona: 6
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                30.08.2025 19:18:28
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([Badanie].[Bad_P_ID]=186    FilterOnLoad:               False
+GUID:                        {guid {4EFE8D26-0EFE-        HideNewField:               False
+                             400E-80D0-
+                             F4A084252090}}
+LastUpdated:                 27.07.2026 17:52:15          NameMap:                    Dane binarne długie
+OrderBy:                     [Badanie].[Bad_Fakt] DESC,   OrderByOn:                  True
+                              [Badanie].[Bad_ID],
+                             [Badanie].[Bad_P_ID],
+                             [Badanie].[Bad_S_ID]
+
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 3442                         ThemeFontIndex:             -1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          Bad_ID                                                    Liczba całkowita długa                      4
+
+          Bad_R_ID                                                  Liczba całkowita długa                      4
+
+          Bad_S_ID                                                  Liczba całkowita długa                      4
+
+          Bad_P_ID                                                  Liczba całkowita długa                      4
+
+          Bad_L_ID                                                  Liczba całkowita długa                      4
+          Bad_F_ID                                                  Liczba całkowita długa                      4
+
+          Bad_Fakt_ID                                               Liczba całkowita długa                      4
+
+          Bad_Fakt                                                  Krótki tekst                              255
+
+          Bad_bn_cennik                                             Krótki tekst                              255
+
+          Bad_Typ                                                   Krótki tekst                               50
+
+          Bad_Data                                                  Data i godzina                              8
+          Bad_Data_Do                                               Data i godzina                              8
+
+          Bad_Wynik                                                 Długi tekst                                 -
+
+          Bad_Cena1                                                 Waluta                                      8
+
+          Bad_Cena2                                                 Waluta                                      8
+
+          Bad_Cena3                                                 Waluta                                      8
+
+          Bad_Cena4                                                 Waluta                                      8
+          Bad_Cena5                                                 Waluta                                      8
+
+          Bad_Cena6                                                 Waluta                                      8
+
+          Bad_Cena7                                                 Waluta                                      8
+
+          Bad_Cena8                                                 Waluta                                      8
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Badanie                                                                                          Strona: 7
+
+
+          Bad_Cena9                                                 Waluta                                      8
+          Bad_Cena10                                                Waluta                                      8
+
+          Bad_Razem                                                 Waluta                                      8
+
+          Bad_Nr_KS                                                 Krótki tekst                              255
+
+          Bad_ID_Numer                                              Krótki tekst                              255
+
+          Bad_END                                                   Tak/Nie                                     1
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          Bad_F_ID                                   1
+
+                    Pola:
+                    Bad_F_ID                    Rosnąco
+
+
+
+
+
+
+          Bad_Fakt_ID                                1
+                    Pola:
+
+                    Bad_Fakt_ID                 Rosnąco
+
+
+
+
+
+          Bad_L_ID                                   1
+
+                    Pola:
+                    Bad_L_ID                    Rosnąco
+
+
+
+
+
+
+          Bad_P_ID                                   1
+                    Pola:
+
+                    Bad_P_ID                    Rosnąco
+
+
+
+
+
+          Bad_S_ID                                   1
+
+                    Pola:
+                    Bad_S_ID                    Rosnąco
+
+
+
+
+
+
+          Index_5A02F407_F11D_4CD7                   1
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Badanie                                                                                          Strona: 8
+
+
+                    Pola:
+                    Bad_ID                      Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Daj_Bad                                                                                          Strona: 9
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                3.12.2025 22:37:50
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {09C45C4C-9ED9-
+                                                                                      468B-B782-
+HideNewField:                False                        LastUpdated:                17.12.2025 16:47:01
+
+NameMap:                     Dane binarne długie          OrderBy:                    [Daj_Bad].[B_ID_pacjenta]
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                3033
+ThemeFontIndex:              -1                           TotalsRow:                  False
+
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Lx_ID_Skierowania                                         Liczba całkowita długa                      4
+
+          Max_B_ID                                                  Liczba całkowita długa                      4
+          B_ID_pacjenta                                             Liczba całkowita długa                      4
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Faktura                                                                                         Strona: 10
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                30.08.2025 19:19:01
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([Faktura].[FK_Num_Listy]    FilterOnLoad:               False
+                             Not In (0))
+GUID:                        {guid {7B6C6578-B62F-        HideNewField:               False
+                             4FC0-8B40-
+                             FE48741E7C7D}}
+LastUpdated:                 28.12.2025 01:50:40          NameMap:                    Dane binarne długie
+OrderBy:                     [Faktura].[FK_Firma_ID]      OrderByOn:                  True
+                             DESC, [Faktura].[FK_ID]
+                             DESC, [Faktura].[FK_Data]
+                             DESC,
+                             [Faktura].[FK_Numer],
+                             [Faktura].[FK_Suma_Bad]
+                             DESC, [Faktura].[FK_Saldo]
+
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+
+RecordCount:                 1560                         ThemeFontIndex:             -1
+TotalsRow:                   True                         Updatable:                  True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          FK_ID                                                     Liczba całkowita długa                      4
+
+          FK_Firma_ID                                               Liczba całkowita długa                      4
+
+          FK_Numer                                                  Krótki tekst                               30
+          FK_Data                                                   Data i godzina                              8
+
+          FK_Kwota                                                  Waluta                                      8
+
+          FK_Uwagi                                                  Krótki tekst                              255
+
+          FK_Cennik                                                 Krótki tekst                              255
+
+          FK_Suma_Bad                                               Waluta                                      8
+
+          FK_Saldo                                                  Waluta                                      8
+          FK_Status                                                 Krótki tekst                               20
+
+          FK_PDF                                                    Tak/Nie                                     1
+
+          FK_Num_Listy                                              Liczba całkowita długa                      4
+
+
+
+
+
+
+
+Relacje
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Faktura                                                                                         Strona: 11
+
+
+
+         FirmaFaktura
+
+                              Firma                               Faktura
+
+
+                    ID                           1      FK_Firma_ID
+
+
+                  Attributes:                Wymuszony
+
+                  RelationshipType:          Jeden-do-wielu
+
+
+
+
+
+Indeksy tabeli
+
+          Nazw                                       Liczba pól
+
+          FK_Faktura_Firma                           1
+                    Pola:
+
+                    FK_Firma_ID                 Rosnąco
+
+
+
+
+
+          Index_1FD2DA6D_2DA2_41C4                   1
+
+                    Pola:
+                    FK_ID                       Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Firma                                                                                           Strona: 12
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                10.08.2025 12:04:35
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      (Firma.FKemail Is Not Null   FilterOnLoad:               False
+                             And Firma.FKemail<>"")
+GUID:                        {guid {D75C983B-EC95-        HideNewField:               False
+                             446D-9283-
+                             11483D386CC4}}
+LastUpdated:                 14.01.2026 12:14:08          LinkChildFields:            C_Firma_ID
+LinkMasterFields:            id                           NameMap:                    Dane binarne długie
+
+OrderBy:                     [Firma].[id] DESC,           OrderByOn:                  True
+                             [Firma].[FKemail] DESC,
+                             [Firma].[Cennik],
+                             [Firma].[NIP] DESC
+
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+
+RecordCount:                 640                          SubdatasheetName:           Table.*Cennik
+ThemeFontIndex:              1                            TotalsRow:                  False
+Updatable:                   True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          id                                                        Liczba całkowita długa                      4
+
+          activ                                                     Tak/Nie                                     1
+
+          Del                                                       Tak/Nie                                     1
+
+          Cennik                                                    Krótki tekst                              255
+
+          Nazwa                                                     Krótki tekst                              255
+          Ulica                                                     Krótki tekst                              255
+
+          Kod                                                       Krótki tekst                              255
+
+          Miejscowosc                                               Krótki tekst                              255
+
+          NIP                                                       Krótki tekst                              255
+
+          brak_nip                                                  Tak/Nie                                     1
+
+          Regon                                                     Krótki tekst                              255
+          Kraj                                                      Krótki tekst                              255
+
+          umowa_do                                                  Krótki tekst                              255
+
+          czas_nieokreslon                                          Tak/Nie                                     1
+
+          Osoba_kontaktowa                                          Krótki tekst                              255
+
+          Telefon                                                   Krótki tekst                              255
+
+          Email                                                     Krótki tekst                              255
+          Metoda_płatności                                          Krótki tekst                              255
+
+          Termin_płatności                                          Krótki tekst                              255
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Firma                                                                                           Strona: 13
+
+
+          Nabywca_płatnik                                           Krótki tekst                              255
+          Sposób przesłania faktury                                 Tak/Nie                                     1
+
+          FKemail                                                   Krótki tekst                              255
+
+
+
+
+
+
+
+Relacje
+
+
+
+
+         Firma*Cennik
+
+                              Firma                               *Cennik
+
+                    id                           1      C_Firma_ID
+
+
+
+                  Attributes:                Wymuszony
+                  RelationshipType:          Jeden-do-wielu
+
+
+
+
+
+         FirmaFaktura
+
+                              Firma                               Faktura
+
+
+                    ID                           1      FK_Firma_ID
+
+
+                  Attributes:                Wymuszony
+
+                  RelationshipType:          Jeden-do-wielu
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          id                                         1
+
+                    Pola:
+                    id                          Rosnąco
+
+
+
+
+
+
+          Kod                                        1
+                    Pola:
+                    Kod                         Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Firma                                                                                           Strona: 14
+
+
+                    Pola:
+                    id                          Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: FormatowanieTekstu                                                                              Strona: 15
+
+
+
+
+Właściwości
+
+DateCreated:                 12.01.2026 16:28:57          LastUpdated:                12.01.2026 16:28:57
+RecordCount:                 7                            Updatable:                  True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          ID                                                        Liczba całkowita długa                      4
+
+          Slowo                                                     Krótki tekst                              100
+
+          FormatTyp                                                 Krótki tekst                               20
+          Kategoria                                                 Krótki tekst                               50
+
+
+
+
+
+
+
+
+Indeksy tabeli
+
+          Nazw                                       Liczba pól
+
+          Index_6ADC28AE_44AB_4119                   1
+                    Pola:
+
+                    ID                          Rosnąco
+
+
+
+
+
+          Index_B946880B_9650_49AE                   1
+
+                    Pola:
+                    Slowo                       Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Gminy                                                                                           Strona: 16
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                4.12.2025 23:23:35
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {E01E13B0-2A26-
+                                                                                      4AB6-9EDC-
+HideNewField:                False                        LastUpdated:                16.12.2025 18:31:47
+
+NameMap:                     Dane binarne długie          OrderBy:                    [Gminy].[Miasto] DESC,
+                                                                                      [Gminy].[MiastoUp]
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                27189
+
+ThemeFontIndex:              -1                           TotalsRow:                  False
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          autonumer                                                 Liczba całkowita długa                      4
+
+          Gmina                                                     Krótki tekst                               50
+
+          Miasto                                                    Krótki tekst                               50
+          Opis                                                      Krótki tekst                               50
+
+          Kod                                                       Krótki tekst                                7
+
+          MiastoUp                                                  Krótki tekst                               50
+
+          idgB                                                      Liczba całkowita długa                      4
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          Kod                                        1
+                    Pola:
+                    Kod                         Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Gminy                                                                                           Strona: 17
+
+
+                    Pola:
+                    autonumer                   Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: ListyBadan                                                                                      Strona: 18
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                18.10.2025 12:50:40
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {9ECA0371-1C1D-
+                                                                                      4383-BFA2-
+HideNewField:                False                        LastUpdated:                13.02.2026 08:18:48
+
+NameMap:                     Dane binarne długie          OrderBy:                    [ListyBadan].[L_FK_ID] DESC
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                248
+ThemeFontIndex:              1                            TotalsRow:                  False
+
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          L_FK_ID                                                   Liczba całkowita długa                      4
+          L_Firma_ID                                                Liczba całkowita długa                      4
+
+          L_Data                                                    Data i godzina                              8
+
+          L_Uwagi                                                   Krótki tekst                              255
+
+          L_Email                                                   Tak/Nie                                     1
+
+          L_Email_Adres                                             Krótki tekst                              255
+          L_Email_data                                              Data i godzina                              8
+
+          L_End                                                     Tak/Nie                                     1
+
+          L_Wydruk_Typ                                              Krótki tekst                              255
+
+          L_Nazwa                                                   Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          L_Firma_ID                                 1
+                    Pola:
+                    L_Firma_ID                  Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: ListyBadan                                                                                      Strona: 19
+
+
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: LoginHistory                                                                                    Strona: 20
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                25.01.2026 16:45:31
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {BD1C30BA-6C0D-
+                                                                                      4290-9E5B-
+HideNewField:                False                        LastUpdated:                27.07.2026 17:51:58
+
+NameMap:                     Dane binarne długie          OrderByOn:                  False
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 287                          ThemeFontIndex:             -1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          Id                                                        Liczba całkowita długa                      4
+
+          UserId                                                    Liczba całkowita długa                      4
+
+          Username                                                  Krótki tekst                               50
+
+          LoginTime                                                 Data i godzina                              8
+
+          LogoutTime                                                Data i godzina                              8
+          ComputerName                                              Krótki tekst                              100
+
+          IpAddress                                                 Krótki tekst                               50
+
+          Success                                                   Tak/Nie                                     1
+
+          FailureReason                                             Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          Index_DB8141C0_F3B8_49DB                   1
+                    Pola:
+                    Id                          Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: P_Pacjent                                                                                       Strona: 21
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                10.08.2025 12:04:35
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([P_Pacjent].[P_Firma_id]=3  FilterOnLoad:               False
+GUID:                        {guid {4C55B41F-8E94-        HideNewField:               False
+                             49D9-B093-
+                             27C39114C50A}}
+LastUpdated:                 27.07.2026 17:58:34          NameMap:                    Dane binarne długie
+OrderBy:                     [P_Pacjent].[P_ID] DESC,     OrderByOn:                  True
+                             [P_Pacjent].[P_pesel] DESC,
+                              [P_Pacjent].[P_firma]
+                             DESC,
+                             [P_Pacjent].[P_Firma_id],
+                             [P_Pacjent].[P_nazwisko],
+                             [P_Pacjent].[P_imie]
+
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 4034                         ThemeFontIndex:             1
+
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          P_ID                                                      Liczba całkowita długa                      4
+
+          P_pesel                                                   Krótki tekst                              255
+          P_brak                                                    Tak/Nie                                     1
+
+          P_płeć                                                    Krótki tekst                              255
+
+          P_imie                                                    Krótki tekst                              255
+
+          P_nazwisko                                                Krótki tekst                              255
+
+          P_Ades_kod                                                Krótki tekst                              255
+          P_Adres_ulica_numer                                       Krótki tekst                              255
+
+          P_Ades_miasto                                             Krótki tekst                              255
+
+          P_zawód                                                   Krótki tekst                              255
+
+          P_firma                                                   Krótki tekst                              255
+
+          P_Adres_kraj                                              Krótki tekst                              255
+
+          P_data_urodzenia                                          Data i godzina                              8
+          P_obywatelstwo                                            Krótki tekst                              255
+
+          P_telefon                                                 Krótki tekst                              255
+
+          P_email                                                   Krótki tekst                              255
+
+          P_dwie                                                    Tak/Nie                                     1
+
+          P_activ                                                   Tak/Nie                                     1
+
+          P_Firma_id                                                Liczba całkowita długa                      4
+          P_Uwagi                                                   Krótki tekst                              255
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: P_Pacjent                                                                                       Strona: 22
+
+
+          P_ID_2                                                    Liczba całkowita długa                      4
+          P_Nowy                                                    Tak/Nie                                     1
+
+
+
+
+
+
+
+
+Indeksy tabeli
+
+          Nazw                                       Liczba pól
+
+          Ades_kod                                   1
+                    Pola:
+
+                    P_Ades_kod                  Rosnąco
+
+
+
+
+
+
+          P_Frima_ID                                 1
+                    Pola:
+                    P_Firma_id                  Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+                    Pola:
+
+                    P_ID                        Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: PES_Import_GOV                                                                                  Strona: 23
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                2.12.2025 14:47:25
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {B26556A2-35CC-
+                                                                                      47FF-96B4-
+HideNewField:                False                        LastUpdated:                2.12.2025 15:50:59
+
+NameMap:                     Dane binarne długie          OrderBy:                    [PES_Import_GOV].[PE_ID_
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                34
+RowHeight:                   408                          ThemeFontIndex:             1
+
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          PE_ID_Pacjent                                             Liczba całkowita długa                      4
+          PE_Pesel                                                  Krótki tekst                               11
+
+          PE_plec                                                   Krótki tekst                              255
+
+          PE_imie                                                   Krótki tekst                              255
+
+          PE_nazwisko                                               Krótki tekst                              255
+
+          PE_data_urodzenia                                         Data i godzina                              8
+          PE_Ades_kod                                               Krótki tekst                              255
+
+          PE_Ades_miasto                                            Krótki tekst                              255
+
+          PE_Adres_ulica_numer                                      Krótki tekst                              255
+
+          PE_Adres_kraj                                             Krótki tekst                              255
+
+          PE_ID_Firma                                               Liczba całkowita długa                      4
+
+          PE_Firma                                                  Krótki tekst                              255
+          PE_data                                                   Data i godzina                              8
+
+          PE_baza                                                   Tak/Nie                                     1
+
+          PE_Telefon                                                Krótki tekst                              255
+
+          PE_Email                                                  Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: PES_Import_GOV                                                                                  Strona: 24
+
+
+          Ades_kod                                   1
+                    Pola:
+                    PE_Ades_kod                 Rosnąco
+
+
+
+
+
+
+          PE_Pesel                                   1
+                    Pola:
+
+                    PE_Pesel                    Rosnąco
+
+
+
+
+
+
+          PrimaryKey                                 1
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Rejestracja                                                                                     Strona: 25
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                30.08.2025 19:16:21
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+Filter:                      ([Rejestracja].[R_S_ID]=50)  FilterOnLoad:               False
+GUID:                        {guid {45E88B37-36D3-        HideNewField:               False
+                             43F1-9F3F-
+                             E2A944A3ACB3}}
+LastUpdated:                 27.07.2026 17:58:29          NameMap:                    Dane binarne długie
+OrderBy:                     [Rejestracja].[R_Data],      OrderByOn:                  True
+                             [Rejestracja].[R_ID] DESC,
+                             [Rejestracja].[R_Employee_I
+                             D] DESC,
+                             [Rejestracja].[R_GG_MM]
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 3467                         ThemeFontIndex:             -1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          R_ID                                                      Liczba całkowita długa                      4
+
+          R_B_ID                                                    Liczba całkowita długa                      4
+
+          R_Data                                                    Data i godzina                              8
+
+          R_Status                                                  Krótki tekst                               20
+
+          R_Employee_ID                                             Liczba całkowita długa                      4
+          R_S_ID                                                    Liczba całkowita długa                      4
+
+          R_P_ID                                                    Liczba całkowita długa                      4
+
+          R_GG_MM                                                   Krótki tekst                              255
+
+          R_Uwagi                                                   Krótki tekst                              255
+
+          R_Subject                                                 Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          Index_377CA4D8_D428_4F14                   1
+
+                    Pola:
+                    R_ID                        Rosnąco
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Rejestracja                                                                                     Strona: 26
+
+
+          RP_ID                                      1
+                    Pola:
+                    R_P_ID                      Rosnąco
+
+
+
+
+
+
+          RS_ID                                      1
+                    Pola:
+
+                    R_S_ID                      Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: S__Ulice                                                                                        Strona: 27
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                8.07.2025 16:32:12
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {75EAFE30-3DE7-
+                                                                                      407D-AC0E-
+HideNewField:                False                        LastUpdated:                16.12.2025 19:31:25
+
+NameMap:                     Dane binarne długie          OrderBy:                    [S__Ulice].[S_Ulica]
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                5083
+ThemeFontIndex:              -1                           TotalsRow:                  False
+
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          S_Ulica                                                   Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          Identyfikator                              1
+
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: S_hints                                                                                         Strona: 28
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                16.08.2025 08:01:39
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {AF59A86C-C68E-
+                                                                                      410F-B893-
+HideNewField:                False                        LastUpdated:                16.08.2025 08:36:10
+
+NameMap:                     Dane binarne długie          OrderByOn:                  False
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 7                            ThemeFontIndex:             1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          S_hints_ID                                                Liczba całkowita długa                      4
+
+          S_hints_jobTitle                                          Krótki tekst                              255
+
+          S_hints_name                                              Krótki tekst                              255
+
+          S_hints_last_name                                         Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          PrimaryKey                                 1
+
+                    Pola:
+                    S_hints_ID                  Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: S_Imiona                                                                                        Strona: 29
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                24.07.2025 21:30:37
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {12601453-B7CE-
+                                                                                      4BE5-82D9-
+HideNewField:                False                        LastUpdated:                3.12.2025 20:54:31
+
+NameMap:                     Dane binarne długie          OrderBy:                    [S_Imiona].[Identyfikator]
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                462
+ThemeFontIndex:              1                            TotalsRow:                  False
+
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          S_imie                                                    Krótki tekst                              255
+          S_ile                                                     Liczba całkowita długa                      4
+
+          S_plec                                                    Krótki tekst                              255
+
+
+
+
+
+
+
+Relacje
+
+
+
+
+         S_Imiona*ExImport
+
+                             S_Imiona                            *ExImport
+
+                    S_imie                              EX_imie
+
+
+
+                  Attributes:                Nie wymuszony
+                  RelationshipType:          Nieokreślona
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          PrimaryKey                                 1
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: S_Imiona                                                                                        Strona: 30
+
+
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: S_Nazwisko                                                                                      Strona: 31
+
+
+
+
+Właściwości
+
+AlternateBackShade:          95                           AlternateBackThemeColo      1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      0
+
+DatasheetGridlinesTheme      3                            DateCreated:                24.07.2025 21:55:22
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {2721C7DB-EFB6-
+                                                                                      4646-9BF8-
+HideNewField:                False                        LastUpdated:                26.07.2025 21:44:03
+
+NameMap:                     Dane binarne długie          OrderBy:                    [S_Nazwisko].[S_Nazwisk
+OrderByOn:                   True                         OrderByOnLoad:              True
+
+Orientation:                 Od lewej do prawej           PublishToWeb:               1
+ReadOnlyWhenDisconne         False                        RecordCount:                2443
+ThemeFontIndex:              1                            TotalsRow:                  False
+
+Updatable:                   True
+
+
+
+Kolumny
+          Nazwa                                                     Typ                          Rozmiar
+
+
+          Identyfikator                                             Liczba całkowita długa                      4
+
+          S_Nazwisko                                                Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          PrimaryKey                                 1
+
+                    Pola:
+                    Identyfikator               Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Umowy_Firm                                                                                      Strona: 32
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                16.02.2026 00:42:19
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {152F4917-1EAE-
+                                                                                      4F6F-8B08-
+HideNewField:                False                        LastUpdated:                17.02.2026 00:05:51
+
+NameMap:                     Dane binarne długie          OrderByOn:                  False
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 3                            ThemeFontIndex:             -1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          Id                                                        Liczba całkowita długa                      4
+
+          Firma_ID                                                  Liczba całkowita długa                      4
+
+          Data_Umowy                                                Data i godzina                              8
+
+          Ilosc_Miesiecy                                            Liczba całkowita długa                      4
+
+          Czy_Terminowa                                             Tak/Nie                                     1
+          Status                                                    Krótki tekst                               50
+
+          Budzet                                                    Waluta                                      8
+
+          Data_Koncowa                                              Data i godzina                              8
+
+          nr_umowy                                                  Krótki tekst                              255
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+
+          Index_8BF75DCE_85A5_4B44                   1
+                    Pola:
+                    Id                          Rosnąco
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ A:\MedPracyView.accdb                                                                  poniedziałek, 27 lipca 2026
+ Tabela: Users                                                                                           Strona: 33
+
+
+
+
+Właściwości
+
+AlternateBackShade:          100                          AlternateBackThemeColo      -1
+AlternateBackTint:           100                          BackShade:                  100
+BackTint:                    100                          DatasheetForeThemeColo      -1
+
+DatasheetGridlinesTheme      -1                           DateCreated:                24.01.2026 15:12:15
+DefaultView:                 2                            DisplayViewsOnSharePoi      1
+
+FilterOnLoad:                False                        GUID:                       {guid {3CBFB77C-CBB6-
+                                                                                      49C3-9EEE-
+HideNewField:                False                        LastUpdated:                25.01.2026 16:49:29
+
+NameMap:                     Dane binarne długie          OrderByOn:                  False
+OrderByOnLoad:               True                         Orientation:                Od lewej do prawej
+
+PublishToWeb:                1                            ReadOnlyWhenDisconne        False
+RecordCount:                 3                            ThemeFontIndex:             -1
+TotalsRow:                   False                        Updatable:                  True
+
+
+
+Kolumny
+
+          Nazwa                                                     Typ                          Rozmiar
+
+          Id                                                        Liczba całkowita długa                      4
+
+          Username                                                  Krótki tekst                               50
+
+          PasswordHash                                              Krótki tekst                              255
+
+          Email                                                     Krótki tekst                              100
+
+          FullName                                                  Krótki tekst                              100
+          Role                                                      Liczba całkowita długa                      4
+
+          IsActive                                                  Tak/Nie                                     1
+
+          CreatedDate                                               Data i godzina                              8
+
+          LastLogin                                                 Data i godzina                              8
+
+          EndLogin                                                  Data i godzina                              8
+
+
+
+
+
+
+
+
+Indeksy tabeli
+          Nazw                                       Liczba pól
+
+          Index_97B2C3E1_729E_4E27                   1
+
+                    Pola:
+                    Id                          Rosnąco

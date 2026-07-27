@@ -1,6 +1,6 @@
 # 📊 STATUS MIGRACJI UI - ASMED.EDM
 
-**Data aktualizacji**: 2025-01-23  
+**Data aktualizacji**: 2026-01-27  
 **Lokalizacja**: D:\Visual\Asmed_EDM  
 **Projekt źródłowy**: A:\source\repos\ASMED-WPF-Application\src\ASMED_5
 
@@ -50,6 +50,15 @@
   - [x] InverseBooleanConverter
   - [x] DI registration
   - **Dokumentacja**: `ETAP3_PHASE4.3_MYSQL_CONFIG_COMPLETE.md`
+  - [x] Two-column layout (Left: Connections, Right: DB Management) ✅
+  - [x] Registry-first configuration (TelsaTelecomBiling pattern) ✅
+    - **Dokumentacja**: `ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md`
+  - [x] **Database Initialization** (from doc_rptObjects.txt) ✅
+    - **Dokumentacja**: `ETAP3_PHASE4.3.3_MYSQL_DATABASE_INITIALIZER.md`
+    - 20 tabel (P_Pacjent, Firma, B_Skierowania, Badanie, Faktura...)
+    - Foreign keys + indexes
+    - Seed data (admin user)
+    - Pattern: `DatabaseInitializerMySQL.RunAsync()`
 
 ### 🚧 **ETAP 3 - PHASE 4.4: IN PROGRESS** (Visits Module)
 
@@ -93,16 +102,39 @@
 
 ## 🎯 NASTĘPNE KROKI
 
-### **Priorytet 1: ConfigurationView - Registry Integration Testing**
-**Dokumentacja**: [`ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md`](ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md)
+### **Priorytet 1: MySQL Database Initialization - Runtime Testing**
+**Dokumentacja**: [`ETAP3_PHASE4.3.3_MYSQL_DATABASE_INITIALIZER.md`](ETAP3_PHASE4.3.3_MYSQL_DATABASE_INITIALIZER.md)
 
-**✅ Zaimplementowane** (Phase 4.3.2):
-- ✅ `RegistryConfigHelper` (zapis/odczyt z Windows Registry)
-- ✅ `DbConnectionFactory` (Registry → appsettings.json fallback, pattern z TelsaTelecomBiling)
-- ✅ `ConfigurationViewModel` używa `DbConnectionFactory`
-- ✅ **SaveConfigurationAsync()** teraz DZIAŁA (zapis do Registry)
-- ✅ **TestConnectionAsync()** zwraca timing `[X ms]`
+**✅ Zaimplementowane** (Phase 4.3.3):
+- ✅ `DatabaseInitializerMySQL.cs` - parser doc_rptObjects.txt → MySQL schema
+- ✅ 20 tabel z relacjami FK i indeksami
+- ✅ Seed data (user admin)
+- ✅ Podpięcie do `ConfigurationViewModel.InitializeDatabaseAsync()`
 - ✅ Build: OK
+
+**TODO - Runtime Test** (zdalne MySQL najpierw, lokalne później):
+- [ ] F5 → Ustawienia → Konfiguracja → "Inicjalizuj bazę danych"
+- [ ] Sprawdzić MessageBox z listą utworzonych tabel (20)
+- [ ] Zweryfikować w MySQL Workbench: `SHOW TABLES;` → 20 tabel
+- [ ] Test idempotentności: ponowne "Inicjalizuj" → brak błędów
+- [ ] Sprawdzić seed: `SELECT * FROM Users;` → 1 rekord (admin)
+- [ ] Test FK: próba INSERT z nieprawidłowym `B_Pacjent_ID` → constraint error
+
+**TODO - Security**:
+- [ ] Hashowanie hasła użytkownika `admin` (BCrypt/SHA256)
+- [ ] Pierwszy login z wymuszeniem zmiany hasła
+
+### **Priorytet 2: ConfigurationView - Pozostałe operacje DB**
+**Dokumentacja**: [`ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md`](ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md)
+
+**TODO - Real Database Operations**:
+- [ ] **CreateBackupAsync()**: mysqldump przez Process lub MySqlConnector
+- [ ] **GetDatabaseStatisticsAsync()**: Query do `information_schema.tables`
+- [ ] **OptimizeTablesAsync()**: `OPTIMIZE TABLE` dla wszystkich tabel
+- [ ] **RepairTablesAsync()**: `REPAIR TABLE` dla wszystkich tabel
+
+### **Priorytet 3: ConfigurationView - Registry Runtime Validation**
+**Dokumentacja**: [`ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md`](ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md)
 
 **TODO - Runtime Test**:
 - [ ] F5 → Ustawienia → Konfiguracja
@@ -111,13 +143,6 @@
 - [ ] Restart aplikacji → sprawdzić czy connection string zachowany
 - [ ] Active connection switching (Primary/Backup/Local toggle)
 - [ ] Event listener `ConnectionTypeChanged` → refresh MainViewModel status
-
-**TODO - Real Database Operations** (z Phase 4.3.1):
-- [ ] **InitializeDatabaseAsync()**: DDL scripts lub EF migrations
-- [ ] **CreateBackupAsync()**: mysqldump przez Process lub MySqlConnector
-- [ ] **GetDatabaseStatisticsAsync()**: Query do `information_schema.tables`
-- [ ] **OptimizeTablesAsync()**: `OPTIMIZE TABLE` dla wszystkich tabel
-- [ ] **RepairTablesAsync()**: `REPAIR TABLE` dla wszystkich tabel
 
 ---
 
