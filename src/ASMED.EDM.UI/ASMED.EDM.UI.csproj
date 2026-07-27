@@ -29,13 +29,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="appsettings.json">
+    <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -45,35 +45,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Views folders -->
-    <Folder Include="ViewModels\Pacjent\" />
-    <Folder Include="Views\badania\" />
-    <Folder Include="Views\cenniki\" />
-    <Folder Include="Views\Dialogs\" />
-    <Folder Include="Views\faktura\" />
+    <!-- Empty placeholder folders (only those that are truly empty) -->
     <Folder Include="Views\firma\" />
     <Folder Include="Views\Import-Export\" />
-    <Folder Include="Views\lista_do_faktur\" />
+    <Folder Include="Views\Nowy folder\" />
     <Folder Include="Views\pacjent\" />
-    <Folder Include="Views\Patients\" />
-    <Folder Include="Views\raporty\" />
-    <Folder Include="Views\Reports\" />
-    <Folder Include="Views\Scheduler\" />
-    <Folder Include="Views\Skierowania\" />
     <Folder Include="Views\skierowanialistapacjentow\" />
     <Folder Include="Views\skierowaniepacjentdodajview\" />
     <Folder Include="Views\ustawienia\" />
-    <Folder Include="Views\Visits\" />
-    <Folder Include="Views\wizytyview\" />
     <Folder Include="Views\wz_template\" />
 
-    <!-- ViewModels folders -->
     <Folder Include="ViewModels\Badania\" />
     <Folder Include="ViewModels\Dialogs\" />
     <Folder Include="ViewModels\faktura\" />
     <Folder Include="ViewModels\firma\" />
     <Folder Include="ViewModels\Import-Export\" />
     <Folder Include="ViewModels\lista_do_faktur\" />
+    <Folder Include="ViewModels\Pacjent\" />
     <Folder Include="ViewModels\raporty\" />
     <Folder Include="ViewModels\Skierowania\" />
   </ItemGroup>

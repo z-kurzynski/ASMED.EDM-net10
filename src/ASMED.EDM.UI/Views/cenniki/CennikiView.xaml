@@ -1,0 +1,347 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.cenniki.CennikiView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             Background="White">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF1565C0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FFF44336"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFD32F2F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="SuccessButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="#FF4CAF50"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF388E3C"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="800"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="300" MinWidth="250"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="300" MinWidth="250"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- KOLUMNA 1: LISTA FIRM Z CENNIKAMI -->
+        <Border Grid.Column="0" 
+                BorderBrush="#FFBDBDBD" 
+                BorderThickness="1" 
+                CornerRadius="4"
+                Background="White" Width="846" HorizontalAlignment="Left">
+            <Grid Margin="10,10,0,10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Nagłówek -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                    <TextBlock Text="📋 Lista Firm z Cennikami" FontSize="18" FontWeight="Bold" 
+                               Foreground="#FF1976D2" VerticalAlignment="Center"/>
+                    <Button Content="🔄" Width="32" Height="32" Margin="10,0,0,0" ToolTip="Odśwież listę firm"
+                            Background="#FF1976D2" Foreground="White" BorderThickness="0" FontSize="16"
+                            Command="{Binding OdswiezFirmyCommand}"/>
+                </StackPanel>
+
+                <!-- Wyszukiwanie z filtrem -->
+                <Grid Grid.Row="1" Margin="0,0,0,10" Height="55" Width="800" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400" />
+                        <ColumnDefinition Width="392"/>
+                        <ColumnDefinition Width="8"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Wyszukaj:" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                        <DockPanel>
+                            <ComboBox Width="110" Height="32" FontSize="14" DockPanel.Dock="Right" Margin="5,0,0,0"
+                                      ItemsSource="{Binding FilterFirmyOptions}"
+                                      SelectedItem="{Binding SelectedFilterFirmy, Mode=TwoWay}"/>
+                            <Button Content="✖" Width="32" Height="32" DockPanel.Dock="Right" Margin="5,0,0,0"
+                                    ToolTip="Wyczyść wyszukiwanie"
+                                    Command="{Binding ClearSearchFirmyCommand}"/>
+                            <TextBox x:Name="txtSearchFirmy" Height="30" FontSize="14"
+                                     Text="{Binding SearchTextFirmy, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center"/>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Width="380">
+                        <StackPanel Height="45" Width="190" HorizontalAlignment="Right">
+                            <TextBlock Text="Nowy cennik:" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                            <ComboBox x:Name="cmbNowyCennik" Height="30" FontSize="14"
+                                ItemsSource="{Binding CennikiList}"
+                                DisplayMemberPath="Nazwa"
+                                SelectedItem="{Binding SelectedNowyCennik, Mode=TwoWay}"/>
+                        </StackPanel>
+                        <Button Content="✏️ Zmień wybrane" Style="{StaticResource PrimaryButton}"
+                                Command="{Binding ZmienCennikFirmCommand}"
+                                Width="180" Margin="10,0,0,0" Height="35" VerticalAlignment="Bottom"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Przyciski zaznaczenia -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,10">
+                    <Button Content="☑ Zaznacz wszystkie" Style="{StaticResource PrimaryButton}"
+                            Padding="10,5" FontSize="12" Margin="0,0,5,0"
+                            Command="{Binding ZaznaczWszystkieFirmyCommand}"/>
+                    <Button Content="☐ Wyczyść zaznaczenie" Style="{StaticResource PrimaryButton}"
+                            Padding="10,5" FontSize="12"
+                            Command="{Binding WyczyscZaznaczenieFirmCommand}"/>
+                </StackPanel>
+
+                <!-- DataGrid Firm -->
+                <syncfusion:SfDataGrid Grid.Row="4" x:Name="gridFirmy"
+                                       ItemsSource="{Binding FirmyFiltered}"
+                                       SelectedItem="{Binding SelectedFirma, Mode=TwoWay}"
+                                       AutoGenerateColumns="False"
+                                       AllowEditing="False"
+                                       AllowSorting="True"
+                                       AllowFiltering="False"
+                                       SelectionMode="Single"
+                                       RowHeight="30"
+                                       HeaderRowHeight="40"
+                                       ColumnSizer="Star" 
+                                       Height="400" 
+                                       VerticalAlignment="Top" 
+                                       FontFamily="Arial Narrow"
+                                       MaxWidth="800" MinWidth="700"
+                                       CurrentCellBorderBrush="{x:Null}" 
+                                       OpacityMask="#FFFFFDFD" 
+                                       HorizontalAlignment="Left">
+
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:GridCheckBoxColumn MappingName="IsSelected" 
+                                                       HeaderText="✓" 
+                                                       Width="50"
+                                                       TextAlignment="Center" 
+                                                       AllowEditing="True"/>
+
+                        <syncfusion:GridTextColumn MappingName="Cennik" 
+                                                   HeaderText="Cennik" 
+                                                   Width="100"
+                                                   TextAlignment="Left"
+                                                   Padding="5,0,0,0"/>
+
+                        <syncfusion:GridTextColumn MappingName="Nazwa" 
+                                                   HeaderText="Nazwa Firmy" 
+                                                   TextWrapping="Wrap"
+                                                   Padding="5,0,0,0"/>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+
+                <!-- Licznik -->
+                <TextBlock Grid.Row="5" Margin="0,10,0,0" FontSize="12" Foreground="#FF757575">
+                    <Run Text="Zaznaczono: "/>
+                    <Run Text="{Binding ZaznaczoneFirmyCount, Mode=OneWay, FallbackValue='0'}" FontWeight="Bold"/>
+                    <Run Text=" z "/>
+                    <Run Text="{Binding FirmyFiltered.Count, Mode=OneWay, FallbackValue='0'}" FontWeight="Bold"/>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <!-- KOLUMNA 2: LISTA CENNIKÓW -->
+        <Border Grid.Column="2" 
+                BorderBrush="#FFBDBDBD" 
+                BorderThickness="1" 
+                CornerRadius="4"
+                Background="White">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Nagłówek -->
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,15">
+                    <TextBlock Text="📝 Cenniki" FontSize="18" FontWeight="Bold" 
+                               Foreground="#FF1976D2" VerticalAlignment="Center"/>
+                    <Button Content="🔄" Width="32" Height="32" Margin="10,0,0,0" ToolTip="Odśwież listę cenników"
+                            Background="#FF1976D2" Foreground="White" BorderThickness="0" FontSize="16"
+                            Command="{Binding OdswiezCennikiCommand}"/>
+                </StackPanel>
+
+                <!-- Wyszukiwanie -->
+                <StackPanel Grid.Row="1" Margin="0,0,0,10">
+                    <TextBlock Text="Wyszukaj cennik:" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                    <DockPanel>
+                        <Button Content="✖" Width="32" Height="32" DockPanel.Dock="Right" Margin="5,0,0,0"
+                                ToolTip="Wyczyść wyszukiwanie"
+                                Command="{Binding ClearSearchCennikiCommand}"/>
+                        <TextBox x:Name="txtSearchCenniki" Height="32" FontSize="14"
+                                 Text="{Binding SearchTextCenniki, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center"/>
+                    </DockPanel>
+                </StackPanel>
+
+                <!-- DataGrid Cenników -->
+                <syncfusion:SfDataGrid Grid.Row="2" x:Name="gridCenniki"
+                                       ItemsSource="{Binding CennikiFiltered}"
+                                       SelectedItem="{Binding SelectedCennik, Mode=TwoWay}"
+                                       AutoGenerateColumns="False"
+                                       AllowEditing="False"
+                                       AllowSorting="True"
+                                       AllowFiltering="False"
+                                       SelectionMode="Single"
+                                       RowHeight="30"
+                                       HeaderRowHeight="40"
+                                       GridLinesVisibility="Horizontal"
+                                       ColumnSizer="Star">
+
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:GridTextColumn MappingName="Nazwa" 
+                                                   HeaderText="Nazwa Cennika" 
+                                                   Padding="5,0,0,0"/>
+
+                        <syncfusion:GridTemplateColumn HeaderText="" 
+                                                       Width="60"
+                                                       AllowSorting="False"
+                                                       AllowFiltering="False">
+                            <syncfusion:GridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="🗑️" Width="35" Height="30"
+                                            Background="#FFF44336" Foreground="White" BorderThickness="0"
+                                            ToolTip="Usuń cennik"
+                                            Command="{Binding DataContext.UsunCennikCommand, 
+                                                     RelativeSource={RelativeSource AncestorType=syncfusion:SfDataGrid}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </syncfusion:GridTemplateColumn.CellTemplate>
+                        </syncfusion:GridTemplateColumn>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+
+                <!-- Przycisk Nowy Cennik -->
+                <Button Grid.Row="3" Content="➕ Nowy Cennik" Style="{StaticResource SuccessButton}"
+                        Margin="0,10,0,5"
+                        Command="{Binding ToggleNowyCennikCommand}"/>
+
+                <!-- Panel dodawania nowego cennika -->
+                <Border Grid.Row="4"
+                        BorderBrush="#FF4CAF50"
+                        BorderThickness="2"
+                        CornerRadius="4"
+                        Padding="10"
+                        Background="#FFF1F8E9"
+                        Visibility="{Binding IsNowyCennikVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="Dodaj nowy cennik:" FontSize="14" FontWeight="Bold" 
+                                   Foreground="#FF388E3C" Margin="0,0,0,5"/>
+
+                        <TextBlock Text="Nazwa cennika:" FontSize="12" Margin="0,0,0,3"/>
+                        <TextBox x:Name="txtNowyCennikNazwa" Height="32" FontSize="14"
+                                 Text="{Binding NowyCennikNazwa, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center" Margin="0,0,0,10"/>
+
+                        <Button Content="✅ Dodaj cennik" Style="{StaticResource SuccessButton}"
+                                Command="{Binding DodajCennikCommand}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- KOLUMNA 3: EDYCJA CENNIKA -->
+        <Border Grid.Column="4" 
+                BorderBrush="#FFBDBDBD" 
+                BorderThickness="1" 
+                CornerRadius="4"
+                Background="White">
+            <Grid Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Nagłówek -->
+                <TextBlock Grid.Row="0" Text="✏️ Edycja Cennika" FontSize="18" FontWeight="Bold" 
+                           Foreground="#FF1976D2" Margin="0,0,0,10"/>
+
+                <!-- Nazwa wybranego cennika -->
+                <TextBlock Grid.Row="1" FontSize="14" FontWeight="SemiBold" 
+                           Foreground="#FF424242" Margin="0,0,0,15">
+                    <Run Text="Cennik:"/>
+                    <Run Text="{Binding SelectedCennik.Nazwa, FallbackValue='(Wybierz cennik z listy)'}" 
+                         Foreground="#FF1976D2"/>
+                </TextBlock>
+
+                <!-- ScrollViewer dla listy cen -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Margin="0,0,0,10">
+                    <ItemsControl ItemsSource="{Binding CennikPozycje}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="120"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="{Binding Nazwa}" FontSize="14" FontWeight="SemiBold"
+                                               VerticalAlignment="Center" Foreground="#FF424242"/>
+
+                                    <TextBox Grid.Column="1" Height="32" FontSize="14"
+                                             Text="{Binding Cena, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"
+                                             VerticalContentAlignment="Center" HorizontalContentAlignment="Right"
+                                             BorderBrush="#FFBDBDBD" BorderThickness="1"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Przyciski akcji -->
+                <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="💾 Zapisz" Style="{StaticResource SuccessButton}"
+                            Width="100" Margin="0,0,5,0"
+                            Command="{Binding ZapiszCennikCommand}"/>
+                    <Button Content="🔄 Wyczyść" Style="{StaticResource PrimaryButton}"
+                            Width="100"
+                            Command="{Binding WyczyscCennikCommand}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

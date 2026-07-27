@@ -18,9 +18,6 @@
             <syncfusion:TabItemExt Header="Użytkownicy" Background="#FF09F34E">
                 <local:UsersView />
             </syncfusion:TabItemExt>
-            <syncfusion:TabItemExt Header="Narzędzia" Background="#FFF7AF0F">
-                <local:ToolsView />
-            </syncfusion:TabItemExt>
         </syncfusion:TabControlExt>
     </Grid>
 </UserControl>

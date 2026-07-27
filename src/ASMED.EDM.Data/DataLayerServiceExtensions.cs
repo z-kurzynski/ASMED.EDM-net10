@@ -34,6 +34,9 @@ public static class DataLayerServiceExtensions
         // Rejestracja serwisu zarządzania połączeniami
         services.AddSingleton<IDatabaseConnectionService, DatabaseConnectionService>();
 
+        // Rejestracja fabryki połączeń (Registry + appsettings.json fallback)
+        services.AddSingleton<DbConnectionFactory>();
+
         // Rejestracja DbContext z preloaded connection string
         services.AddDbContext<AsmedDbContext>((serviceProvider, options) =>
         {

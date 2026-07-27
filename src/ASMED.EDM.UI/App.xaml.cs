@@ -35,7 +35,10 @@ public partial class App : Application
         _host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration((context, config) =>
             {
-                config.SetBasePath(Directory.GetCurrentDirectory());
+                // Użyj AppContext.BaseDirectory zamiast GetCurrentDirectory() 
+                // - działa poprawnie zarówno w debug jak i w ClickOnce
+                var basePath = AppContext.BaseDirectory;
+                config.SetBasePath(basePath);
                 config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             })
             .ConfigureServices((context, services) =>
@@ -68,7 +71,6 @@ public partial class App : Application
         services.AddTransient<Views.Settings.PriceListsView>();
         services.AddTransient<Views.Settings.FacilityDataView>();
         services.AddTransient<Views.Settings.UsersView>();
-        services.AddTransient<Views.Settings.ToolsView>();
         services.AddTransient<Views.Visits.VisitsView>();
 
         // Rejestracja ViewModels
@@ -84,30 +86,63 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        await _host.StartAsync();
-
-        // Pokazanie głównego okna (tryb offline-first dla development)
-        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-        mainWindow.Show();
-
-        // Test połączenia z bazą danych W TLE (bez blokowania UI thread)
-        _ = Task.Run(async () =>
+        try
         {
-            var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
-            var logger = _host.Services.GetRequiredService<ILogger<App>>();
+            await _host.StartAsync();
+
+            // Pokazanie głównego okna (tryb offline-first dla development)
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            mainWindow.Show();
+
+            // Test połączenia z bazą danych W TLE (bez blokowania UI thread)
+            _ = Task.Run(async () =>
+            {
+                var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
+                var logger = _host.Services.GetRequiredService<ILogger<App>>();
+
+                try
+                {
+                    var connectionString = await connectionService.GetActiveConnectionStringAsync();
+                    logger.LogInformation(
+                        "✅ Połączono z bazą danych. Typ połączenia: {ConnectionType}",
+                        connectionService.CurrentConnectionType);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "⚠️ Brak połączenia z bazą danych - tryb offline");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            // Zapisz błąd do pliku i pokaż użytkownikowi
+            var errorLogPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ASMED.EDM.UI",
+                "startup_error.log");
 
             try
             {
-                var connectionString = await connectionService.GetActiveConnectionStringAsync();
-                logger.LogInformation(
-                    "✅ Połączono z bazą danych. Typ połączenia: {ConnectionType}",
-                    connectionService.CurrentConnectionType);
+                Directory.CreateDirectory(Path.GetDirectoryName(errorLogPath)!);
+                File.WriteAllText(errorLogPath, 
+                    $"ASMED EDM UI - Błąd startowy ({DateTime.Now:yyyy-MM-dd HH:mm:ss})\n\n" +
+                    $"Wiadomość: {ex.Message}\n\n" +
+                    $"StackTrace:\n{ex.StackTrace}\n\n" +
+                    $"BaseDirectory: {AppContext.BaseDirectory}\n" +
+                    $"CurrentDirectory: {Directory.GetCurrentDirectory()}\n");
             }
-            catch (Exception ex)
-            {
-                logger.LogWarning(ex, "⚠️ Brak połączenia z bazą danych - tryb offline");
-            }
-        });
+            catch { /* ignore log errors */ }
+
+            MessageBox.Show(
+                $"Nie udało się uruchomić aplikacji.\n\n" +
+                $"Błąd: {ex.Message}\n\n" +
+                $"Szczegóły zapisano w:\n{errorLogPath}",
+                "ASMED EDM UI - Błąd uruchomienia",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+
+            Shutdown(1);
+        }
     }
 
     protected override async void OnExit(ExitEventArgs e)

@@ -1,0 +1,187 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.badania.BadaniaListaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+    Background="White"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type syncfusion:GridHeaderCellControl}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="16"/>
+        </Style>
+        <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
+            <Setter Property="Fill" Value="Cyan"/>
+        </Style>
+        <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
+            <Setter Property="Background" Value="#FF1976D2"/>
+            <Setter Property="BorderBrush" Value="#FF1976D2"/>
+            <Setter Property="Foreground" Value="Cyan"/>
+            <Setter Property="Padding" Value="2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" 
+              MaxWidth="1500" MinWidth="1100" Width="1500">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50"/>
+                <ColumnDefinition Width="425"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="225"/>
+                <ColumnDefinition Width="8"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel x:Name="Filtr" Grid.Column="1" VerticalAlignment="Center" Height="46">
+                <TextBlock Text="Wyszukaj :" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
+                <DockPanel HorizontalAlignment="Left">
+                    <TextBox x:Name="txtFilterTop" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" Height="28" Width="247" FontSize="14" />
+                    <Button Width="32" Height="28" Margin="10,0,0,0" ToolTip="Wyczyść pole" Click="ClearFilter_Click">
+                        <Image Source="/Assets/no.png" Width="10" Height="10" />
+                    </Button>
+                    <ComboBox Width="100" Height="28" FontSize="14" Margin="10,0,8,0"
+                        SelectedItem="{Binding SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ItemsSource="{Binding FilterOptions}"/>
+                </DockPanel>
+            </StackPanel>
+
+            <syncfusion:ButtonAdv x:Name="Dadaj_badan" Grid.Column="5"
+                    HorizontalAlignment="Center" Height="45" Label=" ? Dodaj Badań" VerticalAlignment="Top" Width="220"
+                    Background="#FF3F51B5" Foreground="#FFFBFBFB" FontStyle="Italic" FontSize="16" 
+                    Margin="0,10,0,0" IsCheckable="True" Visibility="Hidden">
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
+
+            <syncfusion:ButtonAdv x:Name="Nowe_Badanie" Grid.Column="6"
+                    HorizontalAlignment="Center" Height="45" Label="  Nowe Badanie" VerticalAlignment="Top" Width="220"
+                    Background="#FF009688" Foreground="#FFFBFBFB" FontStyle="Italic" FontSize="16" 
+                    IsCheckable="True" Margin="0,10,0,0" Click="Nowe_Badanie_Click">
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
+        </Grid>
+
+        <Grid Grid.Row="1" Height="NaN" Margin="10,10,10,10" Width="1500">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="555"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="0"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="930"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel x:Name="Lewy_lista" Orientation="Vertical" HorizontalAlignment="Left" Width="565" Margin="5,10,0,0" Grid.ColumnSpan="4">
+                <syncfusion:SfDataGrid x:Name="Lista_Badan" ItemsSource="{Binding Badania}"
+                    AutoGenerateColumns="False"
+                    LiveDataUpdateMode="AllowChildViewUpdate"
+                    SelectedItem="{Binding SelectedWizyta, Mode=TwoWay}"
+                    AlternationCount="2"
+                    RowHeight="80"
+                    ColumnSizer="Star"
+                    FontSize="17"
+                    AllowFiltering="True"
+                    AllowSorting="True"
+                    SelectionMode="Single"
+                    SelectionUnit="Row"
+                    FontFamily="Arial Narrow"
+                    Padding="2,2,2,2"
+                    RowSelectionBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}" 
+                    MaxWidth="600" MinWidth="450"
+                    CurrentCellBorderBrush="{x:Null}" OpacityMask="#FFFFFDFD" 
+                    HorizontalAlignment="Left" Height="600" RenderTransformOrigin="0.5,0.5" Width="560">
+                    <syncfusion:SfDataGrid.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform AngleY="0"/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="0"/>
+                        </TransformGroup>
+                    </syncfusion:SfDataGrid.RenderTransform>
+                    <syncfusion:SfDataGrid.Columns>
+                        <syncfusion:GridTextColumn MappingName="B_ID" HeaderText="ID" Width="50" IsReadOnly="True" />
+                        <syncfusion:GridTemplateColumn HeaderText="Pacjent" Width="250" AllowFiltering="False" MappingName="P_nazwisko">
+                            <syncfusion:GridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="6,4,6,4">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" FontSize="16" Padding="0" Background="Transparent" FontWeight="Bold">
+                                            <TextBlock.Text>
+                                                <MultiBinding StringFormat="{}{0} {1}">
+                                                    <Binding Path="P_imie"/>
+                                                    <Binding Path="P_nazwisko"/>
+                                                </MultiBinding>
+                                            </TextBlock.Text>
+                                        </TextBlock>
+                                        <Grid Grid.Row="1" Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="3*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" FontSize="13"
+                                                      Background="Transparent" Padding="0" Text="{Binding FormattedPesel}" FontWeight="Bold" />
+                                            <TextBlock Grid.Column="1" FontSize="13"
+                                                     Background="Transparent" Padding="0" Text="{Binding B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}" FontWeight="Bold" />
+                                        </Grid>
+                                        <Grid Grid.Row="2" Margin="0,6,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Bad:" Margin="0,0,3,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
+                                                <TextBlock FontSize="13" Text="{Binding Bad_Data, StringFormat=\{0:dd-MM-yyyy\}}" VerticalAlignment="Bottom" HorizontalAlignment="Left" Foreground="#FF038653" FontWeight="Bold" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Do:" Margin="0,0,3,0" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                                                <TextBlock FontSize="13" Text="{Binding Bad_Data_Do, StringFormat=\{0:dd-MM-yyyy\}}" Foreground="#FF038653" FontWeight="Bold" />
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                                <TextBlock FontSize="10" FontWeight="Bold" Text="Razem:" Margin="0,0,3,0" VerticalAlignment="Bottom" />
+                                                <TextBlock FontSize="13" Foreground="DarkGreen" Text="{Binding Bad_Razem, StringFormat=N2}" FontWeight="Bold" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </syncfusion:GridTemplateColumn.CellTemplate>
+                        </syncfusion:GridTemplateColumn>
+                        <syncfusion:GridTemplateColumn HeaderText="Firma" Width="250" AllowFiltering="False" MappingName="Firma_Nazwa">
+                            <syncfusion:GridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Firma_Nazwa}" TextWrapping="Wrap" FontSize="14" Margin="6,6,6,6"/>
+                                </DataTemplate>
+                            </syncfusion:GridTemplateColumn.CellTemplate>
+                        </syncfusion:GridTemplateColumn>
+                    </syncfusion:SfDataGrid.Columns>
+                </syncfusion:SfDataGrid>
+            </StackPanel>
+
+            <Grid x:Name="Edit_prawa" Grid.Column="4" HorizontalAlignment="Left" Width="900" Height="610" Margin="20,0,0,0" VerticalAlignment="Center">
+                <!-- Complex examination details form would go here - TODO: Implement full pricing/toggle grid -->
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

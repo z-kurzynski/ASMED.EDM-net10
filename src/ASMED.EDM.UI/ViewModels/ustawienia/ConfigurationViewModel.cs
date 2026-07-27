@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ASMED.EDM.Core.Configuration;
 using Microsoft.Extensions.Configuration;
+using ASMED.EDM.Data.Services;
 
 namespace ASMED.EDM.UI.ViewModels;
 
@@ -20,6 +21,7 @@ public partial class ConfigurationViewModel : ObservableObject
     private readonly ILogger<ConfigurationViewModel> _logger;
     private readonly IConfiguration _configuration;
     private readonly IOptions<DatabaseSettings> _databaseSettings;
+    private readonly DbConnectionFactory _dbFactory;
 
     #region Observable Properties
 
@@ -133,28 +135,30 @@ public partial class ConfigurationViewModel : ObservableObject
         IDatabaseConnectionService connectionService,
         ILogger<ConfigurationViewModel> logger,
         IConfiguration configuration,
-        IOptions<DatabaseSettings> databaseSettings)
+        IOptions<DatabaseSettings> databaseSettings,
+        DbConnectionFactory dbFactory)
     {
         _connectionService = connectionService;
         _logger = logger;
         _configuration = configuration;
         _databaseSettings = databaseSettings;
+        _dbFactory = dbFactory;
 
         LoadCurrentConfiguration();
     }
 
     /// <summary>
-    /// Ładuje obecną konfigurację z appsettings.json
+    /// Ładuje obecną konfigurację z Registry (jeśli istnieje) lub appsettings.json (fallback)
     /// </summary>
     private void LoadCurrentConfiguration()
     {
         try
         {
-            var settings = _databaseSettings.Value;
+            // Użyj DbConnectionFactory który obsługuje Registry → appsettings fallback
 
-            // Parsuj Primary connection string
+            // Parsuj Primary connection string (z Registry lub appsettings)
             ParseConnectionString(
-                settings.PrimaryConnection,
+                _dbFactory.PrimaryConnectionString,
                 out var primarySrv, out var primaryDb, out var primaryUsr, out var primaryPwd, out var primaryPrt);
 
             PrimaryServer = primarySrv;
@@ -163,11 +167,12 @@ public partial class ConfigurationViewModel : ObservableObject
             PrimaryPassword = primaryPwd;
             PrimaryPort = primaryPrt;
 
-            // Parsuj Backup connection string (jeśli istnieje)
-            if (!string.IsNullOrWhiteSpace(settings.BackupConnection))
+            // Parsuj Backup connection string (z Registry lub appsettings)
+            var backupCs = _dbFactory.BackupConnectionString;
+            if (!string.IsNullOrWhiteSpace(backupCs))
             {
                 ParseConnectionString(
-                    settings.BackupConnection,
+                    backupCs,
                     out var backupSrv, out var backupDb, out var backupUsr, out var backupPwd, out var backupPrt);
 
                 BackupServer = backupSrv;
@@ -177,11 +182,12 @@ public partial class ConfigurationViewModel : ObservableObject
                 BackupPort = backupPrt;
             }
 
-            // Parsuj Local connection string (jeśli istnieje)
-            if (!string.IsNullOrWhiteSpace(settings.LocalConnection))
+            // Parsuj Local connection string (z Registry lub appsettings)
+            var localCs = _dbFactory.LocalConnectionString;
+            if (!string.IsNullOrWhiteSpace(localCs))
             {
                 ParseConnectionString(
-                    settings.LocalConnection,
+                    localCs,
                     out var localSrv, out var localDb, out var localUsr, out var localPwd, out var localPrt);
 
                 LocalServer = localSrv;
@@ -191,8 +197,8 @@ public partial class ConfigurationViewModel : ObservableObject
                 LocalPort = localPrt;
             }
 
-            EnableFailover = settings.EnableFailover;
-            ConnectionTimeout = settings.ConnectionTimeout;
+            EnableFailover = _dbFactory.EnableFailover;
+            ConnectionTimeout = _dbFactory.ConnectionTimeout;
 
             _logger.LogInformation("✅ Załadowano konfigurację z appsettings.json");
         }
@@ -320,17 +326,19 @@ public partial class ConfigurationViewModel : ObservableObject
         try
         {
             var connectionString = BuildConnectionString(server, database, user, password, port);
-            var success = await _connectionService.TestConnectionAsync(connectionString);
+
+            // Użyj DbConnectionFactory zamiast _connectionService
+            var (success, message, ms) = await _dbFactory.TestConnectionAsync(connectionString);
 
             if (success)
             {
-                StatusMessage = $"✅ {name}: Połączenie OK!";
-                _logger.LogInformation("✅ Test połączenia {Name} zakończony sukcesem", name);
+                StatusMessage = $"✅ {name}: Połączenie OK! [{ms} ms]";
+                _logger.LogInformation("✅ Test połączenia {Name} zakończony sukcesem ({Ms} ms)", name, ms);
             }
             else
             {
-                StatusMessage = $"❌ {name}: Nie można połączyć się z bazą";
-                _logger.LogWarning("❌ Test połączenia {Name} nieudany", name);
+                StatusMessage = $"❌ {name}: {message}";
+                _logger.LogWarning("❌ Test połączenia {Name} nieudany: {Message}", name, message);
             }
         }
         catch (Exception ex)
@@ -367,25 +375,33 @@ public partial class ConfigurationViewModel : ObservableObject
                 ? ""
                 : BuildConnectionString(LocalServer, LocalDatabase, LocalUser, LocalPassword, LocalPort);
 
-            // TODO: Tutaj trzeba zaktualizować appsettings.json
-            // Na razie tylko logujemy - implementacja zapisu do pliku w następnym kroku
-            _logger.LogInformation("🔧 Nowa konfiguracja:");
+            _logger.LogInformation("🔧 Zapisywanie konfiguracji MySQL do Registry...");
             _logger.LogInformation("  Primary: {Primary}", primaryConnStr);
             _logger.LogInformation("  Backup: {Backup}", backupConnStr);
             _logger.LogInformation("  Local: {Local}", localConnStr);
             _logger.LogInformation("  EnableFailover: {EnableFailover}", EnableFailover);
             _logger.LogInformation("  ConnectionTimeout: {Timeout}s", ConnectionTimeout);
 
-            // Symulacja zapisu (na razie)
-            await Task.Delay(500);
+            // Zapisz do Registry przez DbConnectionFactory
+            _dbFactory.SavePrimaryConnection(primaryConnStr);
+            _dbFactory.SaveBackupConnection(backupConnStr);
+            _dbFactory.SaveLocalConnection(localConnStr);
+            _dbFactory.EnableFailover = EnableFailover;
+            _dbFactory.ConnectionTimeout = ConnectionTimeout;
 
-            StatusMessage = "✅ Konfiguracja zapisana! (TODO: implementacja zapisu do appsettings.json)";
+            // Symulacja delay (dla UX feedback)
+            await Task.Delay(200);
+
+            StatusMessage = "✅ Konfiguracja zapisana do Registry!";
 
             // TODO: Wywołaj MainViewModel.RefreshDatabaseConnectionAsync()
             // Wymaga przekazania MainViewModel przez DI lub event bus
 
             MessageBox.Show(
-                "✅ Konfiguracja zapisana!\n\n⚠️ UWAGA: Implementacja zapisu do appsettings.json będzie w następnym kroku.\nNa razie tylko walidacja i podgląd w logach.",
+                "✅ Konfiguracja zapisana!\n\n" +
+                "Połączenia MySQL zostały zapisane w Windows Registry:\n" +
+                "HKEY_CURRENT_USER\\Software\\ASMED\\EDM\n\n" +
+                "Nastepnym razem aplikacja użyje tych ustawień.",
                 "Sukces",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);

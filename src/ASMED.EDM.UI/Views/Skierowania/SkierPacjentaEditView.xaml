@@ -1,0 +1,28 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Skierowania.SkierPacjentaEditView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="Auto" 
+    VerticalAlignment="Top" 
+    MaxWidth="1600" 
+    MinWidth="1500" 
+    Background="#FFF7F9FA">
+
+    <Border CornerRadius="10" 
+            BorderThickness="2" 
+            BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" 
+            Margin="10"
+            Padding="20"
+            Background="White">
+        <StackPanel>
+            <TextBlock Text="Edycja Karty Badań" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Foreground="#FF1976D2"
+                       Margin="0,0,0,20"/>
+            <TextBlock Text="Formularz edycji karty badań zostanie zaimplementowany w przyszłości." 
+                       FontSize="14" 
+                       Foreground="Gray"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+    </Border>
+</UserControl>

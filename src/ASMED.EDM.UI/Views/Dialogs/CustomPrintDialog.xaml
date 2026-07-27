@@ -1,0 +1,283 @@
+<Window x:Class="ASMED.EDM.UI.Views.Dialogs.CustomPrintDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+        Title="Ustawienia druku" 
+        Width="550" 
+        Height="680"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#FFF7F9FA">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="0,10,0,10"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#FF1976D2"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20,20,20,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto" MinHeight="55"/>
+        </Grid.RowDefinitions>
+
+        <!-- Nagłowek -->
+        <Border Grid.Row="0" 
+                Background="#FF1976D2" 
+                Padding="15,10" 
+                Margin="-20,-20,-20,10"
+                CornerRadius="0">
+            <StackPanel>
+                <TextBlock Text="🖨️ Ustawienia druku dokumentu" 
+                           FontSize="18" 
+                           FontWeight="Bold" 
+                           Foreground="White"/>
+                <TextBlock Text="Skonfiguruj parametry drukowania karty badań" 
+                           FontSize="12" 
+                           Foreground="White" 
+                           Opacity="0.9"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Zawartość -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- Wybór drukarki -->
+                <GroupBox Header="Drukarka" Margin="0,5,0,5">
+                    <StackPanel>
+                        <TextBlock Text="Wybierz drukarkę:" FontWeight="Bold" Margin="0,0,0,5"/>
+                        <ComboBox x:Name="cmbPrinters" 
+                                  Height="32" 
+                                  FontSize="13"
+                                  SelectionChanged="CmbPrinters_SelectionChanged"/>
+
+                        <TextBlock x:Name="txtPrinterStatus" 
+                                   Text="Status: Gotowa" 
+                                   FontSize="11" 
+                                   Foreground="Green" 
+                                   Margin="0,5,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Druk dwustronny -->
+                <GroupBox Header=" Druk dwustronny (Duplex)" Margin="0,5,0,5">
+                    <StackPanel>
+                        <CheckBox x:Name="chkDuplex" 
+                                  Content="Włącz druk dwustronny" 
+                                  FontSize="13"
+                                  FontWeight="Bold"
+                                  IsChecked="True"
+                                  Margin="0,0,0,8"
+                                  Checked="ChkDuplex_Checked"
+                                  Unchecked="ChkDuplex_Unchecked"/>
+
+                        <StackPanel x:Name="pnlDuplexOptions" Margin="20,0,0,0">
+                            <RadioButton x:Name="rbDuplexVertical" 
+                                         Content="Długa krawędź (pionowy)" 
+                                         IsChecked="True" 
+                                         Margin="0,0,0,5"
+                                         GroupName="DuplexMode" Checked="rbDuplexVertical_Checked"/>
+                            <TextBlock Text="↕ Strony odwracane wzdłuż długiej krawędzi (jak w książce)" 
+                                       FontSize="10" 
+                                       Foreground="Gray" 
+                                       Margin="20,0,0,8"
+                                       TextWrapping="Wrap"/>
+
+                            <RadioButton x:Name="rbDuplexHorizontal" 
+                                         Content="Krótka krawędź (poziomy)" 
+                                         Margin="0,0,0,8"
+                                         GroupName="DuplexMode"/>
+                            <TextBlock Text=" Strony odwracane wzdłuż krótkiej krawędzi (jak w kalendarzu)" 
+                                       FontSize="10" 
+                                       Foreground="Gray" 
+                                       Margin="20,0,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
+                    <GroupBox Header="Orientacja strony" Width="219" Margin="0,0,0,0">
+                        <StackPanel>
+                            <RadioButton x:Name="rbPortrait" 
+                                Content=" Pionowa (Portrait)" 
+                                IsChecked="True" 
+                                Margin="0,0,0,10"
+                                GroupName="Orientation"/>
+                            <RadioButton x:Name="rbLandscape" 
+                                Content=" Pozioma (Landscape)" 
+                                GroupName="Orientation"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header=" Liczba kopii" Margin="0,0,0,0">
+                        <StackPanel>
+                            <DockPanel>
+                                <TextBlock Text="Liczba kopii:" 
+                                    Width="100" 
+                                    DockPanel.Dock="Left"/>
+                                <syncfusion:IntegerTextBox x:Name="txtCopies" 
+                                    Value="1" 
+                                    MinValue="1" 
+                                    MaxValue="99"
+                                    Width="80"
+                                    Height="30"
+                                    HorizontalAlignment="Left"
+                                    FontSize="13"/>
+                            </DockPanel>
+
+                            <CheckBox x:Name="chkCollate" 
+                                Content="Sortuj kopie (drukuj kompletne zestawy)" 
+                                IsChecked="True" 
+                                Margin="0,10,0,0"
+                                FontSize="12"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Width="489">
+                    <GroupBox Header="✨ Jakość druku" Width="217">
+                        <StackPanel>
+                            <ComboBox x:Name="cmbQuality" 
+                                Height="32" 
+                                FontSize="13"
+                                SelectedIndex="0">
+                                <ComboBoxItem Content="Normalna (600 dpi)"/>
+                                <ComboBoxItem Content="Wysoka (1200 dpi)"/>
+                                <ComboBoxItem Content="Robocza (300 dpi)"/>
+                            </ComboBox>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header=" Informacje o dokumencie">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,5">
+                                <TextBlock Text="Dokument:" 
+                                    Width="100" 
+                                    FontWeight="Bold"
+                                    DockPanel.Dock="Left"/>
+                                <TextBlock x:Name="txtDocumentName" 
+                                    Text="Karta Badań Lekarskich"
+                                    TextWrapping="Wrap"/>
+                            </DockPanel>
+
+                            <DockPanel Margin="0,0,0,5">
+                                <TextBlock Text="Rozmiar:" 
+                                    Width="100" 
+                                    FontWeight="Bold"
+                                    DockPanel.Dock="Left"/>
+                                <TextBlock x:Name="txtDocumentSize" 
+                                    Text="A4 (210 x 297 mm)"/>
+                            </DockPanel>
+
+                            <DockPanel>
+                                <TextBlock Text="Liczba stron:" 
+                                    Width="100" 
+                                    FontWeight="Bold"
+                                    DockPanel.Dock="Left"/>
+                                <TextBlock x:Name="txtPageCount" 
+                                    Text="1 strona"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Przyciski -->
+        <Grid Grid.Row="2" Margin="-4,15,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Checkbox: Zapamiętaj ustawienia -->
+            <CheckBox x:Name="chkRememberSettings" 
+                      Grid.Column="0"
+                      Content="Zapamiętaj ustawienia" 
+                      VerticalAlignment="Center"
+                      FontSize="12"
+                      Foreground="#FF1976D2"/>
+
+            <!-- Przyciski akcji -->
+            <Button Grid.Column="1"
+                    Content="Anuluj" 
+                    Width="120" 
+                    Height="40" 
+                    Margin="0,0,10,0" 
+                    Click="Cancel_Click"
+                    Background="#FF757575"
+                    Foreground="White"
+                    FontSize="14"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="3"
+                                            Padding="10,5">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF616161"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Grid.Column="2"
+                    Content="Drukuj" 
+                    Width="120" 
+                    Height="40" 
+                    Click="Print_Click"
+                    Background="#FF1976D2"
+                    Foreground="White"
+                    FontSize="14"
+                    BorderThickness="0"
+                    Cursor="Hand" IsDefault="True">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            CornerRadius="3"
+                                            Padding="10,5">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF1565C0"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

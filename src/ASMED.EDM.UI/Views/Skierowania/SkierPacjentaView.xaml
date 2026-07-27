@@ -1,0 +1,66 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Skierowania.SkierPacjentaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="Auto" 
+    VerticalAlignment="Top" 
+    MaxWidth="1600" 
+    MinWidth="1500" 
+    Background="#FFF7F9FA">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid VerticalAlignment="Top" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="20,0,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Tytuł po lewej -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Karta Badań " 
+                           FontSize="30" 
+                           FontWeight="Bold" 
+                           Foreground="#FF1976D2"/>
+                <TextBox Text="{Binding PatientSkierowanieId}" 
+                    IsReadOnly="True" 
+                      FontSize="20" 
+                      Width="80" 
+                      VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Margin="10,0,0,0" FontWeight="Bold" BorderThickness="0"/>
+
+                <TextBlock Text="Zarządzaj Kartami Badań Pacjentów" 
+                           FontSize="16" 
+                           FontStyle="Italic" 
+                           Foreground="Gray" 
+                           VerticalAlignment="Bottom" 
+                           Margin="20,0,0,5"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Zawartość główna (uproszczona) -->
+        <Border Grid.Row="1" 
+                CornerRadius="10" 
+                BorderThickness="2" 
+                BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" 
+                Margin="10,5,10,5"
+                Padding="20"
+                Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
+            <TextBlock Text="Formularz karty badań zostanie zaimplementowany w przyszłości." 
+                       FontSize="16" 
+                       Foreground="White"
+                       TextWrapping="Wrap"/>
+        </Border>
+    </Grid>
+</UserControl>

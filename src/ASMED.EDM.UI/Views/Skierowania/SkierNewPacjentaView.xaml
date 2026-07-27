@@ -1,0 +1,116 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Skierowania.SkierNewPacjentaView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="Auto" 
+    VerticalAlignment="Top" 
+    MaxWidth="1600" 
+    MinWidth="1500" Background="#FFF7F9FA">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid VerticalAlignment="Top" HorizontalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" VerticalAlignment="Center" Margin="20,0,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="170"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Tytuł po lewej -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Dodaj Kartę Badań" 
+                           FontSize="30" 
+                           FontWeight="Bold" 
+                           Foreground="#FF1976D2" Margin="0,0,10,0"/>
+                <TextBlock Text="Zarządzaj badaaniami pacjentów" 
+                           FontSize="16" 
+                           FontStyle="Italic" 
+                           Foreground="Gray" 
+                           VerticalAlignment="Bottom" 
+                           Margin="20,0,0,5"/>
+            </StackPanel>
+            <!-- Przycisk Rejestracja -->
+            <Button Grid.Column="1" 
+                    Click="Rejestracja_Click"
+                    Content="📝 Rejestracja" 
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Top" 
+                    Width="160" Height="40" 
+                    Background="#FF3F51B5" 
+                    Foreground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" 
+                    FontSize="18" 
+                    BorderThickness="0,0,0,0"/>
+
+            <!-- Przycisk Karty Badań (Skierowania) -->
+            <Button Grid.Column="2"
+                    Background="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}"
+                    Foreground="White"
+                    FontSize="16"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="KartyBadan_Click" 
+                    Grid.ColumnSpan="2" 
+                    Width="170" 
+                    HorizontalAlignment="Left" 
+                    Height="40">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Karty Badań" FontSize="18"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Przycisk Zakończ Badanie -->
+            <Button Grid.Column="3"
+                    Background="#FF4CAF50"
+                    Foreground="White"
+                    FontWeight="Bold"
+                    FontSize="14"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    Click="ZakonczBadanie_Click" 
+                    Margin="10,0,0,0">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Zakończ Badanie" FontWeight="Normal" FontSize="18"/>
+                </StackPanel>
+            </Button>
+            <!-- Przycisk Lista do Faktur -->
+            <Button Grid.Column="4"
+                Background="#F6607D8B"
+                Foreground="White"
+                FontSize="16"
+                BorderThickness="0"
+                Cursor="Hand"
+                Click="ListaDoFaktur_Click" 
+                Margin="10,0,0,0" 
+                Width="160" 
+                HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Lista do Faktur" FontSize="18"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Zawartość główna (uproszczona) -->
+        <Border Grid.Row="1" 
+                CornerRadius="10" 
+                BorderThickness="2" 
+                BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" 
+                Margin="10,5,10,5"
+                Padding="20"
+                Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}">
+            <TextBlock Text="Formularz dodawania karty badań zostanie zaimplementowany w przyszłości." 
+                       FontSize="16" 
+                       Foreground="White"
+                       TextWrapping="Wrap"/>
+        </Border>
+    </Grid>
+</UserControl>

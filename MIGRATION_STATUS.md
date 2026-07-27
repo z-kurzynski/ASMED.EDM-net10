@@ -93,23 +93,31 @@
 
 ## 🎯 NASTĘPNE KROKI
 
-### **Priorytet 1: ConfigurationView - Real Database Operations**
-**Dokumentacja**: [`ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md`](ETAP3_PHASE4.3.1_TWO_COLUMN_LAYOUT.md)
+### **Priorytet 1: ConfigurationView - Registry Integration Testing**
+**Dokumentacja**: [`ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md`](ETAP3_PHASE4.3.2_REGISTRY_MYSQL_CONFIG.md)
 
-**UI gotowy** (2-kolumnowy layout):
-- ✅ Lewa kolumna: Konfiguracja połączeń MySQL
-- ✅ Prawa kolumna: 4 sekcje zarządzania bazą (Init/Backup/Stats/Maintenance)
-- ✅ 17 nowych properties + 5 nowych commands (symulowane)
+**✅ Zaimplementowane** (Phase 4.3.2):
+- ✅ `RegistryConfigHelper` (zapis/odczyt z Windows Registry)
+- ✅ `DbConnectionFactory` (Registry → appsettings.json fallback, pattern z TelsaTelecomBiling)
+- ✅ `ConfigurationViewModel` używa `DbConnectionFactory`
+- ✅ **SaveConfigurationAsync()** teraz DZIAŁA (zapis do Registry)
+- ✅ **TestConnectionAsync()** zwraca timing `[X ms]`
+- ✅ Build: OK
 
-**TODO - Implementacja rzeczywistych operacji**:
+**TODO - Runtime Test**:
+- [ ] F5 → Ustawienia → Konfiguracja
+- [ ] Edit Primary connection → Test → Save
+- [ ] Zweryfikować Registry: `Get-ItemProperty "HKCU:\Software\ASMED\EDM"`
+- [ ] Restart aplikacji → sprawdzić czy connection string zachowany
+- [ ] Active connection switching (Primary/Backup/Local toggle)
+- [ ] Event listener `ConnectionTypeChanged` → refresh MainViewModel status
+
+**TODO - Real Database Operations** (z Phase 4.3.1):
 - [ ] **InitializeDatabaseAsync()**: DDL scripts lub EF migrations
 - [ ] **CreateBackupAsync()**: mysqldump przez Process lub MySqlConnector
 - [ ] **GetDatabaseStatisticsAsync()**: Query do `information_schema.tables`
 - [ ] **OptimizeTablesAsync()**: `OPTIMIZE TABLE` dla wszystkich tabel
 - [ ] **RepairTablesAsync()**: `REPAIR TABLE` dla wszystkich tabel
-- [ ] **SaveConfigurationAsync()**: Zapis do `appsettings.json` (System.Text.Json)
-- [ ] **Refresh MainViewModel.DatabaseInfo** po zapisie konfiguracji
-- [ ] **Runtime test**: Uruchomić aplikację i przetestować 2-kolumnowy UI
 
 ---
 

@@ -1,0 +1,23 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.raporty.MedyczneView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="#FFF7F9FA">
+
+    <Grid Background="#FFFDFDFD" Margin="10" VerticalAlignment="Top">
+        <StackPanel>
+            <GroupBox Header="Raporty Medyczne" Margin="10" Padding="15">
+                <StackPanel>
+                    <TextBlock Text="Raporty medyczne" 
+                               FontSize="14" 
+                               FontWeight="Bold" 
+                               Margin="0,0,0,20"/>
+
+                    <TextBlock Text="Ta sekcja zostanie rozinieta o funkcje raportow medycznych." 
+                               FontSize="12" 
+                               Foreground="#FF666666"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </Grid>
+</UserControl>
