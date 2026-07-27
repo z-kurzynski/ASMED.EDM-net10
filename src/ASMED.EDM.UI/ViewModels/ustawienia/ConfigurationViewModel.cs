@@ -92,7 +92,10 @@ public partial class ConfigurationViewModel : ObservableObject
     private bool _isInitializing = false;
 
     [ObservableProperty]
-    private string _initializationStatus = "Kliknij przycisk aby zainicjalizować bazę danych";
+    private string _initializationStatus = "Wybierz bazę danych i kliknij przycisk aby zainicjalizować strukturę";
+
+    [ObservableProperty]
+    private int _selectedDatabaseTypeIndex = 0; // 0=Primary, 1=Backup, 2=Local
 
     [ObservableProperty]
     private bool _isBackingUp = false;
@@ -130,6 +133,14 @@ public partial class ConfigurationViewModel : ObservableObject
     [ObservableProperty]
     private string _maintenanceStatus = "Gotowy do wykonania operacji konserwacyjnych";
 
+    // ========== Status aktywnego połączenia ==========
+
+    [ObservableProperty]
+    private string _activeConnectionType = "Primary";
+
+    [ObservableProperty]
+    private string _activeDatabaseName = "-";
+
     #endregion
 
     public ConfigurationViewModel(
@@ -146,6 +157,7 @@ public partial class ConfigurationViewModel : ObservableObject
         _dbFactory = dbFactory;
 
         LoadCurrentConfiguration();
+        UpdateActiveConnectionStatus();
     }
 
     /// <summary>
@@ -201,12 +213,33 @@ public partial class ConfigurationViewModel : ObservableObject
             EnableFailover = _dbFactory.EnableFailover;
             ConnectionTimeout = _dbFactory.ConnectionTimeout;
 
-            _logger.LogInformation("✅ Załadowano konfigurację z appsettings.json");
+            _logger.LogInformation("✅ Załadowano konfigurację z Registry/appsettings");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "❌ Błąd podczas ładowania konfiguracji");
             StatusMessage = $"❌ Błąd: {ex.Message}";
+        }
+    }
+
+    /// <summary>
+    /// Aktualizuje status aktywnego połączenia w UI
+    /// </summary>
+    private void UpdateActiveConnectionStatus()
+    {
+        try
+        {
+            ActiveConnectionType = _dbFactory.ActiveConnectionType.ToString();
+
+            // Wydobądź nazwę bazy z aktywnego connection stringa
+            var activeCs = _dbFactory.ActiveConnectionString;
+            ParseConnectionString(activeCs, out _, out var dbName, out _, out _, out _);
+            ActiveDatabaseName = dbName;
+        }
+        catch
+        {
+            ActiveConnectionType = "Unknown";
+            ActiveDatabaseName = "-";
         }
     }
 
@@ -437,10 +470,52 @@ public partial class ConfigurationViewModel : ObservableObject
 
         try
         {
-            _logger.LogInformation("🗄️ Rozpoczęto inicjalizację bazy danych...");
+            // Wybierz connection string na podstawie SelectedDatabaseTypeIndex
+            string connectionString;
+            string dbTypeName;
 
-            // Wykorzystujemy DbConnectionFactory już dostępny w ViewModel
-            var result = await DatabaseInitializerMySQL.RunAsync(_dbFactory);
+            switch (SelectedDatabaseTypeIndex)
+            {
+                case 0: // Primary
+                    connectionString = _dbFactory.PrimaryConnectionString;
+                    dbTypeName = "Primary (Główna)";
+                    break;
+                case 1: // Backup
+                    connectionString = _dbFactory.BackupConnectionString;
+                    dbTypeName = "Backup (Zapasowa)";
+                    break;
+                case 2: // Local
+                    connectionString = _dbFactory.LocalConnectionString;
+                    dbTypeName = "Local (Lokalna)";
+                    break;
+                default:
+                    throw new InvalidOperationException("Nieznany typ bazy danych");
+            }
+
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                MessageBox.Show(
+                    $"❌ Brak konfiguracji dla bazy {dbTypeName}!\n\nSkonfiguruj połączenie i zapisz przed inicjalizacją.",
+                    "Błąd",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                InitializationStatus = $"❌ Brak konfiguracji dla {dbTypeName}";
+                return;
+            }
+
+            _logger.LogInformation("🗄️ Rozpoczęto inicjalizację bazy danych {DbType}...", dbTypeName);
+
+            // Uruchom inicjalizację na wybranej bazie
+            var result = await DatabaseInitializerMySQL.RunAsync(connectionString);
+
+            // Stwórz raport
+            var createdList = result.Created.Count > 0 
+                ? "✅ Utworzone:\n• " + string.Join("\n• ", result.Created) 
+                : "";
+
+            var existedList = result.AlreadyExisted.Count > 0 
+                ? "ℹ️ Już istniały:\n• " + string.Join("\n• ", result.AlreadyExisted) 
+                : "";
 
             if (result.HasErrors)
             {
@@ -449,19 +524,30 @@ public partial class ConfigurationViewModel : ObservableObject
                 _logger.LogWarning("⚠️ Inicjalizacja bazy danych zawiera błędy: {Errors}", errorMsg);
 
                 MessageBox.Show(
-                    $"⚠️ Inicjalizacja zakończona z błędami:\n\n{errorMsg}\n\nUtworzono tabele:\n{string.Join(", ", result.Created)}",
+                    $"⚠️ Inicjalizacja zakończona z błędami!\n\n" +
+                    $"🗄️ Baza: {result.DatabaseName} @ {result.ServerName}\n" +
+                    $"🔌 Typ: {dbTypeName}\n\n" +
+                    $"{createdList}\n\n{existedList}\n\n" +
+                    $"❌ Błędy:\n{errorMsg}",
                     "Ostrzeżenie",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             }
             else
             {
-                var createdMsg = string.Join("\n• ", result.Created);
-                InitializationStatus = $"✅ Baza danych zainicjalizowana pomyślnie!\nUtworzono: {result.Created.Count} tabel.";
-                _logger.LogInformation("✅ Inicjalizacja bazy danych zakończona sukcesem. Utworzono {Count} tabel", result.Created.Count);
+                InitializationStatus = $"✅ Baza {result.DatabaseName} @ {result.ServerName} zainicjalizowana pomyślnie!\n" +
+                    $"Utworzono: {result.Created.Count} | Istniało: {result.AlreadyExisted.Count} | Razem: {result.TotalTables}";
+
+                _logger.LogInformation(
+                    "✅ Inicjalizacja bazy danych {DbName} zakończona sukcesem. Utworzono: {Created}, Istniało: {Existed}",
+                    result.DatabaseName, result.Created.Count, result.AlreadyExisted.Count);
 
                 MessageBox.Show(
-                    $"✅ Baza danych została zainicjalizowana!\n\nUtworzono tabele ({result.Created.Count}):\n• {createdMsg}",
+                    $"✅ Baza danych została zainicjalizowana!\n\n" +
+                    $"🗄️ Baza: {result.DatabaseName} @ {result.ServerName}\n" +
+                    $"🔌 Typ: {dbTypeName}\n\n" +
+                    $"{createdList}\n\n{existedList}\n\n" +
+                    $"📊 Podsumowanie: {result.TotalTables} tabel w bazie",
                     "Sukces",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);

@@ -474,14 +474,34 @@ public static class DatabaseInitializerMySQL
             using var conn = new MySqlConnection(connectionString);
             conn.Open();
 
+            // Pobierz nazwę bazy z connection stringa
+            result.DatabaseName = conn.Database;
+            result.ServerName = conn.DataSource;
+
             // Faza 1 — tworzenie tabel
             foreach (var (name, sql) in Tables)
             {
                 try
                 {
+                    // Sprawdź czy tabela już istnieje
+                    bool tableExists = false;
+                    using (var checkCmd = new MySqlCommand(
+                        $"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{conn.Database}' AND table_name = '{name}'", conn))
+                    {
+                        tableExists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+                    }
+
                     using var cmd = new MySqlCommand(sql, conn);
                     cmd.ExecuteNonQuery();
-                    result.Created.Add(name);
+
+                    if (tableExists)
+                    {
+                        result.AlreadyExisted.Add(name);
+                    }
+                    else
+                    {
+                        result.Created.Add(name);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -522,7 +542,11 @@ public static class DatabaseInitializerMySQL
 /// </summary>
 public class InitResult
 {
+    public string DatabaseName { get; set; } = string.Empty;
+    public string ServerName { get; set; } = string.Empty;
     public List<string> Created { get; } = [];
+    public List<string> AlreadyExisted { get; } = [];
     public List<string> Errors { get; } = [];
     public bool HasErrors => Errors.Count > 0;
+    public int TotalTables => Created.Count + AlreadyExisted.Count;
 }

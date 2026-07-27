@@ -21,7 +21,36 @@
                 <TextBlock Text="Skonfiguruj połączenia do baz danych MySQL w chmurze i zarządzaj bazą danych" 
                           FontSize="14" 
                           Foreground="#FF555555" 
-                          TextWrapping="Wrap"/>
+                          TextWrapping="Wrap"
+                          Margin="0,0,0,10"/>
+
+                <!-- Status aktywnego połączenia -->
+                <Border Background="#FFF3F4F6" 
+                        BorderBrush="#FFD1D5DB" 
+                        BorderThickness="1" 
+                        CornerRadius="6" 
+                        Padding="15,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔌 Aktywne połączenie: " 
+                                  FontSize="13" 
+                                  FontWeight="SemiBold"
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ActiveConnectionType}" 
+                                  FontSize="13" 
+                                  FontWeight="Bold"
+                                  Foreground="#FF059669"
+                                  VerticalAlignment="Center"
+                                  Margin="5,0,15,0"/>
+                        <TextBlock Text="📊 Baza: " 
+                                  FontSize="13" 
+                                  VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ActiveDatabaseName}" 
+                                  FontSize="13" 
+                                  FontWeight="SemiBold"
+                                  Foreground="#FF1E40AF"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
             <!-- ==================== 2-KOLUMNOWY LAYOUT ==================== -->
@@ -373,6 +402,20 @@
                                           Foreground="Gray"
                                           TextWrapping="Wrap"
                                           Margin="0,0,0,15"/>
+
+                                <!-- Wybór bazy do inicjalizacji -->
+                                <TextBlock Text="Wybierz bazę danych:" 
+                                          FontSize="12" 
+                                          FontWeight="SemiBold"
+                                          Margin="0,0,0,5"/>
+
+                                <ComboBox SelectedIndex="{Binding SelectedDatabaseTypeIndex, Mode=TwoWay}"
+                                         FontSize="14"
+                                         Margin="0,0,0,15">
+                                    <ComboBoxItem Content="🟢 Primary (Główna produkcyjna)"/>
+                                    <ComboBoxItem Content="🟡 Backup (Zapasowa)"/>
+                                    <ComboBoxItem Content="🔵 Local (Lokalna)"/>
+                                </ComboBox>
 
                                 <syncfusion:ButtonAdv Content="⚡ Inicjalizuj Bazę Danych"
                                                      Command="{Binding InitializeDatabaseCommand}"
