@@ -48,8 +48,6 @@
     <!-- Empty placeholder folders (only those that are truly empty) -->
     <Folder Include="Views\firma\" />
     <Folder Include="Views\Import-Export\" />
-    <Folder Include="Views\Nowy folder\" />
-    <Folder Include="Views\pacjent\" />
     <Folder Include="Views\skierowanialistapacjentow\" />
     <Folder Include="Views\skierowaniepacjentdodajview\" />
     <Folder Include="Views\ustawienia\" />

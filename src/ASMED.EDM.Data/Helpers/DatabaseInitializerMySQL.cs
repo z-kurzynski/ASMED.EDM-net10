@@ -1,4 +1,4 @@
-using MySqlConnector;
+﻿using MySqlConnector;
 using ASMED.EDM.Data.Services;
 
 namespace ASMED.EDM.Data.Helpers;
@@ -28,42 +28,26 @@ public static class DatabaseInitializerMySQL
         ("P_Pacjent", """
             CREATE TABLE IF NOT EXISTS `P_Pacjent` (
                 P_ID                INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                P_Nazwisko          VARCHAR(255),
-                P_Imie              VARCHAR(255),
-                P_Pesel             VARCHAR(11),
-                P_DataUrodzenia     DATETIME,
-                P_Plec              VARCHAR(10),
-                P_Telefon           VARCHAR(50),
-                P_Email             VARCHAR(255),
-                P_Adres_Ulica       VARCHAR(255),
-                P_Adres_Miasto      VARCHAR(255),
-                P_Adres_Kod         VARCHAR(10),
-                P_Adres_Wojewodztwo VARCHAR(100),
-                P_Adres_Gmina       VARCHAR(100),
-                P_Adres_Poczta      VARCHAR(100),
-                P_Nr_Domu           VARCHAR(20),
-                P_Nr_Mieszkania     VARCHAR(20),
-                P_Wyksztalcenie     VARCHAR(100),
-                P_Stan_Cywilny      VARCHAR(50),
-                P_Obywatelstwo      VARCHAR(100),
-                P_Miejsce_Urodzenia VARCHAR(255),
-                P_Imie_Ojca         VARCHAR(255),
-                P_Imie_Matki        VARCHAR(255),
-                P_Nazwisko_Rodowe_Matki VARCHAR(255),
-                P_Nr_Dowodu         VARCHAR(50),
-                P_Seria_Dowodu      VARCHAR(10),
-                P_Data_Wydania_Dowodu DATETIME,
-                P_Wydany_Przez      VARCHAR(255),
-                P_Comments          TEXT,
-                P_Active            TINYINT(1) DEFAULT 1,
-                P_RegistrationDate  DATETIME,
-                P_LastModifiedDate  DATETIME,
-                P_CreatedBy         VARCHAR(100),
-                P_ModifiedBy        VARCHAR(100),
+                P_pesel             VARCHAR(11),
+                P_plec              VARCHAR(255),
+                P_imie              VARCHAR(255),
+                P_nazwisko          VARCHAR(255),
+                P_Ades_kod          VARCHAR(255),
+                P_Adres_ulica_numer VARCHAR(255),
+                P_Ades_miasto       VARCHAR(255),
+                P_zawod             VARCHAR(255),
+                P_firma             VARCHAR(255),
+                P_Adres_kraj        VARCHAR(255),
+                P_data_urodzenia    DATETIME,
+                P_obywatelstwo      VARCHAR(255),
+                P_telefon           VARCHAR(255),
+                P_email             VARCHAR(255),
+                P_Firma_id          INT,
+                P_Uwagi             TEXT,
 
-                INDEX idx_pesel (P_Pesel),
-                INDEX idx_nazwisko (P_Nazwisko),
-                INDEX idx_active (P_Active)
+                INDEX idx_pesel (P_pesel),
+                INDEX idx_nazwisko (P_nazwisko),
+                INDEX idx_firma (P_Firma_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -72,26 +56,32 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("Firma", """
             CREATE TABLE IF NOT EXISTS `Firma` (
-                F_ID            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                F_Nazwa         VARCHAR(255) NOT NULL,
-                F_NIP           VARCHAR(20),
-                F_REGON         VARCHAR(20),
-                F_KRS           VARCHAR(20),
-                F_Adres_Ulica   VARCHAR(255),
-                F_Adres_Miasto  VARCHAR(255),
-                F_Adres_Kod     VARCHAR(10),
-                F_Telefon       VARCHAR(50),
-                F_Email         VARCHAR(255),
-                F_WWW           VARCHAR(255),
-                F_Osoba_Kontakt VARCHAR(255),
-                F_Comments      TEXT,
-                F_Active        TINYINT(1) DEFAULT 1,
-                F_Data_Zalozenia DATETIME,
-                F_RegistrationDate DATETIME,
+                id                          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                activ                       TINYINT(1) DEFAULT 1,
+                Del                         TINYINT(1) DEFAULT 0,
+                Cennik                      VARCHAR(255),
+                Nazwa                       VARCHAR(255),
+                Ulica                       VARCHAR(255),
+                Kod                         VARCHAR(255),
+                Miejscowosc                 VARCHAR(255),
+                NIP                         VARCHAR(255),
+                brak_nip                    TINYINT(1) DEFAULT 0,
+                Regon                       VARCHAR(255),
+                Kraj                        VARCHAR(255),
+                umowa_do                    VARCHAR(255),
+                czas_nieokreslon            TINYINT(1) DEFAULT 0,
+                Osoba_kontaktowa            VARCHAR(255),
+                Telefon                     VARCHAR(255),
+                Email                       VARCHAR(255),
+                Metoda_platnosci            VARCHAR(255),
+                Termin_platnosci            VARCHAR(255),
+                Nabywca_platnik             VARCHAR(255),
+                Sposob_przeslania_faktury   TINYINT(1) DEFAULT 0,
+                FKemail                     VARCHAR(255),
 
-                INDEX idx_nip (F_NIP),
-                INDEX idx_nazwa (F_Nazwa),
-                INDEX idx_active (F_Active)
+                INDEX idx_nip (NIP),
+                INDEX idx_nazwa (Nazwa),
+                INDEX idx_activ (activ)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -100,22 +90,17 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("Umowy_Firm", """
             CREATE TABLE IF NOT EXISTS `Umowy_Firm` (
-                U_ID            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                U_Firma_ID      INT,
-                U_Nr_Umowy      VARCHAR(100),
-                U_Data_Zawarcia DATETIME,
-                U_Data_Od       DATETIME,
-                U_Data_Do       DATETIME,
-                U_Rodzaj_Umowy  VARCHAR(255),
-                U_Cena_Jednostkowa DECIMAL(18,4),
-                U_Waluta        VARCHAR(10),
-                U_Comments      TEXT,
-                U_Active        TINYINT(1) DEFAULT 1,
-                U_RegistrationDate DATETIME,
+                Id                  INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                Firma_ID            INT,
+                Data_Umowy          DATETIME,
+                Ilosc_Miesiecy      INT,
+                Status              VARCHAR(255),
+                Budzet              DECIMAL(18,4),
+                Data_Koncowa        DATETIME,
+                nr_umowy            VARCHAR(255),
 
-                INDEX idx_firma (U_Firma_ID),
-                INDEX idx_active (U_Active),
-                FOREIGN KEY (U_Firma_ID) REFERENCES Firma(F_ID) ON DELETE SET NULL
+                INDEX idx_firma (Firma_ID),
+                FOREIGN KEY (Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -124,18 +109,13 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("BAD_Lista", """
             CREATE TABLE IF NOT EXISTS `BAD_Lista` (
-                BL_ID           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                BL_Nazwa        VARCHAR(255) NOT NULL,
-                BL_Kod          VARCHAR(50),
-                BL_Opis         TEXT,
-                BL_Kategoria    VARCHAR(100),
-                BL_Cena_Bazowa  DECIMAL(18,4),
-                BL_Active       TINYINT(1) DEFAULT 1,
-                BL_RegistrationDate DATETIME,
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                bn_nazwa        VARCHAR(255),
+                bn_activ        TINYINT(1) DEFAULT 1,
+                bn_cennik       VARCHAR(255),
+                bn_Cen_activ    TINYINT(1) DEFAULT 1,
 
-                INDEX idx_kod (BL_Kod),
-                INDEX idx_nazwa (BL_Nazwa),
-                INDEX idx_active (BL_Active)
+                INDEX idx_bn_nazwa (bn_nazwa)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -144,20 +124,14 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("BAD_Cennik", """
             CREATE TABLE IF NOT EXISTS `BAD_Cennik` (
-                BC_ID           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                BC_Badanie_ID   INT,
-                BC_Firma_ID     INT,
-                BC_Cena         DECIMAL(18,4),
-                BC_Data_Od      DATETIME,
-                BC_Data_Do      DATETIME,
-                BC_Active       TINYINT(1) DEFAULT 1,
-                BC_RegistrationDate DATETIME,
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                b_Nazwa         VARCHAR(255),
+                b_Cena          DECIMAL(18,4),
+                b_Vat           INT,
+                b_Cennik        VARCHAR(255),
+                b_activ         TINYINT(1) DEFAULT 1,
 
-                INDEX idx_badanie (BC_Badanie_ID),
-                INDEX idx_firma (BC_Firma_ID),
-                INDEX idx_active (BC_Active),
-                FOREIGN KEY (BC_Badanie_ID) REFERENCES BAD_Lista(BL_ID) ON DELETE CASCADE,
-                FOREIGN KEY (BC_Firma_ID) REFERENCES Firma(F_ID) ON DELETE CASCADE
+                INDEX idx_b_Cennik (b_Cennik)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -201,8 +175,8 @@ public static class DatabaseInitializerMySQL
                 INDEX idx_faktura (B_Faktura_ID),
                 INDEX idx_data_skierowania (B_DataSkierowania),
                 FOREIGN KEY (B_Pacjent_ID) REFERENCES P_Pacjent(P_ID) ON DELETE CASCADE,
-                FOREIGN KEY (B_Firma_ID) REFERENCES Firma(F_ID) ON DELETE SET NULL,
-                FOREIGN KEY (B_Badanie_ID) REFERENCES BAD_Lista(BL_ID) ON DELETE SET NULL
+                FOREIGN KEY (B_Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL,
+                FOREIGN KEY (B_Badanie_ID) REFERENCES BAD_Lista(Identyfikator) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -212,21 +186,38 @@ public static class DatabaseInitializerMySQL
         ("Badanie", """
             CREATE TABLE IF NOT EXISTS `Badanie` (
                 Bad_ID          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                Bad_Pacjent_ID  INT,
-                Bad_Skierowanie_ID INT,
-                Bad_Data_Wyk    DATETIME,
-                Bad_Lekarz      VARCHAR(255),
+                Bad_R_ID        INT,
+                Bad_S_ID        INT,
+                Bad_P_ID        INT,
+                Bad_L_ID        INT,
+                Bad_F_ID        INT,
+                Bad_Fakt_ID     INT,
+                Bad_Fakt        VARCHAR(255),
+                Bad_bn_cennik   VARCHAR(255),
+                Bad_Typ         VARCHAR(50),
+                Bad_Data        DATETIME,
+                Bad_Data_Do     DATETIME,
                 Bad_Wynik       TEXT,
-                Bad_Rozpoznanie TEXT,
-                Bad_Comments    TEXT,
-                Bad_Status      VARCHAR(50),
-                Bad_RegistrationDate DATETIME,
+                Bad_Cena1       DECIMAL(18,4),
+                Bad_Cena2       DECIMAL(18,4),
+                Bad_Cena3       DECIMAL(18,4),
+                Bad_Cena4       DECIMAL(18,4),
+                Bad_Cena5       DECIMAL(18,4),
+                Bad_Cena6       DECIMAL(18,4),
+                Bad_Cena7       DECIMAL(18,4),
+                Bad_Cena8       DECIMAL(18,4),
+                Bad_Cena9       DECIMAL(18,4),
+                Bad_Cena10      DECIMAL(18,4),
+                Bad_Razem       DECIMAL(18,4),
+                Bad_Nr_KS       VARCHAR(255),
+                Bad_ID_Numer    VARCHAR(255),
+                Bad_END         TINYINT(1) DEFAULT 0,
 
-                INDEX idx_pacjent (Bad_Pacjent_ID),
-                INDEX idx_skierowanie (Bad_Skierowanie_ID),
-                INDEX idx_data (Bad_Data_Wyk),
-                FOREIGN KEY (Bad_Pacjent_ID) REFERENCES P_Pacjent(P_ID) ON DELETE CASCADE,
-                FOREIGN KEY (Bad_Skierowanie_ID) REFERENCES B_Skierowania(B_ID) ON DELETE SET NULL
+                INDEX idx_Bad_P_ID (Bad_P_ID),
+                INDEX idx_Bad_S_ID (Bad_S_ID),
+                INDEX idx_Bad_Fakt_ID (Bad_Fakt_ID),
+                INDEX idx_Bad_L_ID (Bad_L_ID),
+                INDEX idx_Bad_F_ID (Bad_F_ID)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -235,25 +226,22 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("Faktura", """
             CREATE TABLE IF NOT EXISTS `Faktura` (
-                Fak_ID          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                Fak_Nr          VARCHAR(100),
-                Fak_Firma_ID    INT,
-                Fak_Data_Wyst   DATETIME,
-                Fak_Data_Sprzed DATETIME,
-                Fak_Termin_Plat DATETIME,
-                Fak_Kwota_Netto DECIMAL(18,4),
-                Fak_Kwota_VAT   DECIMAL(18,4),
-                Fak_Kwota_Brutto DECIMAL(18,4),
-                Fak_Waluta      VARCHAR(10),
-                Fak_Status      VARCHAR(50),
-                Fak_Comments    TEXT,
-                Fak_RegistrationDate DATETIME,
+                FK_ID           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                FK_Firma_ID     INT,
+                FK_Numer        VARCHAR(30),
+                FK_Data         DATETIME,
+                FK_Kwota        DECIMAL(18,4),
+                FK_Uwagi        VARCHAR(255),
+                FK_Cennik       VARCHAR(255),
+                FK_Suma_Bad     DECIMAL(18,4),
+                FK_Saldo        DECIMAL(18,4),
+                FK_Status       VARCHAR(20),
+                FK_PDF          TINYINT(1) DEFAULT 0,
+                FK_Num_Listy    INT,
 
-                INDEX idx_nr (Fak_Nr),
-                INDEX idx_firma (Fak_Firma_ID),
-                INDEX idx_data (Fak_Data_Wyst),
-                INDEX idx_status (Fak_Status),
-                FOREIGN KEY (Fak_Firma_ID) REFERENCES Firma(F_ID) ON DELETE SET NULL
+                INDEX idx_FK_Firma_ID (FK_Firma_ID),
+                INDEX idx_FK_Data (FK_Data),
+                FOREIGN KEY (FK_Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -263,22 +251,19 @@ public static class DatabaseInitializerMySQL
         ("Rejestracja", """
             CREATE TABLE IF NOT EXISTS `Rejestracja` (
                 R_ID            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                R_Pacjent_ID    INT,
-                R_Data_Wizyty   DATETIME,
-                R_Godzina_Od    VARCHAR(10),
-                R_Godzina_Do    VARCHAR(10),
-                R_Lekarz        VARCHAR(255),
-                R_Gabinet       VARCHAR(100),
-                R_Typ_Wizyty    VARCHAR(100),
-                R_Status        VARCHAR(50),
-                R_Comments      TEXT,
-                R_RegistrationDate DATETIME,
+                R_B_ID          INT,
+                R_Data          DATETIME,
+                R_Status        VARCHAR(255),
+                R_Employee_ID   INT,
+                R_S_ID          INT,
+                R_P_ID          INT,
+                R_GG_MM         VARCHAR(255),
+                R_Uwagi         VARCHAR(255),
+                R_Subject       VARCHAR(255),
 
-                INDEX idx_pacjent (R_Pacjent_ID),
-                INDEX idx_data (R_Data_Wizyty),
-                INDEX idx_lekarz (R_Lekarz),
-                INDEX idx_status (R_Status),
-                FOREIGN KEY (R_Pacjent_ID) REFERENCES P_Pacjent(P_ID) ON DELETE CASCADE
+                INDEX idx_R_P_ID (R_P_ID),
+                INDEX idx_R_Data (R_Data),
+                INDEX idx_R_B_ID (R_B_ID)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -287,19 +272,17 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("Users", """
             CREATE TABLE IF NOT EXISTS `Users` (
-                U_ID            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                U_Login         VARCHAR(100) NOT NULL UNIQUE,
-                U_Password      VARCHAR(255),
-                U_Imie          VARCHAR(255),
-                U_Nazwisko      VARCHAR(255),
-                U_Email         VARCHAR(255),
-                U_Rola          VARCHAR(50),
-                U_Active        TINYINT(1) DEFAULT 1,
-                U_LastLogin     DATETIME,
-                U_RegistrationDate DATETIME,
+                Id              INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                Username        VARCHAR(255) NOT NULL UNIQUE,
+                PasswordHash    VARCHAR(255),
+                Email           VARCHAR(255),
+                FullName        VARCHAR(255),
+                Role            VARCHAR(255),
+                CreatedDate     DATETIME,
+                LastLogin       DATETIME,
+                EndLogin        DATETIME,
 
-                INDEX idx_login (U_Login),
-                INDEX idx_active (U_Active)
+                INDEX idx_Username (Username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -308,17 +291,18 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("LoginHistory", """
             CREATE TABLE IF NOT EXISTS `LoginHistory` (
-                LH_ID           INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                LH_User_ID      INT,
-                LH_LoginTime    DATETIME,
-                LH_LogoutTime   DATETIME,
-                LH_IP           VARCHAR(50),
-                LH_ComputerName VARCHAR(255),
-                LH_Success      TINYINT(1),
+                Id              INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                UserId          INT,
+                Username        VARCHAR(255),
+                LoginTime       DATETIME,
+                LogoutTime      DATETIME,
+                ComputerName    VARCHAR(255),
+                IpAddress       VARCHAR(50),
+                FailureReason   VARCHAR(255),
 
-                INDEX idx_user (LH_User_ID),
-                INDEX idx_time (LH_LoginTime),
-                FOREIGN KEY (LH_User_ID) REFERENCES Users(U_ID) ON DELETE CASCADE
+                INDEX idx_UserId (UserId),
+                INDEX idx_LoginTime (LoginTime),
+                FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -327,52 +311,54 @@ public static class DatabaseInitializerMySQL
         // ══════════════════════════════════════════════════════════════════════════
         ("S_Imiona", """
             CREATE TABLE IF NOT EXISTS `S_Imiona` (
-                SI_ID   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                SI_Imie VARCHAR(255) NOT NULL,
-                SI_Plec VARCHAR(1)
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                S_imie          VARCHAR(255),
+                S_ile           INT,
+                S_plec          VARCHAR(255)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
         ("S_Nazwisko", """
             CREATE TABLE IF NOT EXISTS `S_Nazwisko` (
-                SN_ID       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                SN_Nazwisko VARCHAR(255) NOT NULL
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                S_Nazwisko      VARCHAR(255)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
         ("S__Ulice", """
             CREATE TABLE IF NOT EXISTS `S__Ulice` (
-                SU_ID       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                SU_Miasto   VARCHAR(255),
-                SU_Ulica    VARCHAR(255),
-                SU_Kod      VARCHAR(10)
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                S_Ulica         VARCHAR(255)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
         ("Gminy", """
             CREATE TABLE IF NOT EXISTS `Gminy` (
-                G_ID            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                G_Wojewodztwo   VARCHAR(100),
-                G_Powiat        VARCHAR(100),
-                G_Gmina         VARCHAR(100),
-                G_Typ           VARCHAR(50)
+                autonumer       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                Gmina           VARCHAR(255),
+                Miasto          VARCHAR(255),
+                Opis            VARCHAR(255),
+                Kod             VARCHAR(255),
+                MiastoUp        VARCHAR(255),
+                idgB            INT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
         ("FormatowanieTekstu", """
             CREATE TABLE IF NOT EXISTS `FormatowanieTekstu` (
-                FT_ID       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                FT_Nazwa    VARCHAR(255),
-                FT_Wartosc  TEXT
+                ID          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                Slowo       VARCHAR(100),
+                FormatTyp   VARCHAR(255),
+                Kategoria   VARCHAR(255)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
         ("S_hints", """
             CREATE TABLE IF NOT EXISTS `S_hints` (
-                SH_ID       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                SH_Kategoria VARCHAR(100),
-                SH_Klucz    VARCHAR(255),
-                SH_Wartosc  TEXT
+                S_hints_ID          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                S_hints_jobTitle    VARCHAR(255),
+                S_hints_name        VARCHAR(255),
+                S_hints_last_name   VARCHAR(255)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -407,7 +393,7 @@ public static class DatabaseInitializerMySQL
                 L_Nazwa         VARCHAR(255),
 
                 INDEX idx_firma (L_Firma_ID),
-                FOREIGN KEY (L_Firma_ID) REFERENCES Firma(F_ID) ON DELETE SET NULL
+                FOREIGN KEY (L_Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -455,6 +441,13 @@ public static class DatabaseInitializerMySQL
     // ══════════════════════════════════════════════════════════════════════════════
     // Metoda główna RunAsync
     // ══════════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Zwraca listę nazw wszystkich tabel zdefiniowanych w schemacie MySQL.
+    /// Używana przez MigrationService do budowania listy dostępnych tabel.
+    /// </summary>
+    public static IReadOnlyList<string> GetTableNames()
+        => Tables.Select(t => t.Name).ToList();
 
     /// <summary>
     /// Uruchamia inicjalizację bazy danych MySQL (używa DbConnectionFactory).

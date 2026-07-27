@@ -5,9 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewspatients="clr-namespace:ASMED.EDM.UI.Views.Patients"
         xmlns:viewsvisits="clr-namespace:ASMED.EDM.UI.Views.Visits"
+        xmlns:viewswizyty="clr-namespace:ASMED.EDM.UI.Views.wizytyview"
         xmlns:viewssettings="clr-namespace:ASMED.EDM.UI.Views.Settings"
+        xmlns:viewsbadania="clr-namespace:ASMED.EDM.UI.Views.badania"
+        xmlns:viewsskierowania="clr-namespace:ASMED.EDM.UI.Views.Skierowania"
+        xmlns:viewslistadofaktur="clr-namespace:ASMED.EDM.UI.Views.lista_do_faktur"
+        xmlns:viewsmigration="clr-namespace:ASMED.EDM.UI.Views.Migration"
+        xmlns:viewsbadaniemod="clr-namespace:ASMED.EDM.UI.Views.Badanie"
+        xmlns:viewsorzeczenie="clr-namespace:ASMED.EDM.UI.Views.Orzeczenie"
+
         mc:Ignorable="d"
-    Title="ASMED Medycyna Pracy -- v6 -2026" 
+    Title="ASMED EDM -- v20 -2026" 
     WindowState="Normal"
     WindowStartupLocation="CenterScreen" 
     Width="Auto" 
@@ -42,59 +50,45 @@
             <TabControl>
                 <!-- Zakładka 1: Rejestracja -->
                 <TabItem Header="📝 Rejestracja" FontSize="14" Padding="15,10" Background="#FFD367FF">
-                    <viewsvisits:VisitsView />
+                    <viewswizyty:WizytyViewView />
                 </TabItem>
 
                 <!-- Zakładka 2: Nowa Karta -->
                 <TabItem Header="📄 Nowa Karta" FontSize="14" Padding="15,10" Background="#FF90EE90">
-                    <viewspatients:PatientsView />
+                    <viewsskierowania:SkierListaPacjentowView />
                 </TabItem>
 
                 <!-- Zakładka 4: Karty Badań -->
                 <TabItem Header="📋 Karty Badań" FontSize="14" Padding="15,10" Background="#FF90C6FD">
-                    <Grid Background="White">
-                        <TextBlock Text="Lista kart badań" 
-                                   FontSize="16" 
-                                   Foreground="Gray"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+                    <viewsskierowania:SkierowaniaView />
                 </TabItem>
 
                 <!-- Zakładka 4: Zakończ Badanie -->
                 <TabItem Header="✅ Zakończ Badanie" FontSize="14" Padding="15,10" Background="#FF06F537">
-                    <Grid Background="White">
-                        <TextBlock Text="Zakończenie i zamknięcie badania" 
-                                   FontSize="16" 
-                                   Foreground="Gray"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+                    <viewsbadania:BadaniaNewView />
                 </TabItem>
 
                 <!-- Zakładka 5: Edycja Badań -->
                 <TabItem Header="✏️ Edycja Badań" FontSize="14" Padding="15,10" Background="#FFFFA07A">
-                    <Grid Background="White">
-                        <TextBlock Text="Edycja istniejących badań" 
-                                   FontSize="16" 
-                                   Foreground="Gray"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+                    <viewsbadania:BadaniaEditNewView />
                 </TabItem>
 
-                <!-- Zakładka 6: Lista Do Faktur -->
+                <!-- Zakładka: Lista Do Faktur -->
                 <TabItem Header="💰 Lista Do Faktur" FontSize="14" Padding="15,10" Background="#FFFFB347">
-                    <Grid Background="White">
-                        <TextBlock Text="Lista badań do fakturowania" 
-                                   FontSize="16" 
-                                   Foreground="Gray"
-                                   HorizontalAlignment="Center" 
-                                   VerticalAlignment="Center"/>
-                    </Grid>
+                    <viewslistadofaktur:ListaFaktAddView />
                 </TabItem>
 
-                <!-- Zakładka 7: Baza Danych / Raporty / Settings -->
+                <!-- Zakładka: Badanie -->
+                <TabItem Header="🔬 Badanie" FontSize="14" Padding="15,10" Background="#FF42A5F5">
+                    <viewsbadaniemod:BadanieView />
+                </TabItem>
+
+                <!-- Zakładka: Orzeczenie -->
+                <TabItem Header="📋 Orzeczenie" FontSize="14" Padding="15,10" Background="#FF66BB6A">
+                    <viewsorzeczenie:OrzeczenieView />
+                </TabItem>
+
+                <!-- Zakładka: Baza Danych / Raporty / Settings -->
                 <TabItem Header="🗄️ Baza Danych" FontSize="14" Padding="15,10" Background="#FFFF6F61" Margin="-2,-2,-8,0">
                     <Grid Background="White">
                         <!-- Zagnieżdżone zakładki dla Baza Danych -->
@@ -204,10 +198,15 @@
                                 </Grid>
                             </TabItem>
 
+                                        <!-- Podzakładka 5: Migracja -->
+                                        <TabItem Header="📦 Migracja" FontSize="13" Padding="12,8">
+                                            <viewsmigration:MigrationView />
+                                        </TabItem>
+
+                                    </TabControl>
+                                </Grid>
+                            </TabItem>
                         </TabControl>
-                    </Grid>
-                </TabItem>
-            </TabControl>
         </Grid>
 
         <!-- Stopka -->

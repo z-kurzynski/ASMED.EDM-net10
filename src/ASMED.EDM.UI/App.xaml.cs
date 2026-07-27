@@ -72,6 +72,7 @@ public partial class App : Application
         services.AddTransient<Views.Settings.FacilityDataView>();
         services.AddTransient<Views.Settings.UsersView>();
         services.AddTransient<Views.Visits.VisitsView>();
+        services.AddTransient<Views.Migration.MigrationView>();
 
         // Rejestracja ViewModels
         services.AddSingleton<ViewModels.MainWindowViewModel>();
@@ -80,6 +81,7 @@ public partial class App : Application
         services.AddTransient<ViewModels.ConfigurationViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ViewModels.VisitsViewModel>();
+        services.AddTransient<ViewModels.MigrationViewModel>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)

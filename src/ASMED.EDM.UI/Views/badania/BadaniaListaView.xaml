@@ -66,18 +66,6 @@
                     <DataTemplate/>
                 </syncfusion:ButtonAdv.IconTemplate>
             </syncfusion:ButtonAdv>
-
-            <syncfusion:ButtonAdv x:Name="Nowe_Badanie" Grid.Column="6"
-                    HorizontalAlignment="Center" Height="45" Label="  Nowe Badanie" VerticalAlignment="Top" Width="220"
-                    Background="#FF009688" Foreground="#FFFBFBFB" FontStyle="Italic" FontSize="16" 
-                    IsCheckable="True" Margin="0,10,0,0" Click="Nowe_Badanie_Click">
-                <syncfusion:ButtonAdv.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                </syncfusion:ButtonAdv.BorderBrush>
-                <syncfusion:ButtonAdv.IconTemplate>
-                    <DataTemplate/>
-                </syncfusion:ButtonAdv.IconTemplate>
-            </syncfusion:ButtonAdv>
         </Grid>
 
         <Grid Grid.Row="1" Height="NaN" Margin="10,10,10,10" Width="1500">

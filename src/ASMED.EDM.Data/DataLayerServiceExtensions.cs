@@ -92,6 +92,9 @@ public static class DataLayerServiceExtensions
         services.AddScoped<IMedicalRecordService, MedicalRecordService>();
         services.AddScoped<IPrescriptionService, PrescriptionService>();
 
+        // Rejestracja serwisu migracji danych (Access → MySQL)
+        services.AddSingleton<IMigrationService, MigrationService>();
+
         return services;
     }
 }

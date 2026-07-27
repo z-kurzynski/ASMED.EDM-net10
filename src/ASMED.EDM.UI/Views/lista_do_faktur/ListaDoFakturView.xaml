@@ -60,25 +60,6 @@
                 </DockPanel>
             </StackPanel>
 
-            <syncfusion:ButtonAdv x:Name="Importj_Archiwum"
-                    Grid.Column="5"
-                    Click="ImportArchiwum_Click"
-                    HorizontalAlignment="Center"
-                    Height="45"
-                    Label=" ➕ Import Archiwum"
-                    VerticalAlignment="Top"
-                    Width="220"
-                    Background="#FF3F51B5"
-                    Foreground="#FFFBFBFB"
-                    FontSize="16" Margin="0,10,0,0" IconHeight="0" IconWidth="0"  >
-                <syncfusion:ButtonAdv.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                </syncfusion:ButtonAdv.BorderBrush>
-                <syncfusion:ButtonAdv.IconTemplate>
-                    <DataTemplate/>
-                </syncfusion:ButtonAdv.IconTemplate>
-            </syncfusion:ButtonAdv>
-
             <syncfusion:ButtonAdv x:Name="nowa_lista_do_faktur"
                     Grid.Column="6"
                     HorizontalAlignment="Center"

@@ -51,30 +51,6 @@
                         ItemsSource="{Binding FilterOptions}"/>
                 </DockPanel>
             </StackPanel>
-
-            <syncfusion:ButtonAdv x:Name="Rejestracja" Grid.Column="1"
-                    Command="{Binding GoToRegistrationCommand}"
-                    HorizontalAlignment="Center" Height="45" Label="Rejestracja" VerticalAlignment="Top" Width="220"
-                    Background="#FF3F51B5" Foreground="#FFFBFBFB" FontSize="16" Margin="0,10,0,0">
-                <syncfusion:ButtonAdv.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                </syncfusion:ButtonAdv.BorderBrush>
-                <syncfusion:ButtonAdv.IconTemplate>
-                    <DataTemplate/>
-                </syncfusion:ButtonAdv.IconTemplate>
-            </syncfusion:ButtonAdv>
-
-            <syncfusion:ButtonAdv x:Name="Lista_badan" Grid.Column="2"
-                    Click="Lista_Badan_Click"
-                    HorizontalAlignment="Center" Height="45" Label="➡️ Lista Badań ➡️" VerticalAlignment="Top" Width="220"
-                    Background="#FF009688" Foreground="#FFFBFBFB" FontSize="16" Margin="0,10,0,0">
-                <syncfusion:ButtonAdv.BorderBrush>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                </syncfusion:ButtonAdv.BorderBrush>
-                <syncfusion:ButtonAdv.IconTemplate>
-                    <DataTemplate/>
-                </syncfusion:ButtonAdv.IconTemplate>
-            </syncfusion:ButtonAdv>
         </Grid>
 
         <Grid Height="695" Grid.Row="1" VerticalAlignment="Top" Margin="0,-10,0,0">

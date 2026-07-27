@@ -82,3 +82,15 @@ public class InverseBooleanConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Konwerter int (Count) -> Visibility: Visible gdy > 0, Collapsed gdy == 0
+/// </summary>
+public class CountToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is int count && count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
