@@ -374,6 +374,60 @@ public static class DatabaseInitializerMySQL
                 SH_Klucz    VARCHAR(255),
                 SH_Wartosc  TEXT
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ══════════════════════════════════════════════════════════════════════════
+        // TABELE POMOCNICZE / IMPORT
+        // ══════════════════════════════════════════════════════════════════════════
+
+        ("Daj_Bad", """
+            CREATE TABLE IF NOT EXISTS `Daj_Bad` (
+                Lx_ID_Skierowania INT,
+                Max_B_ID        INT,
+                B_ID_pacjenta   INT,
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+
+                INDEX idx_skierowania (Lx_ID_Skierowania),
+                INDEX idx_pacjenta (B_ID_pacjenta)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        ("ListyBadan", """
+            CREATE TABLE IF NOT EXISTS `ListyBadan` (
+                Identyfikator   INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                L_FK_ID         INT,
+                L_Firma_ID      INT,
+                L_Data          DATETIME,
+                L_Uwagi         VARCHAR(255),
+                L_Email         TINYINT(1),
+                L_Email_Adres   VARCHAR(255),
+                L_Email_data    DATETIME,
+                L_End           TINYINT(1),
+                L_Wydruk_Typ    VARCHAR(255),
+                L_Nazwa         VARCHAR(255),
+
+                INDEX idx_firma (L_Firma_ID),
+                FOREIGN KEY (L_Firma_ID) REFERENCES Firma(F_ID) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        ("PES_Import_GOV", """
+            CREATE TABLE IF NOT EXISTS `PES_Import_GOV` (
+                Identyfikator       INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                PE_ID_Pacjent       INT,
+                PE_Pesel            VARCHAR(11),
+                PE_plec             VARCHAR(255),
+                PE_imie             VARCHAR(255),
+                PE_nazwisko         VARCHAR(255),
+                PE_data_urodzenia   DATETIME,
+                PE_Ades_kod         VARCHAR(255),
+                PE_Ades_miasto      VARCHAR(255),
+                PE_Adres_ulica_numer VARCHAR(255),
+
+                INDEX idx_pesel (PE_Pesel),
+                INDEX idx_pacjent (PE_ID_Pacjent),
+                FOREIGN KEY (PE_ID_Pacjent) REFERENCES P_Pacjent(P_ID) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
     ];
 
