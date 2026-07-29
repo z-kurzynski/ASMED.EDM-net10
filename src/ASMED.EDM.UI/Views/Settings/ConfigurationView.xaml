@@ -33,26 +33,72 @@
                         BorderThickness="1" 
                         CornerRadius="6" 
                         Padding="15,10">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🔌 Aktywne połączenie: " 
-                                  FontSize="13" 
-                                  FontWeight="SemiBold"
-                                  VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ActiveConnectionType}" 
-                                  FontSize="13" 
-                                  FontWeight="Bold"
-                                  Foreground="#FF059669"
-                                  VerticalAlignment="Center"
-                                  Margin="5,0,15,0"/>
-                        <TextBlock Text="📊 Baza: " 
-                                  FontSize="13" 
-                                  VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding ActiveDatabaseName}" 
-                                  FontSize="13" 
-                                  FontWeight="SemiBold"
-                                  Foreground="#FF1E40AF"
-                                  VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Info o aktywnym połączeniu -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="🔌 Aktywne połączenie: " 
+                                      FontSize="13" 
+                                      FontWeight="SemiBold"
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ActiveConnectionType}" 
+                                      FontSize="13" 
+                                      FontWeight="Bold"
+                                      Foreground="#FF059669"
+                                      VerticalAlignment="Center"
+                                      Margin="5,0,15,0"/>
+                            <TextBlock Text="📊 Baza: " 
+                                      FontSize="13" 
+                                      VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ActiveDatabaseName}" 
+                                      FontSize="13" 
+                                      FontWeight="SemiBold"
+                                      Foreground="#FF1E40AF"
+                                      VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Przyciski wyboru połączenia -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Przełącz na:" 
+                                      FontSize="12"
+                                      Foreground="#FF555555"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,8,0"/>
+
+                            <syncfusion:ButtonAdv Content="🟢 Primary"
+                                                 Command="{Binding SetActiveConnectionCommand}"
+                                                 CommandParameter="Primary"
+                                                 FontSize="12"
+                                                 Padding="10,5"
+                                                 Margin="0,0,5,0"
+                                                 Background="#FF4CAF50"
+                                                 Foreground="White"
+                                                 ToolTip="Przełącz na Primary Connection (główna baza produkcyjna)"/>
+
+                            <syncfusion:ButtonAdv Content="🟠 Backup"
+                                                 Command="{Binding SetActiveConnectionCommand}"
+                                                 CommandParameter="Backup"
+                                                 FontSize="12"
+                                                 Padding="10,5"
+                                                 Margin="0,0,5,0"
+                                                 Background="#FFFF9800"
+                                                 Foreground="White"
+                                                 ToolTip="Przełącz na Backup Connection"/>
+
+                            <syncfusion:ButtonAdv Content="🔵 Local"
+                                                 Command="{Binding SetActiveConnectionCommand}"
+                                                 CommandParameter="Local"
+                                                 FontSize="12"
+                                                 Padding="10,5"
+                                                 Background="#FF2196F3"
+                                                 Foreground="White"
+                                                 ToolTip="Przełącz na Local Connection (baza lokalna offline)"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
             </StackPanel>
 
@@ -61,7 +107,9 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/><!-- Lewa kolumna: Połączenia -->
                     <ColumnDefinition Width="20"/><!-- Spacer -->
-                    <ColumnDefinition Width="*"/><!-- Prawa kolumna: Zarządzanie bazą -->
+                    <ColumnDefinition Width="*"/><!-- Środkowa kolumna: Zarządzanie bazą -->
+                    <ColumnDefinition Width="20"/><!-- Spacer -->
+                    <ColumnDefinition Width="*"/><!-- Prawa kolumna: Ustawienia katalogów -->
                 </Grid.ColumnDefinitions>
 
                 <!-- ========== LEWA KOLUMNA: POŁĄCZENIA ========== -->
@@ -612,6 +660,83 @@
                                           TextWrapping="Wrap"
                                           FontStyle="Italic"
                                           Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- ========== TRZECIA KOLUMNA: USTAWIENIA KATALOGÓW ========== -->
+                <ScrollViewer Grid.Column="4" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+
+                        <!-- ========================== KATALOG DANYCH PROGRAMU ========================== -->
+                        <Border BorderBrush="#FF607D8B"
+                                BorderThickness="2"
+                                CornerRadius="8"
+                                Padding="20"
+                                Margin="0,0,0,20"
+                                Background="White">
+                            <StackPanel>
+                                <TextBlock Text="📁 Ustawienia Katalogów"
+                                          FontSize="18"
+                                          FontWeight="Bold"
+                                          Foreground="#FF607D8B"
+                                          Margin="0,0,0,15"/>
+
+                                <!-- Katalog danych programu -->
+                                <TextBlock Text="📂 Katalog danych programu"
+                                          FontSize="14"
+                                          FontWeight="SemiBold"
+                                          Foreground="#FF37474F"
+                                          Margin="0,0,0,8"/>
+
+                                <TextBlock Text="Główny katalog przechowywania danych aplikacji (raporty, eksporty, pliki tymczasowe)"
+                                          FontSize="12"
+                                          Foreground="#FF757575"
+                                          TextWrapping="Wrap"
+                                          Margin="0,0,0,8"/>
+
+                                <Grid Margin="0,0,0,15">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0"
+                                            Text="{Binding DataDirectory, UpdateSourceTrigger=PropertyChanged}"
+                                            FontSize="13"
+                                            VerticalContentAlignment="Center"
+                                            Padding="6,4"
+                                            ToolTip="{Binding DataDirectory}"/>
+                                    <Button Grid.Column="2"
+                                            Content="..."
+                                            Command="{Binding BrowseDataDirectoryCommand}"
+                                            Width="36"
+                                            Height="30"
+                                            FontSize="14"
+                                            FontWeight="Bold"
+                                            ToolTip="Wybierz katalog danych programu"/>
+                                </Grid>
+
+                                <!-- Separator -->
+                                <Separator Margin="0,0,0,15"/>
+
+                                <!-- Status i zapis -->
+                                <TextBlock Text="{Binding DirectorySettingsStatus}"
+                                          FontSize="12"
+                                          Foreground="#FF455A64"
+                                          TextWrapping="Wrap"
+                                          FontStyle="Italic"
+                                          Margin="0,0,0,12"/>
+
+                                <syncfusion:ButtonAdv Content="💾 Zapisz ustawienia katalogów"
+                                                     Command="{Binding SaveDirectorySettingsCommand}"
+                                                     Background="#FF607D8B"
+                                                     Foreground="White"
+                                                     FontSize="14"
+                                                     Padding="15,8"
+                                                     HorizontalAlignment="Left"/>
                             </StackPanel>
                         </Border>
 

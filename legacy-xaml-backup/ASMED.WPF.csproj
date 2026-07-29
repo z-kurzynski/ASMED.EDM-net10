@@ -1,0 +1,152 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<RootNamespace>ASMED.WPF</RootNamespace>
+		<AssemblyName>ASMED5.WPF</AssemblyName>
+		<BaseOutputPath>A:\\source\\Realase\\asmed5</BaseOutputPath>
+		<UseWindowsForms>false</UseWindowsForms>
+
+		<!-- ✅ WERSJA APLIKACJI (automatyczna data + Git) -->
+		<Version>1.0.0</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<InformationalVersion>5.0.0 (Build $([System.DateTime]::Now.ToString('yyyy-MM-dd HH:mm')))</InformationalVersion>
+		
+		<!-- ✅ Włącz Git info -->
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+
+		<!-- ✅ ROZWIĄZANIE KONFLIKTÓW: Preferencja dla Syncfusion.UI.WPF.NET -->
+		<PackageConflictPreferredPackages>Syncfusion.UI.WPF.NET</PackageConflictPreferredPackages>
+		<EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+		<!-- Ignoruj duplikaty plików z różnych pakietów Syncfusion -->
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+		
+		<ApplicationIcon>icons\asmed.ico</ApplicationIcon>
+		<NoWin32Manifest>true</NoWin32Manifest>
+		<PlatformTarget>x64</PlatformTarget>
+		<PackageId>ASMED Medycyna Pracy</PackageId>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Remove="Views\lista_do_faktur\no.png" />
+	  <None Remove="Views\logo.jpg" />
+	  <None Remove="Views\logo.png" />
+	  <None Remove="Views\logo1.jpg" />
+	  <None Remove="Views\pacjent\no.png" />
+	  <None Remove="Views\plus.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- ✅ POZOSTAWIONE: MailKit używany przez EmailPopHelper -->
+		<PackageReference Include="MailKit" Version="4.17.0" />
+	</ItemGroup>
+
+	<!-- ✅ DODANO: COM Reference do Office.dll -->
+	<ItemGroup>
+		<COMReference Include="Microsoft.Office.Core">
+			<Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+			<VersionMajor>2</VersionMajor>
+			<VersionMinor>8</VersionMinor>
+			<Lcid>0</Lcid>
+			<WrapperTool>tlbimp</WrapperTool>
+			<Isolated>False</Isolated>
+			<EmbedInteropTypes>False</EmbedInteropTypes>
+		</COMReference>
+	</ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icons\asmed.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" Version="6.5.2" />
+    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
+    <PackageReference Include="Notifications.Wpf.Core" Version="2.0.1" />
+    <PackageReference Include="Syncfusion.ExcelChartToImageConverter.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Pdf.OCR.Wpf" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Pdf.Wpf" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.PdfViewer.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.SfBarcode.WPF" Version="34.1.32" />
+	<PackageReference Include="Syncfusion.SfBusyIndicator.WPF" Version="34.1.32" />
+	<PackageReference Include="SyncFusion.SfGrid.WPF" Version="34.1.32" />
+	<PackageReference Include="Syncfusion.SfHubTile.WPF" Version="34.1.32" />
+	<PackageReference Include="Syncfusion.SfInput.WPF" Version="34.1.32" />
+	<PackageReference Include="Syncfusion.SfProgressBar.WPF" Version="34.1.32" />
+	<PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.SfSpreadsheetHelper.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Shared.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Themes.MaterialLight.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Themes.SystemTheme.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.1.32" />
+    <PackageReference Include="Syncfusion.UI.WPF.NET" Version="34.1.32" />
+    
+	  <!--```-->   
+	 <PackageReference Include="System.Data.Odbc" Version="10.0.10" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<Reference Include="System.Windows.Forms" />
+	<Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="System\Windows\" />
+    <Folder Include="ViewModels\Import-Export\" />
+    <Folder Include="Views\\wz_template\\" />
+  </ItemGroup>
+
+  <!-- ✅ DODANE: Assets jako Resource (obrazki) -->
+  <ItemGroup>
+    <Resource Include="Assets\logo.jpg" />
+</ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Views\lista_do_faktur\no.png" />
+    <Resource Include="Views\logo.jpg" />
+    <Resource Include="Views\logo.png" />
+    <Resource Include="Views\pacjent\no.png" />
+    <Resource Include="Views\plus.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,420 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Alert" xml:space="preserve">
+    <value>Alarm</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>Dni</value>
+  </data>
+  <data name="April" xml:space="preserve">
+    <value>Kwiecień</value>
+  </data>
+  <data name="August" xml:space="preserve">
+    <value>Sierpień</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Count" xml:space="preserve">
+    <value>Liczyć</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Codziennie</value>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>Dzień</value>
+  </data>
+  <data name="Days" xml:space="preserve">
+    <value>Dni</value>
+  </data>
+  <data name="December" xml:space="preserve">
+    <value>Grudzień</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Usuń</value>
+  </data>
+  <data name="DeleteOccurrence" xml:space="preserve">
+    <value>Usuń wystąpienie</value>
+  </data>
+  <data name="DeleteRecurringDialogContent" xml:space="preserve">
+    <value>Czy chcesz usunąć wszystkie wystąpienia cyklicznego spotkania [], czy tylko to jedno?</value>
+  </data>
+  <data name="DeleteRecurringDialogHeader" xml:space="preserve">
+    <value>Potwierdź usunięcie</value>
+  </data>
+  <data name="DeleteSeries" xml:space="preserve">
+    <value>Usuń tę serię</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Opis</value>
+  </data>
+  <data name="EditEventTitle" xml:space="preserve">
+    <value>Edytuj wydarzenie</value>
+  </data>
+  <data name="EditRecurringDialogContent" xml:space="preserve">
+    <value>To jedno spotkanie z serii. Co chcesz otworzyć?</value>
+  </data>
+  <data name="EditRecurringDialogHeader" xml:space="preserve">
+    <value>Otwórz element cykliczny</value>
+  </data>
+  <data name="End" xml:space="preserve">
+    <value>Koniec</value>
+  </data>
+  <data name="EndTimezone" xml:space="preserve">
+    <value>Strefa czasowa końcowa</value>
+  </data>
+  <data name="February" xml:space="preserve">
+    <value>Luty</value>
+  </data>
+  <data name="First" xml:space="preserve">
+    <value>Pierwszy</value>
+  </data>
+  <data name="Fourth" xml:space="preserve">
+    <value>Czwarty</value>
+  </data>
+  <data name="Friday" xml:space="preserve">
+    <value>Piątek</value>
+  </data>
+  <data name="InValidEndTimeMessageAlert" xml:space="preserve">
+    <value>Podana data końcowa przypada przed datą początkową.</value>
+  </data>
+  <data name="InvalidOccurrenceEditingMessageAlert" xml:space="preserve">
+    <value>Dwa wystąpienia [] nie mogą wystąpić tego samego dnia.</value>
+  </data>
+  <data name="January" xml:space="preserve">
+    <value>Styczeń</value>
+  </data>
+  <data name="July" xml:space="preserve">
+    <value>Lipiec</value>
+  </data>
+  <data name="June" xml:space="preserve">
+    <value>Czerwiec</value>
+  </data>
+  <data name="JustThisOne" xml:space="preserve">
+    <value>Tylko ten jeden</value>
+  </data>
+  <data name="Last" xml:space="preserve">
+    <value>Ostatni</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Lokalizacja</value>
+  </data>
+  <data name="March" xml:space="preserve">
+    <value>marzec</value>
+  </data>
+  <data name="May" xml:space="preserve">
+    <value>maj</value>
+  </data>
+  <data name="Monday" xml:space="preserve">
+    <value>Poniedziałek</value>
+  </data>
+  <data name="Monthly" xml:space="preserve">
+    <value>Miesięczny</value>
+  </data>
+  <data name="Months" xml:space="preserve">
+    <value>Miesiące(s)</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Więcej</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Nigdy</value>
+  </data>
+  <data name="NewEvent" xml:space="preserve">
+    <value>Nowe wydarzenie</value>
+  </data>
+  <data name="NoDateSelected" xml:space="preserve">
+    <value>Nie wybrano daty</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>Brak wydarzeń</value>
+  </data>
+  <data name="November" xml:space="preserve">
+    <value>Listopad</value>
+  </data>
+  <data name="October" xml:space="preserve">
+    <value>Październik</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>Tak</value>
+  </data>
+  <data name="OutRangeOccurrencedEditingMessageAlert" xml:space="preserve">
+    <value>Nie można zmienić terminu wystąpienia cyklicznego spotkania [], jeśli pomija ono późniejsze wystąpienie tego samego spotkania.</value>
+  </data>
+  <data name="Repeat" xml:space="preserve">
+    <value>Powtórz</value>
+  </data>
+  <data name="RepeatEvery" xml:space="preserve">
+    <value>Powtarzaj </value>
+  </data>
+  <data name="RepeatOn" xml:space="preserve">
+    <value>Powtórz Włącz</value>
+  </data>
+  <data name="Saturday" xml:space="preserve">
+    <value>Sobota</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Zapisz</value>
+  </data>
+  <data name="Second" xml:space="preserve">
+    <value>Sekund</value>
+  </data>
+  <data name="September" xml:space="preserve">
+    <value>Wrzesień</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="StartTimeZone" xml:space="preserve">
+    <value>StartTimeZone</value>
+  </data>
+  <data name="Sunday" xml:space="preserve">
+    <value>Niedziela</value>
+  </data>
+  <data name="TheEntireSeries" xml:space="preserve">
+    <value>Cała seria</value>
+  </data>
+  <data name="Third" xml:space="preserve">
+    <value>Trzeci</value>
+  </data>
+  <data name="Thursday" xml:space="preserve">
+    <value>Czwartek</value>
+  </data>
+  <data name="TimeZone" xml:space="preserve">
+    <value>Strefa czasowa</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Tytuł</value>
+  </data>
+  <data name="Tuesday" xml:space="preserve">
+    <value>Wtorek</value>
+  </data>
+  <data name="Until" xml:space="preserve">
+    <value>Dopóki</value>
+  </data>
+  <data name="Wednesday" xml:space="preserve">
+    <value>Środa</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Tygodnik</value>
+  </data>
+  <data name="Weeks" xml:space="preserve">
+    <value>Tygodnie</value>
+  </data>
+  <data name="Yearly" xml:space="preserve">
+    <value>Rocznie</value>
+  </data>
+  <data name="Years" xml:space="preserve">
+    <value>Rok</value>
+  </data>
+  <data name="Resource" xml:space="preserve">
+    <value>Pomoc</value>
+  </data>
+  <data name="AddReminder" xml:space="preserve">
+    <value>Dodaj przypomnienie</value>
+  </data>
+  <data name="ClickSnooze" xml:space="preserve">
+    <value>Kliknij Drzemka</value>
+  </data>
+  <data name="DismissAll" xml:space="preserve">
+    <value>ODRZUĆ WSZYSTKIE</value>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>Godzina</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>minut</value>
+  </data>
+  <data name="Reminder" xml:space="preserve">
+    <value>Przypomnienie</value>
+  </data>
+  <data name="Snooze" xml:space="preserve">
+    <value>Drzemka</value>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>Tydzień</value>
+  </data>
+  <data name="NoReminder" xml:space="preserve">
+    <value>Brak przypomnień do wyświetlenia.</value>
+  </data>
+  <data name="Reminders" xml:space="preserve">
+    <value>Przypomnienia</value>
+  </data>
+  <data name="DaysIntervalTypeReminder" xml:space="preserve">
+    <value>Przypomnienie typu interwału dni</value>
+  </data>
+  <data name="HoursIntervalTypeReminder" xml:space="preserve">
+    <value>Godziny</value>
+  </data>
+  <data name="MinutesIntervalTypeReminder" xml:space="preserve">
+    <value>minut</value>
+  </data>
+  <data name="WeeksIntervalTypeReminder" xml:space="preserve">
+    <value>Tygodnie</value>
+  </data>
+  <data name="EmptyAppointmentSubject" xml:space="preserve">
+    <value>Pusty temat spotkania</value>
+  </data>
+  <data name="NextNavigationButton" xml:space="preserve">
+    <value>Następny</value>
+  </data>
+  <data name="PreviousNavigationButton" xml:space="preserve">
+    <value>Poprzedni</value>
+  </data>
+  <data name="BlackoutDay" xml:space="preserve">
+    <value>Dzień Zaciemnienia</value>
+  </data>
+  <data name="WeekNumber" xml:space="preserve">
+    <value>Numer tygodnia</value>
+  </data>
+  <data name="Dismiss" xml:space="preserve">
+    <value>Odrzuć</value>
+  </data>
+  <data name="Background" xml:space="preserve">
+    <value>Tło</value>
+  </data>
+  <data name="Foreground" xml:space="preserve">
+    <value>Pierwszoplanowy</value>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>Mies.</value>
+  </data>
+  <data name="TimelineDay" xml:space="preserve">
+    <value>Oś czasuDzień</value>
+  </data>
+  <data name="TimelineMonth" xml:space="preserve">
+    <value>Miesiąc osi czasu</value>
+  </data>
+  <data name="TimelineWeek" xml:space="preserve">
+    <value>Oś czasuTydzień</value>
+  </data>
+  <data name="TimelineWorkWeek" xml:space="preserve">
+    <value>Oś czasuTydzień roboczy</value>
+  </data>
+  <data name="WorkWeek" xml:space="preserve">
+    <value>Tydz.</value>
+  </data>
+  <data name="Today" xml:space="preserve">
+    <value>Dziś</value>
+  </data>
+  <data name="12 AM" xml:space="preserve">
+    <value>12</value>
+  </data>
+</root>

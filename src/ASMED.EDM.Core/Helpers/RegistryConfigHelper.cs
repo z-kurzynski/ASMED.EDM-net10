@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using System.Runtime.Versioning;
 
 namespace ASMED.EDM.Core.Helpers;
 
@@ -6,6 +7,7 @@ namespace ASMED.EDM.Core.Helpers;
 /// Helper do zarządzania konfiguracją aplikacji w rejestrze Windows.
 /// HKEY_CURRENT_USER\Software\ASMED\EDM
 /// </summary>
+[SupportedOSPlatform("windows")]
 public static class RegistryConfigHelper
 {
     private const string RegistryKeyPath = @"Software\ASMED\EDM";

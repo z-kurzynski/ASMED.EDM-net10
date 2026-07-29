@@ -1,4 +1,5 @@
 ﻿using ASMED.EDM.Data;
+using ASMED.EDM.P1;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Windows;
 using ASMED.EDM.Core.Services;
 using ASMED.EDM.UI.ViewModels.ustawienia;
+using ASMED.EDM.UI.ViewModels.Cenniki;
 
 namespace ASMED.EDM.UI;
 
@@ -20,10 +22,30 @@ public partial class App : Application
 
     public IHost Host => _host;
 
+    public T GetService<T>() where T : notnull
+        => _host.Services.GetRequiredService<T>();
+
     public App()
     {
         //Register Syncfusion license 34.x.x
         SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCd1p/TH5YfUNzdUVEY1ZUTXxaS1ZhSXxVdkJhWH5bdXBRRGBUU0J9XEY=");
+
+        // Globalna obsługa nieobsłużonych wyjątków — zapobiega cicha crash 0xc000041d
+        DispatcherUnhandledException += (s, e) =>
+        {
+            LogFatalError("DispatcherUnhandledException", e.Exception);
+            e.Handled = true;
+        };
+        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+        {
+            if (e.ExceptionObject is Exception ex)
+                LogFatalError("AppDomain.UnhandledException", ex);
+        };
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            LogFatalError("TaskScheduler.UnobservedTaskException", e.Exception);
+            e.SetObserved();
+        };
 
         // Ustawienie polskiej kultury
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("pl-PL");
@@ -60,6 +82,9 @@ public partial class App : Application
         // Rejestracja Data Layer (DbContext + Connection Management + Repositories + Services)
         services.AddAsmedDatabase(configuration);
 
+        // Rejestracja integracji P1 (e-zdrowie): ZM, weryfikacja PESEL, repozytorium EDM
+        services.AddP1Integration(configuration);
+
         // Rejestracja UI Services
         services.AddSingleton<Services.IDialogService, Services.DialogService>();
 
@@ -70,9 +95,15 @@ public partial class App : Application
         services.AddTransient<Views.Settings.ConfigurationView>();
         services.AddTransient<Views.Settings.PriceListsView>();
         services.AddTransient<Views.Settings.FacilityDataView>();
+        services.AddTransient<ViewModels.ustawienia.FacilityDataViewModel>();
+        services.AddTransient<Views.Settings.EdmP1TestView>();
+        services.AddTransient<ViewModels.P1.EdmP1TestViewModel>();
         services.AddTransient<Views.Settings.UsersView>();
-        services.AddTransient<Views.Visits.VisitsView>();
         services.AddTransient<Views.Migration.MigrationView>();
+        services.AddTransient<Views.cenniki.CennikiView>();
+        services.AddSingleton<CennikiViewModel>();
+        services.AddTransient<Views.Skierowania.SkierListaPacjentowView>();
+        services.AddTransient<Views.Skierowania.SkierPacjentaEditView>();
 
         // Rejestracja ViewModels
         services.AddSingleton<ViewModels.MainWindowViewModel>();
@@ -82,6 +113,12 @@ public partial class App : Application
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ViewModels.VisitsViewModel>();
         services.AddTransient<ViewModels.MigrationViewModel>();
+        services.AddTransient<ViewModels.Skierowania.SkierListaPacjentowViewModel>();
+        services.AddTransient<ViewModels.Skierowania.SkierPacjentaEditViewModel>();
+        services.AddTransient<ViewModels.Skierowania.SkierNewPacjentaViewModel>();
+        services.AddTransient<ViewModels.Skierowania.SkierowaniaViewModel>();
+        services.AddTransient<ViewModels.Skierowania.SkierPacjentaViewModel>();
+        services.AddTransient<ViewModels.P1.P1IntegrationViewModel>();
     }
 
     protected override async void OnStartup(StartupEventArgs e)
@@ -155,6 +192,25 @@ public partial class App : Application
         }
 
         base.OnExit(e);
+    }
+
+    private static void LogFatalError(string source, Exception ex)
+    {
+        try
+        {
+            var logPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ASMED.EDM.UI",
+                "fatal_error.log");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+            File.AppendAllText(logPath,
+                $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [{source}]\n" +
+                $"Wiadomość: {ex.Message}\n" +
+                $"StackTrace:\n{ex.StackTrace}\n" +
+                new string('-', 80) + "\n");
+        }
+        catch { /* ignoruj błędy logowania */ }
     }
 }
 

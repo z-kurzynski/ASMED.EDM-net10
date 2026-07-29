@@ -168,6 +168,12 @@ public static class DatabaseInitializerMySQL
                 B_Zaswiadczenie     TINYINT(1),
                 B_ksiazeczka        TINYINT(1),
                 B_Ankieta           TINYINT(1),
+                B_Activ             TINYINT(1),
+                B_wywiad            TINYINT(1),
+                B_orzeczenie        TINYINT(1),
+                B_orzeczenie_ID     INT,
+                B_uwagi             TEXT,
+                B_edm_document_id   INT,
 
                 INDEX idx_pacjent (B_Pacjent_ID),
                 INDEX idx_firma (B_Firma_ID),
@@ -176,7 +182,7 @@ public static class DatabaseInitializerMySQL
                 INDEX idx_data_skierowania (B_DataSkierowania),
                 FOREIGN KEY (B_Pacjent_ID) REFERENCES P_Pacjent(P_ID) ON DELETE CASCADE,
                 FOREIGN KEY (B_Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL,
-                FOREIGN KEY (B_Badanie_ID) REFERENCES BAD_Lista(Identyfikator) ON DELETE SET NULL
+                FOREIGN KEY (B_Badanie_ID) REFERENCES Badanie(Bad_ID) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -414,6 +420,67 @@ public static class DatabaseInitializerMySQL
                 INDEX idx_pacjent (PE_ID_Pacjent),
                 FOREIGN KEY (PE_ID_Pacjent) REFERENCES P_Pacjent(P_ID) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ══════════════════════════════════════════════════════════════════════════
+        // TABELA: EdmDocuments (lokalne repozytorium dokumentów EDM — HL7 CDA)
+        // ══════════════════════════════════════════════════════════════════════════
+        ("EdmDocuments", """
+            CREATE TABLE IF NOT EXISTS `EdmDocuments` (
+                Id              INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                DocumentType    INT NOT NULL,
+                PatientId       INT NOT NULL,
+                VisitId         INT NULL,
+                DoctorId        INT NOT NULL,
+                DocumentOid     VARCHAR(255) NOT NULL,
+                Title           VARCHAR(255) NOT NULL,
+                FilePath        VARCHAR(500) NOT NULL,
+                ContentHash     VARCHAR(64) NOT NULL,
+                SignatureStatus INT NOT NULL DEFAULT 0,
+                SignedAt        DATETIME NULL,
+                P1IndexStatus   INT NOT NULL DEFAULT 0,
+                P1IndexId       VARCHAR(255) NULL,
+                CreatedAt       DATETIME NOT NULL,
+                CreatedById     INT NULL,
+                ModifiedAt      DATETIME NULL,
+                ModifiedById    INT NULL,
+                IsDeleted       TINYINT(1) NOT NULL DEFAULT 0,
+                DeletedAt       DATETIME NULL,
+                DeletedById     INT NULL,
+                RowVersion      TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+
+                UNIQUE INDEX idx_edm_oid (DocumentOid),
+                INDEX idx_edm_patient (PatientId),
+                INDEX idx_edm_visit (VisitId)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ══════════════════════════════════════════════════════════════════════════
+        // TABELA: P1SyncLogs (log synchronizacji z systemem P1)
+        // ══════════════════════════════════════════════════════════════════════════
+        ("P1SyncLogs", """
+            CREATE TABLE IF NOT EXISTS `P1SyncLogs` (
+                Id              INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                OperationType   VARCHAR(50) NOT NULL,
+                EntityName      VARCHAR(50) NOT NULL,
+                EntityId        INT NOT NULL,
+                Status          INT NOT NULL,
+                P1Identifier    VARCHAR(255) NULL,
+                ErrorMessage    VARCHAR(2000) NULL,
+                AttemptCount    INT NOT NULL DEFAULT 1,
+                LastAttemptAt   DATETIME NOT NULL,
+                CreatedAt       DATETIME NOT NULL,
+                CreatedById     INT NULL,
+                ModifiedAt      DATETIME NULL,
+                ModifiedById    INT NULL,
+                IsDeleted       TINYINT(1) NOT NULL DEFAULT 0,
+                DeletedAt       DATETIME NULL,
+                DeletedById     INT NULL,
+                RowVersion      TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+
+                INDEX idx_p1sync_entity (EntityName, EntityId),
+                INDEX idx_p1sync_status (Status)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """)
     ];
 
@@ -434,8 +501,32 @@ public static class DatabaseInitializerMySQL
     // ══════════════════════════════════════════════════════════════════════════════
     private static readonly (string Table, string Column, string TypeDef)[] Migrations =
     [
-        // Placeholder - miejsce na przyszłe migracje
-        // Przykład: ("P_Pacjent", "P_PESEL_2", "VARCHAR(11)")
+        // Integracja P1 (e-zdrowie) — status Zdarzenia Medycznego na wizycie
+        ("Visits", "P1EventId", "VARCHAR(255) NULL"),
+        ("Visits", "P1SyncStatus", "INT NOT NULL DEFAULT 0")
+    ];
+
+    // ══════════════════════════════════════════════════════════════════════════════════
+    // Migracje FK (naprawa błędnych kluczy obcych z migracji Access→MySQL)
+    // Każdy wpis: (NazwaConstraint, SQL do wykonania)
+    // ══════════════════════════════════════════════════════════════════════════════════
+    private static readonly (string ConstraintName, string[] Sqls)[] FkMigrations =
+    [
+        // B_Skierowania.B_Badanie_ID wskazywało na BAD_Lista — powinno wskazywać na Badanie
+        ("B_Skierowania_ibfk_3_fixed", new[]
+        {
+            // Krok 1: usuń stary FK (ignoruj jeśli nie istnieje)
+            @"ALTER TABLE `B_Skierowania` DROP FOREIGN KEY `B_Skierowania_ibfk_3`",
+            // Krok 2: wyczyść wisące wartości (nie pasują do Badanie.Bad_ID)
+            @"UPDATE `B_Skierowania` SET `B_Badanie_ID` = NULL
+              WHERE `B_Badanie_ID` IS NOT NULL
+                AND `B_Badanie_ID` NOT IN (SELECT `Bad_ID` FROM `Badanie`)",
+            // Krok 3: dodaj poprawny FK
+            @"ALTER TABLE `B_Skierowania`
+              ADD CONSTRAINT `B_Skierowania_ibfk_3`
+              FOREIGN KEY (`B_Badanie_ID`) REFERENCES `Badanie` (`Bad_ID`)
+              ON DELETE SET NULL"
+        })
     ];
 
     // ══════════════════════════════════════════════════════════════════════════════
@@ -514,7 +605,37 @@ public static class DatabaseInitializerMySQL
                 catch { /* kolumna już istnieje lub tabela nie istnieje — pomijamy */ }
             }
 
-            // Faza 3 — seed danych startowych
+            // Faza 3 — migracje FK (naprawa kluczy obcych)
+            // Sprawdzamy po REFERENCED_TABLE_NAME — czy constraint wskazuje na złą tabelę
+            foreach (var (constraintName, sqls) in FkMigrations)
+            {
+                // Marker "..._fixed" — szukamy jego obecności: jeśli już istnieje, skip
+                bool alreadyFixed = false;
+                try
+                {
+                    using var checkCmd = new MySqlCommand(
+                        $"SELECT COUNT(*) FROM information_schema.REFERENTIAL_CONSTRAINTS " +
+                        $"WHERE CONSTRAINT_SCHEMA = '{conn.Database}' " +
+                        $"AND CONSTRAINT_NAME = '{constraintName}'", conn);
+                    alreadyFixed = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+                }
+                catch { }
+
+                if (!alreadyFixed)
+                {
+                    foreach (var sql in sqls)
+                    {
+                        try
+                        {
+                            using var cmd = new MySqlCommand(sql, conn);
+                            cmd.ExecuteNonQuery();
+                        }
+                        catch { /* ignoruj — np. DROP gdy constraint nie istnieje */ }
+                    }
+                }
+            }
+
+            // Faza 4 — seed danych startowych
             foreach (var (table, sql) in SeedData)
             {
                 try

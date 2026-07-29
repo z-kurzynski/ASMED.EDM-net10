@@ -1,10 +1,10 @@
-﻿<Window x:Class="ASMED.EDM.UI.MainWindow"
+    <Window
+        x:Class="ASMED.EDM.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewspatients="clr-namespace:ASMED.EDM.UI.Views.Patients"
-        xmlns:viewsvisits="clr-namespace:ASMED.EDM.UI.Views.Visits"
         xmlns:viewswizyty="clr-namespace:ASMED.EDM.UI.Views.wizytyview"
         xmlns:viewssettings="clr-namespace:ASMED.EDM.UI.Views.Settings"
         xmlns:viewsbadania="clr-namespace:ASMED.EDM.UI.Views.badania"
@@ -13,17 +13,19 @@
         xmlns:viewsmigration="clr-namespace:ASMED.EDM.UI.Views.Migration"
         xmlns:viewsbadaniemod="clr-namespace:ASMED.EDM.UI.Views.Badanie"
         xmlns:viewsorzeczenie="clr-namespace:ASMED.EDM.UI.Views.Orzeczenie"
+        xmlns:viewmodels="clr-namespace:ASMED.EDM.UI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
 
         mc:Ignorable="d"
     Title="ASMED EDM -- v20 -2026" 
     WindowState="Normal"
     WindowStartupLocation="CenterScreen" 
     Width="Auto" 
-    VerticalAlignment="Top" 
+    VerticalAlignment="Top"
+    HorizontalAlignment="Stretch"
     MaxWidth="1600" 
-    MinWidth="1500" Background="#FFB9D1EA" Height="720" >
+    MinWidth="1500" Background="#FFA4C9EF" MinHeight="820" MaxHeight="1080" >
 
-    <Grid>
+    <Grid Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Nagłowek -->
@@ -47,45 +49,45 @@
 
         <!-- Środek - główna zawartość -->
         <Grid Grid.Row="1" Margin="0,-44,0,0">
-            <TabControl>
+            <TabControl x:Name="MainTabControl" PreviewMouseDoubleClick="TabControl_PreviewMouseDoubleClick">
                 <!-- Zakładka 1: Rejestracja -->
-                <TabItem Header="📝 Rejestracja" FontSize="14" Padding="15,10" Background="#FFD367FF">
-                    <viewswizyty:WizytyViewView />
+                <TabItem x:Name="tabRejestracja" Header="📝 Rejestracja" FontSize="14" Padding="15,10" Background="#FFD367FF">
+                    <ContentControl x:Name="RejestracjaContent" />
                 </TabItem>
 
                 <!-- Zakładka 2: Nowa Karta -->
-                <TabItem Header="📄 Nowa Karta" FontSize="14" Padding="15,10" Background="#FF90EE90">
-                    <viewsskierowania:SkierListaPacjentowView />
+                <TabItem x:Name="tabNowaKarta" Header="📄 Nowa Karta" FontSize="14" Padding="15,10" Background="#FF90EE90">
+                    <ContentControl x:Name="NowaKartaContent" />
                 </TabItem>
 
-                <!-- Zakładka 4: Karty Badań -->
-                <TabItem Header="📋 Karty Badań" FontSize="14" Padding="15,10" Background="#FF90C6FD">
-                    <viewsskierowania:SkierowaniaView />
+                <!-- Zakładka 3: Karty Badań -->
+                <TabItem x:Name="tabKartyBadan" Header="📋 Karty Badań" FontSize="14" Padding="15,10" Background="#FF90C6FD">
+                    <ContentControl x:Name="KartyBadanContent" />
                 </TabItem>
 
-                <!-- Zakładka 4: Zakończ Badanie -->
-                <TabItem Header="✅ Zakończ Badanie" FontSize="14" Padding="15,10" Background="#FF06F537">
-                    <viewsbadania:BadaniaNewView />
+                <!-- Zakładka 4: Badanie -->
+                <TabItem x:Name="tabBadanie" Header="🔬 Badanie" FontSize="14" Padding="15,10" Background="#FF42A5F5" Visibility="Collapsed">
+                    <ContentControl x:Name="BadanieContent" />
                 </TabItem>
 
-                <!-- Zakładka 5: Edycja Badań -->
-                <TabItem Header="✏️ Edycja Badań" FontSize="14" Padding="15,10" Background="#FFFFA07A">
-                    <viewsbadania:BadaniaEditNewView />
+                <!-- Zakładka 5: Orzeczenie -->
+                <TabItem x:Name="tabOrzeczenie" Header="📋 Orzeczenie" FontSize="14" Padding="15,10" Background="#FF66BB6A" Visibility="Collapsed">
+                    <ContentControl x:Name="OrzeczenieContent" />
+                </TabItem>
+                <TabItem x:Name="tabZakonczBadanie" Header="✅ Zakończ Badanie" FontSize="14" Padding="15,10" Background="#FF06F537">
+                    <ContentControl x:Name="ZakonczBadanieContent" />
                 </TabItem>
 
-                <!-- Zakładka: Lista Do Faktur -->
-                <TabItem Header="💰 Lista Do Faktur" FontSize="14" Padding="15,10" Background="#FFFFB347">
-                    <viewslistadofaktur:ListaFaktAddView />
+                <!-- Zakładka 6: Edycja Badań -->
+                <TabItem x:Name="tabEdycjaBadan" Header="✏️ Edycja Badań" FontSize="14" Padding="15,10" Background="#FFFFA07A">
+                    <ContentControl x:Name="EdycjaBadanContent" />
                 </TabItem>
 
-                <!-- Zakładka: Badanie -->
-                <TabItem Header="🔬 Badanie" FontSize="14" Padding="15,10" Background="#FF42A5F5">
-                    <viewsbadaniemod:BadanieView />
-                </TabItem>
+                <!-- Zakładka 7: Zakończ Badanie -->
 
-                <!-- Zakładka: Orzeczenie -->
-                <TabItem Header="📋 Orzeczenie" FontSize="14" Padding="15,10" Background="#FF66BB6A">
-                    <viewsorzeczenie:OrzeczenieView />
+                <!-- Zakładka 8: Lista Do Faktur -->
+                <TabItem x:Name="tabListaDoFaktur" Header="💰 Lista Do Faktur" FontSize="14" Padding="15,10" Background="#FFFFB347">
+                    <ContentControl x:Name="ListaDoFakturContent" />
                 </TabItem>
 
                 <!-- Zakładka: Baza Danych / Raporty / Settings -->
@@ -198,15 +200,26 @@
                                 </Grid>
                             </TabItem>
 
-                                        <!-- Podzakładka 5: Migracja -->
-                                        <TabItem Header="📦 Migracja" FontSize="13" Padding="12,8">
-                                            <viewsmigration:MigrationView />
-                                        </TabItem>
-
-                                    </TabControl>
-                                </Grid>
+                            <!-- Podzakładka 5: Migracja -->
+                            <TabItem Header="📦 Migracja" FontSize="13" Padding="12,8">
+                                <viewsmigration:MigrationView />
                             </TabItem>
+
+                            <!-- Podzakładka 6: EDM / P1 -->
+                            <TabItem FontSize="13" Padding="12,8">
+                                <TabItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="🏥" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBlock Text="EDM" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </TabItem.Header>
+                                <ContentControl x:Name="EdmP1TestContent"/>
+                            </TabItem>
+
                         </TabControl>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </Grid>
 
         <!-- Stopka -->
@@ -215,62 +228,84 @@
                 Height="30">
 
             <Grid>
-                <!-- Zegar po lewej stronie -->
-                <Border HorizontalAlignment="Left" 
-                        Margin="10,0,0,0"
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Border
                         CornerRadius="3"
-                        Padding="12,5">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="🕐 " 
-                                   FontSize="12"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding CurrentTime}" 
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"/>
-                        <TextBlock Text="{Binding CurrentDate}" 
-                                   FontSize="12"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+                        Padding="12,5" Height="30" Margin="0,0,20,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🕐 " 
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding CurrentTime}" 
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="White"
+                                VerticalAlignment="Center"
+                                Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding CurrentDate}" 
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
 
-                <TextBlock Text="© 2025 ASMED EDM. All rights reserved." 
-                           Foreground="White" 
-                           FontSize="12"
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"/>
+                    <TextBlock Text="© 2025 ASMED EDM. All rights reserved." 
+                        Foreground="White" 
+                        FontSize="12" Margin="10,0,20,0" VerticalAlignment="Center"
+                           />
+                    <Border
+                        CornerRadius="3"
+                        Padding="12,5" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🗄️ " 
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding ConsoleWrite}" 
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- Informacja o bazie danych po prawej stronie -->
-                <Border HorizontalAlignment="Right" 
-                        Margin="0,0,10,0"
+                </StackPanel>
+                <Border
                         Background="{Binding DatabaseStatusColor}"
                         CornerRadius="3"
-                        Padding="12,5">
+                        Padding="12,5" HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
+                        <ProgressBar
+                                 Value="{Binding ConsoleProgress}"
+                                 Maximum="100"
+                                 Height="14"
+                                 Foreground="#FF0078D7"
+                                 Background="#FFE0E0E0"
+                                 BorderThickness="0" Width="100"/>
                         <TextBlock Text="🗄️ " 
-                                   FontSize="12"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding DatabaseType}" 
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
+                                FontSize="12"
+                                FontWeight="Bold"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
                         <TextBlock Text=": " 
-                                   FontSize="12"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"
-                                   Margin="2,0"/>
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"
+                                Margin="2,0"/>
                         <TextBlock Text="{Binding DatabaseName}" 
-                                   FontSize="12"
-                                   Foreground="White"
-                                   VerticalAlignment="Center"/>
+                                FontSize="12"
+                                Foreground="White"
+                                VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
+                <!-- Zegar po lewej stronie -->
+
+                <!-- Informacja o bazie danych po prawej stronie -->
             </Grid>
         </Border>
     </Grid>

@@ -1,3 +1,5 @@
+using ASMED.EDM.Core.Entities;
+
 namespace ASMED.EDM.Core.Interfaces.Repositories;
 
 /// <summary>
@@ -14,6 +16,8 @@ public interface IUnitOfWork : IDisposable
     IMedicalRecordRepository MedicalRecords { get; }
     IPrescriptionRepository Prescriptions { get; }
     IAuditLogRepository AuditLogs { get; }
+    IRepository<EdmDocument> EdmDocuments { get; }
+    IRepository<P1SyncLog> P1SyncLogs { get; }
 
     /// <summary>
     /// Zapisuje wszystkie zmiany do bazy danych

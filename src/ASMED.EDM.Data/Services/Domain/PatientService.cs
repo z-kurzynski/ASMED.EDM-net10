@@ -13,15 +13,18 @@ public class PatientService : IPatientService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PatientService> _logger;
     private readonly IAuditService _auditService;
+    private readonly IP1PatientVerificationService? _p1VerificationService;
 
     public PatientService(
         IUnitOfWork unitOfWork,
         ILogger<PatientService> logger,
-        IAuditService auditService)
+        IAuditService auditService,
+        IP1PatientVerificationService? p1VerificationService = null)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+        _p1VerificationService = p1VerificationService;
     }
 
     // ==================== QUERIES ====================
@@ -96,6 +99,10 @@ public class PatientService : IPatientService
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Utworzono pacjenta ID: {PatientId}", createdPatient.Id);
+
+            // Informacyjna weryfikacja pacjenta w P1 (nie blokuje operacji)
+            await VerifyPatientInP1Async(createdPatient, cancellationToken);
+
             return createdPatient;
         }
         catch (Exception ex)
@@ -138,6 +145,10 @@ public class PatientService : IPatientService
                 cancellationToken: cancellationToken);
 
             _logger.LogInformation("Zaktualizowano pacjenta ID: {PatientId}", patient.Id);
+
+            // Informacyjna weryfikacja pacjenta w P1 (nie blokuje operacji)
+            await VerifyPatientInP1Async(patient, cancellationToken);
+
             return patient;
         }
         catch (Exception ex)
@@ -208,5 +219,41 @@ public class PatientService : IPatientService
         }
 
         return Task.FromResult(true);
+    }
+
+    // ==================== P1 (E-ZDROWIE) ====================
+
+    /// <summary>
+    /// Informacyjna weryfikacja pacjenta w P1 po numerze PESEL.
+    /// Wynik logowany (bez PESEL) — rozbieżność danych nie blokuje operacji.
+    /// </summary>
+    private async Task VerifyPatientInP1Async(Patient patient, CancellationToken cancellationToken)
+    {
+        if (_p1VerificationService is null || string.IsNullOrWhiteSpace(patient.IdentificationNumber))
+        {
+            return;
+        }
+
+        try
+        {
+            var result = await _p1VerificationService.VerifyPatientByPeselAsync(patient, cancellationToken);
+
+            if (!result.Found)
+            {
+                _logger.LogWarning("Pacjent ID {PatientId} nie został odnaleziony w P1", patient.Id);
+            }
+            else if (!result.DataMatches)
+            {
+                _logger.LogWarning("Dane pacjenta ID {PatientId} różnią się od danych w P1", patient.Id);
+            }
+            else
+            {
+                _logger.LogInformation("Pacjent ID {PatientId} zweryfikowany pozytywnie w P1", patient.Id);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd weryfikacji pacjenta ID {PatientId} w P1", patient.Id);
+        }
     }
 }

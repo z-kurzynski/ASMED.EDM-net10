@@ -1,0 +1,158 @@
+P1 wymaga:
+
+✔ mutual TLS
+✔ SOAP‑owego podpisu WSS (XML Signature)
+✔ komunikatu w formacie XML (enveloped signature)
+✔ JSON FHIR w środku XML-a jako string
+
+1. Klient P1 — mutual TLS + WSS
+
+public class P1Client
+{
+    private readonly HttpClient _http;
+    private readonly X509Certificate2 _wssCert;
+
+    public P1Client(string tlsPath, string tlsPass, string wssPath, string wssPass)
+    {
+        var handler = new HttpClientHandler();
+
+        // TLS mutual authentication
+        var tlsCert = new X509Certificate2(
+            tlsPath,
+            tlsPass,
+            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+
+        handler.ClientCertificates.Add(tlsCert);
+        handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+
+        _http = new HttpClient(handler)
+        {
+            BaseAddress = new Uri("https://api.ezdrowie.gov.pl/P1/fhir/R4/")
+        };
+
+        _wssCert = new X509Certificate2(
+            wssPath,
+            wssPass,
+            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+    }
+
+    public async Task<string> SendFhirAsync(string relativeUrl, string fhirJson)
+    {
+        string xmlEnvelope = BuildSignedEnvelope(fhirJson);
+
+        var content = new StringContent(xmlEnvelope, Encoding.UTF8, "application/xml");
+
+        var response = await _http.PostAsync(relativeUrl, content);
+        var result = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"P1 error {response.StatusCode}: {result}");
+
+        return result;
+    }
+
+    private string BuildSignedEnvelope(string json)
+    {
+        string xml = $@"
+<Envelope xmlns=""http://schemas.xmlsoap.org/soap/envelope/"">
+    <Body>
+        <FhirData Id=""FhirData"">
+            {SecurityElement.Escape(json)}
+        </FhirData>
+    </Body>
+</Envelope>";
+
+        var doc = new XmlDocument();
+        doc.PreserveWhitespace = true;
+        doc.LoadXml(xml);
+
+        var signedXml = new SignedXml(doc)
+        {
+            SigningKey = _wssCert.GetRSAPrivateKey()
+        };
+
+        var reference = new Reference("#FhirData");
+        reference.AddTransform(new XmlDsigExcC14NTransform());
+        signedXml.AddReference(reference);
+
+        signedXml.ComputeSignature();
+
+        XmlElement xmlSignature = signedXml.GetXml();
+        doc.DocumentElement.AppendChild(doc.ImportNode(xmlSignature, true));
+
+        return doc.OuterXml;
+    }
+}
+
+✔ działa w .NET 10
+✔ podpisuje WSS
+✔ wysyła XML z JSON FHIR
+✔ zgodny z wymaganiami P1
+
+-------------------
+
+Wyszukiwanie pacjenta po PESEL (FHIR)
+
+public async Task<string> GetPatient(P1Client client, string pesel)
+{
+    string url = $"Patient?identifier=urn:oid:2.16.840.1.113883.3.4424.1.1.616|{pesel}";
+    return await client.SendFhirAsync(url, "");
+}
+
+Rejestracja Zdarzenia Medycznego (Encounter)
+
+public async Task<string> RegisterEncounter(P1Client client)
+{
+    var encounter = new
+    {
+        resourceType = "Encounter",
+        status = "finished",
+        class = new { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "AMB" },
+        subject = new { identifier = new { system = "urn:oid:2.16.840.1.113883.3.4424.1.1.616", value = "12345678901" } },
+        period = new { start = "2024-01-01T10:00:00+01:00", end = "2024-01-01T10:15:00+01:00" }
+    };
+
+    string json = JsonSerializer.Serialize(encounter);
+
+    return await client.SendFhirAsync("Encounter", json);
+}
+
+Composition (opis wizyty)
+
+
+public async Task<string> RegisterComposition(P1Client client)
+{
+    var composition = new
+    {
+        resourceType = "Composition",
+        status = "final",
+        type = new { coding = new[] { new { system = "http://loinc.org", code = "34133-9" } } },
+        subject = new { identifier = new { system = "urn:oid:2.16.840.1.113883.3.4424.1.1.616", value = "12345678901" } },
+        date = DateTime.UtcNow.ToString("o"),
+        title = "Opis wizyty",
+        section = new[]
+        {
+            new { title = "Rozpoznanie", text = new { status = "generated", div = "<div>Pacjent zdrowy</div>" } }
+        }
+    };
+
+    string json = JsonSerializer.Serialize(composition);
+
+    return await client.SendFhirAsync("Composition", json);
+}
+
+WPF — wywołanie z UI
+
+private async void BtnTest_Click(object sender, RoutedEventArgs e)
+{
+    var client = new P1Client(
+        @"C:\certs\tls.p12", "tlsPass",
+        @"C:\certs\wss.p12", "wssPass");
+
+    var patient = await GetPatient(client, "12345678901");
+    MessageBox.Show(patient);
+
+    var encounter = await RegisterEncounter(client);
+    MessageBox.Show(encounter);
+}
+

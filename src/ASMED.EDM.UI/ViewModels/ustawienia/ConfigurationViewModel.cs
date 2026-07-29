@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,7 @@ namespace ASMED.EDM.UI.ViewModels;
 /// <summary>
 /// ViewModel dla widoku konfiguracji połączeń MySQL
 /// </summary>
+[SupportedOSPlatform("windows")]
 public partial class ConfigurationViewModel : ObservableObject
 {
     private readonly IDatabaseConnectionService _connectionService;
@@ -141,6 +143,16 @@ public partial class ConfigurationViewModel : ObservableObject
     [ObservableProperty]
     private string _activeDatabaseName = "-";
 
+    // ========== Ustawienia katalogów ==========
+
+    [ObservableProperty]
+    private string _dataDirectory = System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+        "ASMED_EDM");
+
+    [ObservableProperty]
+    private string _directorySettingsStatus = "Ustaw ścieżki katalogów i zapisz konfigurację";
+
     #endregion
 
     public ConfigurationViewModel(
@@ -212,6 +224,13 @@ public partial class ConfigurationViewModel : ObservableObject
 
             EnableFailover = _dbFactory.EnableFailover;
             ConnectionTimeout = _dbFactory.ConnectionTimeout;
+
+            // Wczytaj katalog danych z Registry
+            using var dirKey = Microsoft.Win32.Registry.CurrentUser
+                .OpenSubKey(@"Software\ASMED\EDM");
+            var savedDir = dirKey?.GetValue("DataDirectory") as string;
+            if (!string.IsNullOrWhiteSpace(savedDir))
+                DataDirectory = savedDir;
 
             _logger.LogInformation("✅ Załadowano konfigurację z Registry/appsettings");
         }
@@ -455,6 +474,22 @@ public partial class ConfigurationViewModel : ObservableObject
         {
             IsSaving = false;
         }
+    }
+
+    [RelayCommand]
+    private void SetActiveConnection(string connectionType)
+    {
+        if (string.IsNullOrWhiteSpace(connectionType)) return;
+
+        var prev = _dbFactory.ActiveConnectionType;
+        if (prev == connectionType) return;
+
+        _dbFactory.ActiveConnectionType = connectionType;
+        UpdateActiveConnectionStatus();
+
+        _logger.LogInformation("Aktywne połączenie zmienione: {Prev} → {New}", prev, connectionType);
+
+        StatusMessage = $"✅ Aktywne połączenie przełączono na: {connectionType}";
     }
 
     // ==================== PRAWA KOLUMNA: COMMANDS ====================
@@ -762,6 +797,57 @@ public partial class ConfigurationViewModel : ObservableObject
         finally
         {
             IsRepairing = false;
+        }
+    }
+
+    // ========== Komendy: Ustawienia katalogów ==========
+
+    [RelayCommand]
+    private void BrowseDataDirectory()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title = "Wybierz katalog danych programu",
+            InitialDirectory = System.IO.Directory.Exists(DataDirectory) ? DataDirectory
+                : Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            DataDirectory = dialog.FolderName;
+            DirectorySettingsStatus = $"Wybrano katalog: {DataDirectory}";
+        }
+    }
+
+    [RelayCommand]
+    private void SaveDirectorySettings()
+    {
+        try
+        {
+            if (!System.IO.Directory.Exists(DataDirectory))
+                System.IO.Directory.CreateDirectory(DataDirectory);
+
+            using var key = Microsoft.Win32.Registry.CurrentUser
+                .CreateSubKey(@"Software\ASMED\EDM", writable: true);
+            key.SetValue("DataDirectory", DataDirectory,
+                Microsoft.Win32.RegistryValueKind.String);
+
+            DirectorySettingsStatus = $"✅ Zapisano. Katalog danych: {DataDirectory}";
+            _logger.LogInformation("Katalog danych zapisany: {Dir}", DataDirectory);
+
+            MessageBox.Show(
+                $"✅ Ustawienia katalogów zapisane!\n\n" +
+                $"Katalog danych programu:\n{DataDirectory}\n\n" +
+                $"Zapisano w Windows Registry:\n" +
+                $"HKEY_CURRENT_USER\\Software\\ASMED\\EDM",
+                "Sukces",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            DirectorySettingsStatus = $"❌ Błąd zapisu: {ex.Message}";
+            _logger.LogError(ex, "Błąd zapisu ustawień katalogów");
         }
     }
 }

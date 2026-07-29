@@ -6,26 +6,28 @@ using System.Windows.Media;
 namespace ASMED.EDM.UI.Converters;
 
 /// <summary>
-/// Konwerter statusu wizyty na kolor tła
+/// Konwerter mapujący status wizyty na kolor tła (zgodnie z legacy)
 /// </summary>
 public class StatusToBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is not string status)
-        {
-            return new SolidColorBrush(Colors.Gray);
-        }
+        var status = value?.ToString()?.ToLower();
 
-        return status.ToLowerInvariant() switch
+        return status switch
         {
-            "zaplanowana" => new SolidColorBrush(Color.FromRgb(255, 152, 0)),  // Orange
-            "w trakcie" => new SolidColorBrush(Color.FromRgb(33, 150, 243)),   // Blue
-            "odbyta" => new SolidColorBrush(Color.FromRgb(76, 175, 80)),       // Green
-            "dokumentacja" => new SolidColorBrush(Color.FromRgb(241, 196, 15)), // Yellow
-            "anulowana" => new SolidColorBrush(Color.FromRgb(96, 125, 139)),   // Gray
-            "nieobecność" => new SolidColorBrush(Color.FromRgb(244, 67, 54)),  // Red
-            _ => new SolidColorBrush(Colors.Gray)
+            // kolory zgodne z legacy WPF
+            "rejestracja" => new SolidColorBrush(Color.FromRgb(52, 152, 219)),    // #3498DB niebieski
+            "dokumentacja" => new SolidColorBrush(Color.FromRgb(241, 196, 15)),  // #F1C40F żółty
+            "wywiad" => new SolidColorBrush(Color.FromRgb(33, 150, 243)),    // #2196F3 niebieski
+            "odbyta" => new SolidColorBrush(Color.FromRgb(39, 174, 96)),          // #27AE60 zielony
+            "anulowana" => new SolidColorBrush(Color.FromRgb(244, 67, 54)),       // #F44336 czerwony
+            "w trakcie" => new SolidColorBrush(Color.FromRgb(28, 88, 148)),       // #1C5894 turkus/ciemnieszy
+            "przełożona" => new SolidColorBrush(Color.FromRgb(156, 39, 176)),     // #9C27B0 fioletowy
+            "nieobecność" => new SolidColorBrush(Color.FromRgb(96, 125, 139)),    // #607D8B ciemny szary
+            "zamknięta" => new SolidColorBrush(Color.FromRgb(156, 39, 176)),      // fallback fiolet
+            "orzeczenie" => new SolidColorBrush(Color.FromRgb(139, 174, 96)),     //  #27AE60 zielony
+            _ => new SolidColorBrush(Color.FromRgb(112, 112, 112))                // domyślny szary #707070
         };
     }
 

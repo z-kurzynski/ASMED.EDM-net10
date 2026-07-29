@@ -1,0 +1,14 @@
+{
+    "dotnet.defaultSolution": "src/ASMED_3/ASMED_3.sln",
+    "csharp.format.enable": true,
+    "csharp.suppressDotnetRestoreNotification": true,
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true
+    },
+    "xml.format.enable": true,
+    "xml.format.indentSize": 2,
+    "terminal.integrated.defaultProfile.windows": "Command Prompt"
+}

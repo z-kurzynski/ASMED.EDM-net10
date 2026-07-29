@@ -28,7 +28,7 @@ public partial class MigrationView : UserControl
 
     private void MigrationView_Loaded(object sender, System.Windows.RoutedEventArgs e)
     {
-        if (DataContext != null) return;
+        if (DataContext is MigrationViewModel) return;
         if (System.Windows.Application.Current is App app && app.Host != null)
             DataContext = app.Host.Services.GetRequiredService<MigrationViewModel>();
     }

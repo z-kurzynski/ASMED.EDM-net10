@@ -1,0 +1,44 @@
+-- Przyk³adowy SQL do pobrania danych pacjenta i firmy dla P_ID = 2663
+SELECT
+    P_Pacjent.P_imie,
+    P_Pacjent.P_nazwisko,
+    P_Pacjent.P_pesel,
+    P_Pacjent.P_p³eæ,
+    P_Pacjent.P_data_urodzenia,
+    P_Pacjent.P_zawód,
+    P_Pacjent.P_Ades_kod,
+    P_Pacjent.P_Ades_miasto,
+    P_Pacjent.P_Adres_ulica_numer,
+    P_Pacjent.P_ID,
+    P_Pacjent.P_Uwagi,
+    P_Pacjent.P_Firma_id,
+    Firma.Nazwa,
+    Firma.Kod,
+    Firma.Miejscowosc,
+    Firma.Ulica
+FROM
+    Firma
+    INNER JOIN P_Pacjent ON Firma.id = P_Pacjent.P_Firma_id
+WHERE
+    P_Pacjent.P_ID = 2663;
+
+-- DTO do mapowania wyników
+public class PacjentFirmaDto
+{
+    public string P_imie { get; set; }
+    public string P_nazwisko { get; set; }
+    public string P_pesel { get; set; }
+    public string P_p³eæ { get; set; }
+    public DateTime P_data_urodzenia { get; set; }
+    public string P_zawód { get; set; }
+    public string P_Ades_kod { get; set; }
+    public string P_Ades_miasto { get; set; }
+    public string P_Adres_ulica_numer { get; set; }
+    public int P_ID { get; set; }
+    public string P_Uwagi { get; set; }
+    public int P_Firma_id { get; set; }
+    public string Nazwa { get; set; }
+    public string Kod { get; set; }
+    public string Miejscowosc { get; set; }
+    public string Ulica { get; set; }
+}

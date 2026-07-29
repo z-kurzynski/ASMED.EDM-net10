@@ -6,14 +6,15 @@
     mc:Ignorable="d"
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              xmlns:local="clr-namespace:ASMED.EDM.UI.Views.Settings"
+             xmlns:cenniki="clr-namespace:ASMED.EDM.UI.Views.cenniki"
              Background="#FFB9D1EA">
-    <Grid Background="#FFFDFDFD" Margin="10">
-        <syncfusion:TabControlExt Margin="1">
+    <Grid Margin="10">
+        <syncfusion:TabControlExt Margin="1" Background="{x:Null}">
             <syncfusion:TabItemExt Header="Konfiguracja" Background="#FF29EDF1">
                 <local:ConfigurationView />
             </syncfusion:TabItemExt>
             <syncfusion:TabItemExt Header="Cenniki" Background="#FFF9F127">
-                <local:PriceListsView />
+                <cenniki:CennikiView />
             </syncfusion:TabItemExt>
             <syncfusion:TabItemExt Header="Dane Placówki" Background="#FFDA11E6">
                 <local:FacilityDataView />

@@ -14,15 +14,18 @@ public class VisitService : IVisitService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<VisitService> _logger;
     private readonly IAuditService _auditService;
+    private readonly IMedicalEventService? _medicalEventService;
 
     public VisitService(
         IUnitOfWork unitOfWork,
         ILogger<VisitService> logger,
-        IAuditService auditService)
+        IAuditService auditService,
+        IMedicalEventService? medicalEventService = null)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+        _medicalEventService = medicalEventService;
     }
 
     // ==================== QUERIES ====================
@@ -217,6 +220,9 @@ public class VisitService : IVisitService
                 entityId: visitId.ToString(),
                 cancellationToken: cancellationToken);
 
+            // Rejestracja Zdarzenia Medycznego w P1 (e-zdrowie)
+            await RegisterMedicalEventAsync(visit, cancellationToken);
+
             _logger.LogInformation("Wizyta zakończona ID: {VisitId}", visitId);
             return visit;
         }
@@ -257,6 +263,57 @@ public class VisitService : IVisitService
     }
 
     // ==================== BUSINESS LOGIC ====================
+
+    /// <summary>
+    /// Rejestruje Zdarzenie Medyczne w P1 dla zakończonej wizyty.
+    /// Błąd rejestracji nie blokuje zamknięcia wizyty — status i szczegóły trafiają do P1SyncLog (retry przez ponowienie).
+    /// </summary>
+    private async Task RegisterMedicalEventAsync(Visit visit, CancellationToken cancellationToken)
+    {
+        if (_medicalEventService is null)
+        {
+            return;
+        }
+
+        var syncLog = new P1SyncLog
+        {
+            OperationType = "RegisterVisit",
+            EntityName = nameof(Visit),
+            EntityId = visit.Id,
+            LastAttemptAt = DateTime.UtcNow
+        };
+
+        try
+        {
+            var result = await _medicalEventService.RegisterVisitAsync(visit, cancellationToken);
+
+            if (result.Success)
+            {
+                visit.P1EventId = result.P1EventId;
+                visit.P1SyncStatus = P1SyncStatus.Synced;
+                syncLog.Status = P1SyncStatus.Synced;
+                syncLog.P1Identifier = result.P1EventId;
+            }
+            else
+            {
+                visit.P1SyncStatus = P1SyncStatus.Failed;
+                syncLog.Status = P1SyncStatus.Failed;
+                syncLog.ErrorMessage = result.ErrorMessage;
+                _logger.LogWarning("Rejestracja ZM w P1 nie powiodła się dla wizyty {VisitId}: {Error}", visit.Id, result.ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            visit.P1SyncStatus = P1SyncStatus.Failed;
+            syncLog.Status = P1SyncStatus.Failed;
+            syncLog.ErrorMessage = ex.Message;
+            _logger.LogError(ex, "Błąd rejestracji ZM w P1 dla wizyty {VisitId}", visit.Id);
+        }
+
+        _unitOfWork.Visits.Update(visit);
+        await _unitOfWork.P1SyncLogs.AddAsync(syncLog, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
 
     public async Task<bool> IsDoctorAvailableAsync(
         int doctorId,

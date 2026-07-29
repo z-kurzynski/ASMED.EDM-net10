@@ -1,0 +1,187 @@
+// PRZYK£AD U¯YCIA w ViewModel Firma:
+
+using ASMED.WPF.Services;
+using System.Windows.Input;
+using System.Windows;
+
+public class FirmaViewModel : INotifyPropertyChanged
+{
+    private readonly FirmaApiService _apiService = new FirmaApiService();
+
+    // W³aœciwoœci do bindowania
+    private string _nipDoWyszukania;
+    public string NipDoWyszukania
+    {
+        get => _nipDoWyszukania;
+        set
+        {
+            _nipDoWyszukania = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _nazwa;
+    public string Nazwa
+    {
+        get => _nazwa;
+        set
+        {
+            _nazwa = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _ulica;
+    public string Ulica
+    {
+        get => _ulica;
+        set
+        {
+            _ulica = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _kodPocztowy;
+    public string KodPocztowy
+    {
+        get => _kodPocztowy;
+        set
+        {
+            _kodPocztowy = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _miejscowosc;
+    public string Miejscowosc
+    {
+        get => _miejscowosc;
+        set
+        {
+            _miejscowosc = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private string _regon;
+    public string REGON
+    {
+        get => _regon;
+        set
+        {
+            _regon = value;
+            OnPropertyChanged();
+        }
+    }
+
+    // Komenda pobierania danych
+    public ICommand PobierzDanePoNIPCommand { get; }
+
+    public FirmaViewModel()
+    {
+        PobierzDanePoNIPCommand = new RelayCommand(async _ => await PobierzDanePoNIP());
+    }
+
+    private async Task PobierzDanePoNIP()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(NipDoWyszukania))
+            {
+                MessageBox.Show("Wpisz numer NIP do wyszukania", 
+                    "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Wywo³anie API
+            var dane = await _apiService.PobierzDaneFirmyPoNIP(NipDoWyszukania);
+
+            if (dane == null)
+            {
+                MessageBox.Show($"Nie znaleziono firmy o NIP: {NipDoWyszukania}\n\n" +
+                    "Uwaga: API CEIDG zawiera tylko dane o jednoosobowych dzia³alnoœciach gospodarczych.",
+                    "Nie znaleziono", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            if (!dane.CzyAktywna)
+            {
+                var result = MessageBox.Show(
+                    $"Firma jest NIEAKTYWNA (status: {dane.Status})\n\n" +
+                    "Czy chcesz wype³niæ formularz danymi tej firmy?",
+                    "Firma nieaktywna", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                
+                if (result == MessageBoxResult.No)
+                    return;
+            }
+
+            // Wype³nienie formularza
+            Nazwa = dane.Nazwa;
+            Ulica = !string.IsNullOrWhiteSpace(dane.NumerDomu) 
+                ? $"{dane.Ulica} {dane.NumerDomu}{(string.IsNullOrWhiteSpace(dane.NumerLokalu) ? "" : "/" + dane.NumerLokalu)}"
+                : dane.Ulica;
+            KodPocztowy = dane.KodPocztowy;
+            Miejscowosc = dane.Miejscowosc;
+            REGON = dane.REGON;
+
+            MessageBox.Show($"Pobrano dane firmy:\n\n{dane.Nazwa}\n{dane.PelnyAdres}",
+                "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"B³¹d pobierania danych:\n\n{ex.Message}",
+                "B³¹d", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    // INotifyPropertyChanged implementation...
+}
+
+
+// PRZYK£AD UI w XAML:
+/*
+<StackPanel Margin="10">
+    <TextBlock Text="Wyszukaj firmê po NIP:" FontWeight="Bold" Margin="0,0,0,5"/>
+    
+    <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+        <TextBox Text="{Binding NipDoWyszukania, UpdateSourceTrigger=PropertyChanged}" 
+                 Width="150" Height="30" 
+                 ToolTip="Wpisz 10-cyfrowy NIP"/>
+        <Button Content="Pobierz dane z CEIDG" 
+                Command="{Binding PobierzDanePoNIPCommand}"
+                Width="180" Height="30" Margin="10,0,0,0"
+                Background="#FF2196F3" Foreground="White"
+                Cursor="Hand"/>
+    </StackPanel>
+
+    <Separator Margin="0,0,0,10"/>
+
+    <TextBlock Text="Nazwa firmy:" Margin="0,5,0,2"/>
+    <TextBox Text="{Binding Nazwa, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+
+    <TextBlock Text="Ulica:" Margin="0,5,0,2"/>
+    <TextBox Text="{Binding Ulica, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="Kod pocztowy:" Margin="0,5,0,2"/>
+            <TextBox Text="{Binding KodPocztowy, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="2">
+            <TextBlock Text="Miejscowoœæ:" Margin="0,5,0,2"/>
+            <TextBox Text="{Binding Miejscowosc, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+        </StackPanel>
+    </Grid>
+
+    <TextBlock Text="REGON:" Margin="0,5,0,2"/>
+    <TextBox Text="{Binding REGON, UpdateSourceTrigger=PropertyChanged}" Height="30"/>
+</StackPanel>
+*/

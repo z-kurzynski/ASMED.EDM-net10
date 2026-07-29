@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.Entities;
 using ASMED.EDM.Core.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -20,6 +21,8 @@ public class UnitOfWork : IUnitOfWork
     private IMedicalRecordRepository? _medicalRecords;
     private IPrescriptionRepository? _prescriptions;
     private IAuditLogRepository? _auditLogs;
+    private IRepository<EdmDocument>? _edmDocuments;
+    private IRepository<P1SyncLog>? _p1SyncLogs;
 
     public UnitOfWork(AsmedDbContext context)
     {
@@ -50,6 +53,12 @@ public class UnitOfWork : IUnitOfWork
 
     public IAuditLogRepository AuditLogs =>
         _auditLogs ??= new AuditLogRepository(_context);
+
+    public IRepository<EdmDocument> EdmDocuments =>
+        _edmDocuments ??= new Repository<EdmDocument>(_context);
+
+    public IRepository<P1SyncLog> P1SyncLogs =>
+        _p1SyncLogs ??= new Repository<P1SyncLog>(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

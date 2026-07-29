@@ -126,4 +126,14 @@ public class Visit : BaseEntity
     /// Notatki recepcjonisty
     /// </summary>
     public string? ReceptionistNotes { get; set; }
+
+    /// <summary>
+    /// Identyfikator Zdarzenia Medycznego nadany przez system P1 (e-zdrowie)
+    /// </summary>
+    public string? P1EventId { get; set; }
+
+    /// <summary>
+    /// Status synchronizacji Zdarzenia Medycznego z P1
+    /// </summary>
+    public P1SyncStatus P1SyncStatus { get; set; } = P1SyncStatus.NotSynced;
 }

@@ -1,5 +1,6 @@
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models;
+using ASMED.EDM.UI.Views.Skierowania;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -49,6 +50,20 @@ public class SkierListaPacjentowViewModel : ViewModelBase
 
     public ICommand ClearSearchTextCommand { get; }
     public ICommand EditPatientNewCommand { get; }
+    public ICommand EditPatientCommand { get; }
+    public ICommand OpenHistoriaCommand { get; }
+    public ICommand OpenReferralCommand { get; }
+
+    /// <summary>
+    /// Wywołane gdy użytkownik chce otworzyć edytor pacjenta w tej samej zakładce.
+    /// Code-behind widoku podpina tutaj swoją implementację nawigacji.
+    /// </summary>
+    public Action<SkierPacjentaEditViewModel>? NavigateToEdit { get; set; }
+
+    /// <summary>
+    /// Wywołane gdy użytkownik chce otworzyć formularz nowej karty badań w tej samej zakładce.
+    /// </summary>
+    public Action<PacjentSkier>? NavigateToReferral { get; set; }
 
     // ─── Konstruktor ────────────────────────────────────────────────────────
 
@@ -56,8 +71,11 @@ public class SkierListaPacjentowViewModel : ViewModelBase
     {
         _dbFactory = dbFactory;
 
-        ClearSearchTextCommand = new RelayCommand(() => SearchText = string.Empty);
-        EditPatientNewCommand = new RelayCommand(OpenNowyPacjent);
+        ClearSearchTextCommand = new RelayCommand(_ => SearchText = string.Empty);
+        EditPatientNewCommand  = new RelayCommand(_ => OpenNowyPacjent());
+        EditPatientCommand     = new RelayCommand(p => OpenEdytujPacjent(p));
+        OpenHistoriaCommand    = new RelayCommand<object?>(OpenHistoria);
+        OpenReferralCommand    = new RelayCommand(p => OpenReferral(p));
 
         LoadPacjenciFromDb();
     }
@@ -194,9 +212,79 @@ public class SkierListaPacjentowViewModel : ViewModelBase
 
     // ─── Akcje przycisków ───────────────────────────────────────────────────
 
-    private void OpenNowyPacjent()
+    private void OpenReferral(object? parameter)
     {
-        // TODO: nawigacja do widoku dodawania nowego pacjenta
-        // (wdrożymy w kolejnym kroku)
+        if (parameter is not PacjentSkier pacjent || pacjent.P_ID <= 0)
+            return;
+        NavigateToReferral?.Invoke(pacjent);
+    }
+
+    private void OpenEdytujPacjent(object? parameter)
+    {
+        if (parameter is not PacjentSkier pacjent || pacjent.P_ID <= 0)
+            return;
+
+        try
+        {
+            if (System.Windows.Application.Current is not App app || app.Host == null)
+                return;
+
+            var vm = app.Host.Services.GetService(typeof(SkierPacjentaEditViewModel))
+                     as SkierPacjentaEditViewModel;
+            if (vm == null) return;
+
+            vm.LoadPacjentById(pacjent.P_ID);
+
+            NavigateToEdit?.Invoke(vm);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Błąd otwierania edycji pacjenta:\n{ex.Message}",
+                "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void OpenNowyPacjent(object? _ = null)
+    {
+        try
+        {
+            if (System.Windows.Application.Current is not App app || app.Host == null)
+                return;
+
+            var vm = app.Host.Services.GetService(typeof(SkierPacjentaEditViewModel))
+                     as SkierPacjentaEditViewModel;
+            if (vm == null) return;
+
+            // Powiadom widok — niech otworzy edytor w tej samej zakładce
+            NavigateToEdit?.Invoke(vm);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Błąd otwierania formularza:\n{ex.Message}",
+                "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    private void OpenHistoria(object? obj)
+    {
+        if (obj is not PacjentSkier pacjent || pacjent.P_ID <= 0)
+        {
+            System.Windows.MessageBox.Show("Wybierz pacjenta z listy.",
+                "Informacja", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+            return;
+        }
+
+        var dialog = new Views.Skierowania.PacjentHistoriaDialog(
+            pacjentId: pacjent.P_ID,
+            imie:      pacjent.FirstName,
+            nazwisko:  pacjent.LastName,
+            pesel:     pacjent.PESEL,
+            firma:     pacjent.Company)
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+
+        dialog.ShowDialog();
     }
 }

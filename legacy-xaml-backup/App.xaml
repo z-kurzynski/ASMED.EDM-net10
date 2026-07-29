@@ -1,0 +1,14 @@
+<Application x:Class="ASMED.WPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ASMED.WPF">
+    <Application.Resources>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
+        <!-- WAŻNE: Style globalne zostały usunięte, ponieważ kolidowały z Syncfusion -->
+        <!-- Zamiast tego używamy DispatcherUnhandledException w App.xaml.cs -->
+        <!-- aby złapać błąd LayoutTransform.ScaleX z Notifications.Wpf -->
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
+
+    </Application.Resources>
+</Application>

@@ -1,0 +1,357 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using ASMED.WPF.Models;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+
+namespace ASMED.WPF.Services
+{
+    public enum ExportType
+    {
+        Lista = 1,          // Lp, Imię, Nazwisko
+        Podstawowy = 2,     // Lp, Imię, Nazwisko, Razem
+        Szczegolowy = 3     // Lp, Imię, Nazwisko, Cena Bad, Cena Lar, Cena Ok, Cena San, Inne, Razem
+    }
+
+    public class PdfExportService
+    {
+        private const string EXPORT_PATH = @"A:\Email\OUT";
+        
+        public string ExportToPdf(List<InvoiceItem> items, ExportType exportType, string invoiceNumber, string companyName)
+        {
+            try
+            {
+                Directory.CreateDirectory(EXPORT_PATH);
+                string fileName = GenerateFileName(exportType, invoiceNumber, companyName);
+                string fullPath = Path.Combine(EXPORT_PATH, fileName);
+
+                Document doc = new Document(PageSize.A4, 40, 40, 40, 60);
+                PdfWriter writer = PdfWriter.GetInstance(doc, new FileStream(fullPath, FileMode.Create));
+                doc.Open();
+
+                // Użyj czcionki Arial CE dla polskich znaków
+                string fontPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
+                BaseFont bfArial = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                Font fontHeader = new Font(bfArial, 12, Font.BOLD, new BaseColor(30, 60, 120));
+                Font fontNormal = new Font(bfArial, 12);
+                Font fontBold = new Font(bfArial, 12, Font.BOLD);
+                Font fontTableHeader = new Font(bfArial, 11, Font.BOLD, new BaseColor(30, 60, 120));
+                Font fontTableRow = new Font(bfArial, 10);
+                Font fontFooter = new Font(bfArial, 9, Font.ITALIC, BaseColor.DARK_GRAY);
+
+                PdfPTable headerTable = new PdfPTable(2);
+                headerTable.WidthPercentage = 100;
+                headerTable.SetWidths(new float[] { 60, 40 });
+                headerTable.SpacingBefore = 10f;
+                headerTable.SpacingAfter = 10f;
+
+                // Lewa strona
+                var leftCell = new PdfPCell();
+                leftCell.Border = Rectangle.NO_BORDER;
+                leftCell.PaddingTop = 10f;
+                leftCell.PaddingBottom = 10f;
+                leftCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                leftCell.AddElement(new Paragraph("ASMED SC", fontHeader));
+                leftCell.AddElement(new Paragraph("04-028 Warszawa", fontNormal));
+                leftCell.AddElement(new Paragraph("AL. Stanów Zjednoczonych 51 pok 204", fontNormal));
+                leftCell.AddElement(new Paragraph("tel: 22 81 44 02", fontNormal));
+                leftCell.AddElement(new Paragraph("email: nzoz@asmed.info.pl", fontNormal));
+
+                // Prawa strona
+                var rightCell = new PdfPCell();
+                rightCell.Border = Rectangle.NO_BORDER;
+                rightCell.PaddingTop = 10f;
+                rightCell.PaddingBottom = 10f;
+                rightCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                rightCell.AddElement(new Paragraph($"Nr Faktury: {invoiceNumber}", fontBold));
+                rightCell.AddElement(new Paragraph($"Dla: {companyName}", fontNormal));
+
+                headerTable.AddCell(leftCell);
+                headerTable.AddCell(rightCell);
+                doc.Add(headerTable);
+
+                doc.Add(new Paragraph("LISTA PACJENTÓW", new Font(Font.FontFamily.HELVETICA, 20, Font.BOLD, new BaseColor(30, 60, 120))));
+                doc.Add(new Paragraph(" "));
+
+                // TABELA
+                PdfPTable table = null;
+                if (exportType == ExportType.Podstawowy)
+                {
+                    table = new PdfPTable(4); // Lp, Imię, Nazwisko, Wartość
+                    table.WidthPercentage = 100;
+                    table.SpacingBefore = 10f;
+                    table.SpacingAfter = 10f;
+                    table.SetWidths(new float[] { 8, 20, 52, 20 });
+
+                    // Nagłówki
+                    var headerBg = new BaseColor(30, 60, 120);
+                    var headerText = BaseColor.WHITE;
+                    List<string> headers = new List<string> { "Lp.", "Imię", "Nazwisko", "Wartość" };
+                    foreach (var h in headers)
+                    {
+                        var cell = new PdfPCell(new Phrase(h, new Font(bfArial, 11, Font.BOLD, new BaseColor(30, 60, 120))));
+                        cell.BackgroundColor = headerBg;
+                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        cell.Padding = 6f;
+                        table.AddCell(cell);
+                    }
+
+                    // Wiersze
+                    int lp = 1;
+                    foreach (var item in items)
+                    {
+                        var lpCell = new PdfPCell(new Phrase(lp.ToString(), fontTableRow));
+                        lpCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        table.AddCell(lpCell);
+
+                        var imie = item.FirstName ?? "";
+                        if (imie.Length > 20) imie = imie.Substring(0, 20);
+                        var imieCell = new PdfPCell(new Phrase(imie, fontTableRow));
+                        imieCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(imieCell);
+
+                        var nazwiskoCell = new PdfPCell(new Phrase(item.LastName ?? "", fontTableRow));
+                        nazwiskoCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(nazwiskoCell);
+
+                        var totalCell = new PdfPCell(new Phrase(item.Total.ToString("F2"), fontTableRow));
+                        totalCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(totalCell);
+                        lp++;
+                    }
+                }
+                else if (exportType == ExportType.Szczegolowy)
+                {
+                    table = new PdfPTable(9); // Lp, Imię, Nazwisko, Bad.MP, Laryngolog, Okulista, Sanitarne, Inne, Wartość
+                    table.WidthPercentage = 100;
+                    table.SpacingBefore = 10f;
+                    table.SpacingAfter = 10f;
+                    table.SetWidths(new float[] { 8, 20, 52, 20, 20, 20, 20, 20, 20 });
+
+                    // Nagłówki
+                    var headerBg = new BaseColor(30, 60, 120);
+                    List<string> headers = new List<string> { "Lp.", "Imię", "Nazwisko", "Bad.MP", "Laryngolog", "Okulista", "Sanitarne", "Inne", "Wartość" };
+                    foreach (var h in headers)
+                    {
+                        var cell = new PdfPCell(new Phrase(h, new Font(bfArial, 11, Font.BOLD, new BaseColor(30, 60, 120))));
+                        cell.BackgroundColor = headerBg;
+                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        cell.Padding = 6f;
+                        table.AddCell(cell);
+                    }
+
+                    // Wiersze
+                    int lp = 1;
+                    foreach (var item in items)
+                    {
+                        var lpCell = new PdfPCell(new Phrase(lp.ToString(), fontTableRow));
+                        lpCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        table.AddCell(lpCell);
+
+                        var imie = item.FirstName ?? "";
+                        if (imie.Length > 20) imie = imie.Substring(0, 20);
+                        var imieCell = new PdfPCell(new Phrase(imie, fontTableRow));
+                        imieCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(imieCell);
+
+                        var nazwiskoCell = new PdfPCell(new Phrase(item.LastName ?? "", fontTableRow));
+                        nazwiskoCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(nazwiskoCell);
+
+                        // Bad.MP
+                        var badCell = new PdfPCell(new Phrase(item.ExaminationPrice.ToString("F2"), fontTableRow));
+                        badCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(badCell);
+
+                        // Laryngolog
+                        var larCell = new PdfPCell(new Phrase(item.LaryngologistPrice.ToString("F2"), fontTableRow));
+                        larCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(larCell);
+
+                        // Okulista
+                        var okuCell = new PdfPCell(new Phrase(item.OphthalmologistPrice.ToString("F2"), fontTableRow));
+                        okuCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(okuCell);
+
+                        // Sanitarne
+                        var sanCell = new PdfPCell(new Phrase(item.SanitaryPrice.ToString("F2"), fontTableRow));
+                        sanCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(sanCell);
+
+                        // Inne (sumowane)
+                        decimal inneSum = item.OtherPrice + item.LipidogramPrice + item.EKGPrice + item.HealthClinicPrice;
+                        var inneCell = new PdfPCell(new Phrase(inneSum.ToString("F2"), fontTableRow));
+                        inneCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(inneCell);
+
+                        // Wartość
+                        var totalCell = new PdfPCell(new Phrase(item.Total.ToString("F2"), fontTableRow));
+                        totalCell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                        table.AddCell(totalCell);
+                        lp++;
+                    }
+                }
+                else if (exportType == ExportType.Lista)
+                {
+                    table = new PdfPTable(3); // Lp, Imię, Nazwisko
+                    table.WidthPercentage = 100;
+                    table.SpacingBefore = 10f;
+                    table.SpacingAfter = 10f;
+                    table.SetWidths(new float[] { 8, 20, 72 });
+
+                    // Nagłówki
+                    var headerBg = new BaseColor(30, 60, 120);
+                    var headerText = BaseColor.WHITE;
+                    List<string> headers = new List<string> { "Lp.", "Imię", "Nazwisko" };
+                    foreach (var h in headers)
+                    {
+                        var cell = new PdfPCell(new Phrase(h, new Font(bfArial, 11, Font.BOLD, new BaseColor(30, 60, 120))));
+                        cell.BackgroundColor = headerBg;
+                        cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        cell.Padding = 6f;
+                        table.AddCell(cell);
+                    }
+
+                    // Wiersze
+                    int lp = 1;
+                    foreach (var item in items)
+                    {
+                        var lpCell = new PdfPCell(new Phrase(lp.ToString(), fontTableRow));
+                        lpCell.HorizontalAlignment = Element.ALIGN_CENTER;
+                        table.AddCell(lpCell);
+
+                        var imie = item.FirstName ?? "";
+                        if (imie.Length > 20) imie = imie.Substring(0, 20);
+                        var imieCell = new PdfPCell(new Phrase(imie, fontTableRow));
+                        imieCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(imieCell);
+
+                        var nazwiskoCell = new PdfPCell(new Phrase(item.LastName ?? "", fontTableRow));
+                        nazwiskoCell.HorizontalAlignment = Element.ALIGN_LEFT;
+                        table.AddCell(nazwiskoCell);
+                        lp++;
+                    }
+                }
+
+                // Cień u dołu tabeli
+                if (table != null)
+                {
+                    var shadowCell = new PdfPCell(new Phrase(" "));
+                    shadowCell.Colspan = table.NumberOfColumns;
+                    shadowCell.Border = Rectangle.BOTTOM_BORDER;
+                    shadowCell.BorderColorBottom = new BaseColor(30, 60, 120);
+                    shadowCell.PaddingBottom = 8f;
+                    table.AddCell(shadowCell);
+                    doc.Add(table);
+                }
+
+                // Suma dla zestawień z kwotami
+                if (exportType == ExportType.Podstawowy || exportType == ExportType.Szczegolowy)
+                {
+                    decimal totalAmount = items.Sum(x => x.Total);
+                    doc.Add(new Paragraph($"SUMA CAŁKOWITA: {totalAmount:F2} zł", new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD, new BaseColor(30, 120, 60))));
+                }
+
+                doc.Add(new Paragraph(" "));
+
+                // STOPKA
+                var footerFont = new Font(Font.FontFamily.HELVETICA, 9, Font.ITALIC, BaseColor.DARK_GRAY);
+                doc.Add(new Paragraph($"Wygenerowany przez: ASMED System Medycyna Pracy | Nr raportu: {invoiceNumber} | Data wydruku: {DateTime.Now:dd.MM.yyyy HH:mm}", footerFont));
+
+                doc.Close();
+                return fullPath;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Błąd podczas eksportu PDF: {ex.Message}", ex);
+            }
+        }
+        
+        private string GenerateFileName(ExportType exportType, string invoiceNumber, string companyName)
+        {
+            // Format: lista_{numer_faktury}_dla_{nazwa_firmy}.pdf
+            // Nazwa firmy tylko z pierwszej linii
+            string shortCompanyName = companyName ?? "brak_firmy";
+            int nlIndex = shortCompanyName.IndexOfAny(new char[] {'\n', '\r'});
+            if (nlIndex >= 0)
+                shortCompanyName = shortCompanyName.Substring(0, nlIndex);
+            shortCompanyName = shortCompanyName.Trim();
+            // Zamień '/' w numerze faktury na '_'
+            string safeInvoiceNumber = (invoiceNumber ?? "brak").Replace('/', '_');
+            string baseFileName = string.Format("lista_{0}_dla_{1}", safeInvoiceNumber, shortCompanyName);
+
+            // Lista niedozwolonych znaków w nazwach plików
+            string forbiddenChars = "/\\?%*:|\"<>";
+
+            // Zamień niedozwolone znaki na podkreślenia
+            string cleanFileName = baseFileName;
+            foreach (char c in forbiddenChars)
+            {
+                cleanFileName = cleanFileName.Replace(c, '_');
+            }
+
+            // Zamień spacje na podkreślenia
+            cleanFileName = cleanFileName.Replace(' ', '_');
+
+            // Zamień polskie znaki na ich odpowiedniki ASCII
+            string[] polish = { "ą", "ć", "ę", "ł", "ń", "ó", "ś", "ź", "ż", "Ą", "Ć", "Ę", "Ł", "Ń", "Ó", "Ś", "Ź", "Ż" };
+            string[] ascii =  { "a", "c", "e", "l", "n", "o", "s", "z", "z", "A", "C", "E", "L", "N", "O", "S", "Z", "Z" };
+            for (int i = 0; i < polish.Length; i++)
+                cleanFileName = cleanFileName.Replace(polish[i], ascii[i]);
+
+            // Usuń wielokrotne podkreślenia
+            while (cleanFileName.Contains("__"))
+            {
+                cleanFileName = cleanFileName.Replace("__", "_");
+            }
+
+            // Usuń podkreślenia z początku i końca
+            cleanFileName = cleanFileName.Trim('_');
+
+            return cleanFileName + ".pdf";
+        }
+        
+        private string GetExportTypeName(ExportType exportType)
+        {
+            switch (exportType)
+            {
+                case ExportType.Lista:
+                    return "Lista Pacjentów";
+                case ExportType.Podstawowy:
+                    return "Zestawienie Podstawowe";
+                case ExportType.Szczegolowy:
+                    return "Zestawienie Szczegółowe";
+                default:
+                    return "Nieznany typ";
+            }
+        }
+        
+        private string GetExportTypeDescription(ExportType exportType)
+        {
+            switch (exportType)
+            {
+                case ExportType.Lista:
+                    return "Lista - Lp, Imię, Nazwisko";
+                case ExportType.Podstawowy:
+                    return "Podstawowy - z podsumowaniem finansowym";
+                case ExportType.Szczegolowy:
+                    return "Szczegółowy - z rodzajami badań i cenami";
+                default:
+                    return "Nieznany format raportu";
+            }
+        }
+
+        private string GetCompanyAddress(string companyName)
+        {
+            // Tutaj można dodać logikę pobierania adresu firmy z bazy danych
+            // Na razie zwracamy przykładowy adres
+            if (string.IsNullOrEmpty(companyName))
+                return "";
+            
+            return "ul. Przykładowa 123<br>00-000 Warszawa<br>NIP: 123-456-78-90";
+        }
+    }
+}

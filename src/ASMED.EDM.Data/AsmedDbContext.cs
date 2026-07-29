@@ -22,6 +22,8 @@ public class AsmedDbContext : DbContext
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<EdmDocument> EdmDocuments => Set<EdmDocument>();
+    public DbSet<P1SyncLog> P1SyncLogs => Set<P1SyncLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,7 @@ public class AsmedDbContext : DbContext
         modelBuilder.Entity<DoctorSchedule>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<MedicalRecord>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Prescription>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<EdmDocument>().HasQueryFilter(e => !e.IsDeleted);
 
         // Konfiguracja relacji i indeksów
         ConfigurePatient(modelBuilder);
@@ -45,9 +48,59 @@ public class AsmedDbContext : DbContext
         ConfigureMedicalRecord(modelBuilder);
         ConfigureDoctorSchedule(modelBuilder);
         ConfigureAuditLog(modelBuilder);
+        ConfigureEdmDocument(modelBuilder);
+        ConfigureP1SyncLog(modelBuilder);
 
         // Lub zastosuj konfiguracje z osobnych plików
         // modelBuilder.ApplyConfigurationsFromAssembly(typeof(AsmedDbContext).Assembly);
+    }
+
+    private void ConfigureEdmDocument(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EdmDocument>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.DocumentOid).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.FilePath).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.ContentHash).IsRequired().HasMaxLength(64);
+            entity.Property(e => e.P1IndexId).HasMaxLength(255);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => e.DocumentOid).IsUnique();
+            entity.HasIndex(e => e.PatientId);
+
+            entity.HasOne(e => e.Patient)
+                .WithMany()
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Visit)
+                .WithMany()
+                .HasForeignKey(e => e.VisitId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Doctor)
+                .WithMany()
+                .HasForeignKey(e => e.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private void ConfigureP1SyncLog(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<P1SyncLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.OperationType).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.EntityName).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.P1Identifier).HasMaxLength(255);
+            entity.Property(e => e.ErrorMessage).HasMaxLength(2000);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => new { e.EntityName, e.EntityId });
+            entity.HasIndex(e => e.Status);
+        });
     }
 
     private void ConfigurePatient(ModelBuilder modelBuilder)

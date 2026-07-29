@@ -19,6 +19,31 @@ public class MigrationService : IMigrationService
 
     private readonly ILogger<MigrationService> _logger;
 
+    // ── Usuwanie polskich znaków diakrytycznych ──────────────────────────────────────────
+    // Access przechowuje nazwy kolumn z polskimi znakami (np. P_płeć, P_zawód),
+    // podczas gdy w nowej bazie MySQL nazwy są celowo bez polskich znaków (P_plec, P_zawod).
+    // Dopasowanie kolumn Access→MySQL uwzględnia to automatycznie dla WSZYSTKICH tabel.
+    private static readonly Dictionary<char, char> PolishDiacriticsMap = new()
+    {
+        ['ą'] = 'a', ['Ą'] = 'A',
+        ['ć'] = 'c', ['Ć'] = 'C',
+        ['ę'] = 'e', ['Ę'] = 'E',
+        ['ł'] = 'l', ['Ł'] = 'L',
+        ['ń'] = 'n', ['Ń'] = 'N',
+        ['ó'] = 'o', ['Ó'] = 'O',
+        ['ś'] = 's', ['Ś'] = 'S',
+        ['ź'] = 'z', ['Ź'] = 'Z',
+        ['ż'] = 'z', ['Ż'] = 'Z',
+    };
+
+    private static string RemovePolishDiacritics(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+
+        var chars = input.Select(c => PolishDiacriticsMap.TryGetValue(c, out var mapped) ? mapped : c);
+        return new string(chars.ToArray());
+    }
+
     // ── Definicja tabel dostępnych do migracji ─────────────────────────────
     private static readonly IReadOnlyList<TableInfo> AvailableTables =
     [
@@ -260,11 +285,33 @@ public class MigrationService : IMigrationService
                         .Select(c => c.ColumnName)
                         .ToList();
 
-                    var commonColumns = accessColumns
-                        .Where(c => mysqlColumns.Contains(c, StringComparer.OrdinalIgnoreCase))
+                    // Dopasuj kolumny Access → MySQL. Najpierw próba dokładnego dopasowania nazwy,
+                    // a jeśli się nie uda — dopasowanie po usunięciu polskich znaków diakrytycznych
+                    // (Access może mieć np. P_płeć, MySQL celowo P_plec — dotyczy wszystkich tabel).
+                    var mysqlColumnsByStrippedName = mysqlColumns
+                        .GroupBy(c => RemovePolishDiacritics(c), StringComparer.OrdinalIgnoreCase)
+                        .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+                    string? MapToMySql(string accessColumn)
+                    {
+                        var exact = mysqlColumns.FirstOrDefault(c =>
+                            string.Equals(c, accessColumn, StringComparison.OrdinalIgnoreCase));
+                        if (exact != null) return exact;
+
+                        return mysqlColumnsByStrippedName.TryGetValue(
+                            RemovePolishDiacritics(accessColumn), out var mapped)
+                            ? mapped
+                            : null;
+                    }
+
+                    // accessColumnName -> mysqlColumnName, tylko dla kolumn istniejących po obu stronach
+                    var columnMap = accessColumns
+                        .Select(ac => (AccessColumn: ac, MySqlColumn: MapToMySql(ac)))
+                        .Where(m => m.MySqlColumn != null)
+                        .Select(m => (m.AccessColumn, MySqlColumn: m.MySqlColumn!))
                         .ToList();
 
-                    if (commonColumns.Count == 0)
+                    if (columnMap.Count == 0)
                     {
                         await ExecuteMySqlCommandAsync(mysqlConn, "SET FOREIGN_KEY_CHECKS=1;", cancellationToken);
                         return (false, 0, $"Brak wspólnych kolumn między Access a MySQL dla tabeli '{tableName}'.");
@@ -280,7 +327,7 @@ public class MigrationService : IMigrationService
                             .Take(BatchSize)
                             .ToList();
 
-                        await InsertBatchAsync(mysqlConn, tableName, commonColumns, batch, cancellationToken);
+                        await InsertBatchAsync(mysqlConn, tableName, columnMap, batch, cancellationToken);
                         rowsMigrated += batch.Count;
 
                         progress?.Report(new MigrationProgress
@@ -403,6 +450,45 @@ public class MigrationService : IMigrationService
         while (await reader.ReadAsync(ct))
             columns.Add(reader.GetString(0));
         return columns;
+    }
+
+    private static async Task InsertBatchAsync(
+        MySqlConnection conn,
+        string tableName,
+        List<(string AccessColumn, string MySqlColumn)> columnMap,
+        List<DataRow> rows,
+        CancellationToken ct)
+    {
+        if (rows.Count == 0) return;
+
+        var colList = string.Join(", ", columnMap.Select(c => $"`{c.MySqlColumn}`"));
+
+        var sb = new StringBuilder();
+        sb.Append($"INSERT IGNORE INTO `{tableName}` ({colList}) VALUES ");
+
+        var rowPlaceholders = new List<string>();
+        for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
+        {
+            var colPlaceholders = columnMap.Select((_, colIdx) => $"@p{rowIdx}_{colIdx}");
+            rowPlaceholders.Add($"({string.Join(", ", colPlaceholders)})");
+        }
+
+        sb.Append(string.Join(",\n", rowPlaceholders));
+
+        await using var cmd = new MySqlCommand(sb.ToString(), conn);
+        cmd.CommandTimeout = 120;
+
+        for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
+        {
+            for (int colIdx = 0; colIdx < columnMap.Count; colIdx++)
+            {
+                cmd.Parameters.Add(new MySqlParameter(
+                    $"@p{rowIdx}_{colIdx}",
+                    ConvertValue(rows[rowIdx][columnMap[colIdx].AccessColumn])));
+            }
+        }
+
+        await cmd.ExecuteNonQueryAsync(ct);
     }
 
     private static async Task InsertBatchAsync(

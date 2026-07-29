@@ -1,0 +1,471 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Skierowania.SkierPacjentaEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch"
+             Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Styl etykiet sekcji -->
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#FF8CC8F5"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Styl etykiet pól -->
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#FFCCCCCC"/>
+            <Setter Property="Margin" Value="0,0,0,3"/>
+        </Style>
+
+        <!-- Styl pól tekstowych -->
+        <Style x:Key="FieldBox" TargetType="TextBox">
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <!-- Styl przycisków akcji -->
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="4,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="12,8,12,12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>
+            <!-- Nagłówek + przyciski -->
+            <RowDefinition Height="*"/>
+            <!-- Zawartość -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══ ROW 0: Nagłówek ═══ -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <!-- Dodaj Kartę Badań -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Usuń Pacjenta -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Anuluj -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Zapisz -->
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0"
+						   Text="{Binding TytulFormularza}"
+						   FontSize="22" FontWeight="Bold"
+						   Foreground="#FF1976D2"
+						   VerticalAlignment="Center"/>
+
+            <!-- Zamknij -->
+            <Button Grid.Column="4"
+						Width="160" Height="42"
+						Background="#FF9E2C24" Foreground="White"
+						Command="{Binding AnulujCommand}"
+						Cursor="Hand">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="&#x2716; Zamknij" FontSize="16"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- ═══ ROW 1: Dwie kolumny — Dane osobowe | Firma ═══ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="534"/>
+                <!-- Dane pacjenta -->
+                <ColumnDefinition Width="3"/>
+                <!-- Przerwa -->
+                <ColumnDefinition/>
+                <!-- Firma -->
+            </Grid.ColumnDefinitions>
+
+            <!-- ─── KOLUMNA 0: Dane osobowe ─── -->
+            <Border Grid.Column="2"
+                    BorderBrush="#FF2196F3" BorderThickness="1"
+                    CornerRadius="8" Padding="14"
+                    Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
+                <DockPanel LastChildFill="True">
+
+                    <!-- Przyciski — zawsze widoczne na dole -->
+                    <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+                        <Separator Margin="0,8,0,8" Background="#FF444444"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Dodaj Kartę Badań + Usuń Pacjenta — tylko po zapisie -->
+                            <Button Width="210" Height="42" Margin="0,0,8,0"
+                                    Background="#FF2E7D32" Foreground="White"
+                                    Click="DodajKarteBadan_Click"
+                                    Cursor="Hand"
+                                    Visibility="{Binding PacjentZapisany, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="📋 Dodaj Kartę Badań" FontSize="14"/>
+                            </Button>
+                            <Button Width="160" Height="42" Margin="0,0,8,0"
+                                    Background="#FF6D1F1A" Foreground="White"
+                                    Command="{Binding UsunPacjentaCommand}"
+                                    Cursor="Hand"
+                                    Visibility="{Binding PacjentZapisany, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="🗑 Usuń Pacjenta" FontSize="14"/>
+                            </Button>
+
+                            <!-- Anuluj + Zapisz — zawsze widoczne -->
+                            <Button Width="160" Height="42" Margin="0,0,8,0"
+                                    Background="#FF9E2C24" Foreground="White"
+                                    Command="{Binding AnulujCommand}"
+                                    Cursor="Hand">
+                                <TextBlock Text="✖ Anuluj" FontSize="16"/>
+                            </Button>
+                            <Button Width="190" Height="42"
+                                    Background="#FF0078D7" Foreground="White"
+                                    Command="{Binding SaveCommand}"
+                                    Cursor="Hand">
+                                <TextBlock Text="💾 Zapisz pacjenta" FontSize="16"/>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Pola formularza — zajmują pozostałe miejsce -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Text="👤 Dane osobowe" Style="{StaticResource SectionLabel}"/>
+
+                            <!-- ID (readonly) -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="ID pacjenta:" Style="{StaticResource FieldLabel}"
+                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding PacjentId, Mode=OneWay}"
+                                     Width="70" Height="28" FontSize="13"
+                                     IsReadOnly="True" IsEnabled="False"/>
+                            </StackPanel>
+
+                            <!-- Imię + Nazwisko -->
+                            <Grid Margin="0,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Imię / imiona *" Style="{StaticResource FieldLabel}"/>
+                                    <syncfusion:SfTextBoxExt
+										Text="{Binding Imie, UpdateSourceTrigger=PropertyChanged}"
+										AutoCompleteSource="{Binding ImionaItems}"
+										AutoCompleteMode="SuggestAppend"
+										TextHighlightMode="FirstOccurrence"
+										SearchItemPath="."
+										SuggestionBoxPlacement="Bottom"
+										MaxDropDownHeight="220"
+										Watermark="* Wpisz imię"
+										Height="32" FontSize="16" Padding="4,2" Margin="0,0,0,8"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Nazwisko *" Style="{StaticResource FieldLabel}"/>
+                                    <syncfusion:SfTextBoxExt
+										Text="{Binding Nazwisko, UpdateSourceTrigger=PropertyChanged}"
+										AutoCompleteSource="{Binding NazwiskaItems}"
+										AutoCompleteMode="SuggestAppend"
+										TextHighlightMode="FirstOccurrence"
+										SearchItemPath="."
+										SuggestionBoxPlacement="Bottom"
+										MaxDropDownHeight="220"
+										Watermark="* Wpisz nazwisko"
+										Height="32" FontSize="16" Padding="4,2" Margin="0,0,0,8"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- PESEL / Płeć / Data urodzenia | Pobierz z EDM -->
+                            <TextBlock Text="PESEL / Płeć / Data urodzenia" Style="{StaticResource FieldLabel}"/>
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <!-- PESEL -->
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Brak PESEL -->
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- M -->
+                                    <ColumnDefinition Width="6"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- K -->
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="140"/>
+                                    <!-- Data urodzenia -->
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <!-- Przycisk Pobierz -->
+                                </Grid.ColumnDefinitions>
+
+                                <!-- PESEL -->
+                                <TextBox Grid.Column="0"
+												 Text="{Binding PESEL, UpdateSourceTrigger=PropertyChanged}"
+												 IsEnabled="{Binding PeselEnabled}"
+												 Height="32" FontSize="15" Padding="4,2"
+												 MaxLength="11" VerticalAlignment="Center"/>
+
+                                <!-- Brak PESEL -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <CheckBox IsChecked="{Binding BrakPESEL}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="brak" VerticalAlignment="Center"
+													   Foreground="#FFCCCCCC" FontSize="12" Margin="4,0,0,0"/>
+                                </StackPanel>
+
+                                <!-- Płeć: M -->
+                                <RadioButton Grid.Column="4"
+													 Content="M" IsChecked="{Binding IsMezczyzna}"
+													 Foreground="White" FontSize="14" FontWeight="SemiBold"
+													 VerticalAlignment="Center"/>
+
+                                <!-- Płeć: K -->
+                                <RadioButton Grid.Column="6"
+													 Content="K" IsChecked="{Binding IsKobieta}"
+													 Foreground="White" FontSize="14" FontWeight="SemiBold"
+													 VerticalAlignment="Center"/>
+
+                                <!-- Data urodzenia -->
+                                <DatePicker Grid.Column="8"
+													SelectedDate="{Binding DataUrodzenia}"
+													Height="32" FontSize="13" VerticalAlignment="Center"/>
+
+                                <!-- Przycisk Pobierz z EDM + Sprawdź PESEL -->
+                                <StackPanel Grid.Column="10" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
+                                    <Button x:Name="pobierz_z_bazy_pesel" 
+                                                Width="38" Height="32" Margin="0,0,6,0"
+                                                VerticalAlignment="Center"
+                                                Background="#FF1565C0" Foreground="White"
+                                                Cursor="Hand"
+                                                ToolTip="Pobierz dane pacjenta z EDM"
+                                                Click="PobierzZEdm_Click">
+                                        <TextBlock Text="⬇" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Button>
+                                    <Button x:Name="sprawdz_pesel" Height="32"
+                                        Background="#FF455A64" Foreground="White"
+                                        Cursor="Hand"
+                                        ToolTip="Sprawdź czy PESEL występuje w bazie"
+                                        Click="SprawdzPesel_Click" Margin="10,0,0,0">
+                                        <TextBlock Text="Sprawdź PESEL w Bazie" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Zawód / stanowisko -->
+                            <TextBlock Text="Zawód / stanowisko" Style="{StaticResource FieldLabel}"/>
+                            <syncfusion:SfTextBoxExt
+								Text="{Binding Zawod, UpdateSourceTrigger=PropertyChanged}"
+								AutoCompleteSource="{Binding ZawodyItems}"
+								AutoCompleteMode="SuggestAppend"
+								TextHighlightMode="FirstOccurrence"
+								SearchItemPath="."
+								SuggestionBoxPlacement="Bottom"
+								MaxDropDownHeight="220"
+								Watermark="Zawód / stanowisko"
+								Height="32" FontSize="16" Padding="4,2" Margin="0,0,0,8"/>
+
+                            <!-- Separator -->
+                            <TextBlock Text="📍 Adres" Style="{StaticResource SectionLabel}" Margin="0,8,0,8"/>
+
+                            <!-- Ulica -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="Ulica i numer domu" Style="{StaticResource FieldLabel}" Height="16"/>
+                                    <syncfusion:SfTextBoxExt
+                                        Text="{Binding Ulica, UpdateSourceTrigger=PropertyChanged}"
+                                        AutoCompleteSource="{Binding UliceItems}"
+                                        AutoCompleteMode="SuggestAppend"
+                                        TextHighlightMode="FirstOccurrence"
+                                        SearchItemPath="."
+                                        SuggestionBoxPlacement="Bottom"
+                                        MaxDropDownHeight="220"
+                                        Watermark="Ulica i numer domu"
+                                        FontSize="16" Padding="4,2" Height="32"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="e-mail" Style="{StaticResource FieldLabel}"/>
+                                    <syncfusion:SfTextBoxExt
+							            Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+							            AutoCompleteSource="{Binding EmailItems}"
+							            AutoCompleteMode="SuggestAppend"
+							            TextHighlightMode="FirstOccurrence"
+							            SearchItemPath="."
+							            SuggestionBoxPlacement="Bottom"
+							            MaxDropDownHeight="220"
+							            Watermark="e-mail"
+							            Height="32" FontSize="16" Padding="4,2"/>
+                                </StackPanel>
+
+
+                            </Grid>
+
+                            <!-- Kod + Miejscowość -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="1.54*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Kod pocztowy" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding KodPocztowy, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="32" FontSize="16" Padding="4,2" MaxLength="6"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Miejscowość" Style="{StaticResource FieldLabel}"/>
+                                    <syncfusion:SfTextBoxExt
+										Text="{Binding Miejscowosc, UpdateSourceTrigger=PropertyChanged}"
+										AutoCompleteSource="{Binding MiastoItems}"
+										AutoCompleteMode="SuggestAppend"
+										TextHighlightMode="FirstOccurrence"
+										SearchItemPath="."
+										SuggestionBoxPlacement="Bottom"
+										MaxDropDownHeight="220"
+										Watermark="Miejscowość"
+										Height="32" FontSize="16" Padding="4,2"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4" Grid.Row="3">
+                                    <TextBlock Text="Telefon" Style="{StaticResource FieldLabel}"/>
+                                    <syncfusion:SfTextBoxExt
+							            Text="{Binding Telefon, UpdateSourceTrigger=PropertyChanged}"
+							            AutoCompleteSource="{Binding TelefonItems }"
+							            AutoCompleteMode="SuggestAppend"
+							            TextHighlightMode="FirstOccurrence"
+							            SearchItemPath="."
+							            SuggestionBoxPlacement="Bottom"
+							            MaxDropDownHeight="220"
+							            Watermark="Telefon"
+							            Height="32" FontSize="16" Padding="4,2"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Uwagi -->
+                            <TextBlock Text="📝 Uwagi" Style="{StaticResource FieldLabel}"/>
+                            <TextBox Text="{Binding Uwagi, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="70" FontSize="14" Padding="4"
+                                 TextWrapping="Wrap" AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"/>
+
+                        </StackPanel>
+                    </ScrollViewer>
+
+                </DockPanel>
+            </Border>
+
+            <!-- ─── KOLUMNA 2: Firma ─── -->
+            <Border Grid.Column="0"
+                    BorderBrush="#FFFF9800" BorderThickness="1"
+                    CornerRadius="8" Padding="14"
+                    Background="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform Angle="-0.399"/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Nagłówek + wyszukaj -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Wybrana firma info -->
+                        <RowDefinition Height="*"/>
+                        <!-- Lista firm -->
+                    </Grid.RowDefinitions>
+
+                    <!-- Nagłówek + szukaj + odśwież -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,8">
+                        <TextBlock Text="🏢 Wybierz firmę *" Style="{StaticResource SectionLabel}"/>
+                        <DockPanel LastChildFill="True">
+                            <Button DockPanel.Dock="Right"
+                                    Width="36" Height="32" Margin="6,0,0,0"
+                                    Content="🔃" FontSize="16"
+                                    Command="{Binding RefreshFirmyCommand}"
+                                    ToolTip="Odśwież listę firm"
+                                    Background="#FF1976D2" Foreground="White"/>
+                            <Button DockPanel.Dock="Right"
+                                    Width="32" Height="32" Margin="4,0,0,0"
+                                    Content="✖" FontSize="14"
+                                    Command="{Binding ClearSearchFirmyCommand}"
+                                    ToolTip="Wyczyść wyszukiwanie"
+                                    Background="#FF555555" Foreground="White"/>
+                            <TextBox Text="{Binding FrazaFirmy, UpdateSourceTrigger=PropertyChanged}"
+                                     Height="32" FontSize="14" Padding="4,2"
+                                     x:Name="txtSearchFirma"/>
+                        </DockPanel>
+                    </StackPanel>
+
+                    <!-- Wybrana firma — podsumowanie -->
+                    <Border Grid.Row="1"
+                            BorderBrush="#FFFF9800" BorderThickness="1"
+                            CornerRadius="4" Padding="8,6" Margin="0,0,0,8"
+                            Visibility="{Binding CzyWybranoFirme, Converter={StaticResource BoolToVis}}" Background="#FF165F17" MinHeight="40">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="✅ Wybrana: " FontSize="13" Foreground="#FFFF9800" FontWeight="Bold"/>
+                            <TextBlock Text="{Binding WybranaFirmaNazwa}" FontSize="14" Foreground="White"
+                                       TextWrapping="Wrap" MaxWidth="380"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Lista firm -->
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding FiltrowaneFirmy}"
+                              SelectedItem="{Binding WybranaFirma, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              RowHeight="50"
+                              FontSize="13"
+                              AlternationCount="2"
+                              HorizontalScrollBarVisibility="Disabled"
+                              BorderBrush="#FFFF9800" BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Dane Firmy" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="6,4">
+                                            <TextBlock Text="{Binding Nazwa}"
+															   FontSize="14" FontWeight="SemiBold"
+															   Foreground="#FF1976D2"
+															   TextWrapping="Wrap"/>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="NIP: " FontSize="11" Foreground="Gray"/>
+                                                <TextBlock Text="{Binding NIP}" FontSize="11" Foreground="#FF616161"
+																   Margin="0,0,10,0"/>
+                                                <TextBlock Text="📍 " FontSize="11" Foreground="Gray"/>
+                                                <TextBlock Text="{Binding Adres}"
+																   FontSize="11" Foreground="#FF888888"
+																   TextWrapping="Wrap" MaxWidth="260"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

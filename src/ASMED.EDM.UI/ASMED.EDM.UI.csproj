@@ -2,24 +2,39 @@
 
 
   <ItemGroup>
+    <Compile Remove="Views\badania\BadaniaListaView.xaml.cs" />
+    <Compile Remove="Views\badania\badania_Edit_View.xaml.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Page Remove="Views\badania\BadaniaListaView.xaml" />
+    <Page Remove="Views\badania\badania_Edit_View.xaml" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\ASMED.EDM.Data\ASMED.EDM.Data.csproj" />
     <ProjectReference Include="..\ASMED.EDM.Core\ASMED.EDM.Core.csproj" />
+    <ProjectReference Include="..\ASMED.EDM.P1\ASMED.EDM.P1.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.*">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.*" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.*" />
-    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.1.32" />
-    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.1.32" />
-    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.1.32" />
-    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.1.32" />
-    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.1.32" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2526" />
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.2.3" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -29,19 +44,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <LangVersion>latest</LangVersion>
+    <AssemblyTitle>Asmed EDM</AssemblyTitle>
+    <ApplicationIcon>Assets\ikona.ico</ApplicationIcon>
+    <PackageIcon></PackageIcon>
+    <IsPublishable>true</IsPublishable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="Properties\PublishProfiles\ClickOnceProfile.pubxml">
+      <LastGenOutput>ClickOnceProfile.pubxml</LastGenOutput>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Exclude temporary/broken files from compilation -->
-    <Page Remove="Views\Settings\SettingsView2.xaml" />
-    <Compile Remove="Views\Settings\SettingsView2.xaml.cs" />
+    <Content Include="Assets\ikona.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,8 +72,6 @@
     <Folder Include="Views\skierowaniepacjentdodajview\" />
     <Folder Include="Views\ustawienia\" />
     <Folder Include="Views\wz_template\" />
-
-    <Folder Include="ViewModels\Badania\" />
     <Folder Include="ViewModels\Dialogs\" />
     <Folder Include="ViewModels\faktura\" />
     <Folder Include="ViewModels\firma\" />
@@ -61,7 +79,13 @@
     <Folder Include="ViewModels\lista_do_faktur\" />
     <Folder Include="ViewModels\Pacjent\" />
     <Folder Include="ViewModels\raporty\" />
-    <Folder Include="ViewModels\Skierowania\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Assets\ikona.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ASMED.WPF": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
