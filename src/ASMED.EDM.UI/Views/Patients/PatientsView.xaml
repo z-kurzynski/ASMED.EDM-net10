@@ -6,7 +6,6 @@
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels"
              mc:Ignorable="d"
-    d:IsDesignTimeCreatable="False"
              d:DesignHeight="680" d:DesignWidth="1500"
              Background="#FFF7F9FA">
 

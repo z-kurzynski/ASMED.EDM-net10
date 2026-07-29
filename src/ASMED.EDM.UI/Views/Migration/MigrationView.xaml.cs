@@ -9,18 +9,27 @@ namespace ASMED.EDM.UI.Views.Migration;
 /// </summary>
 public partial class MigrationView : UserControl
 {
-    // Bezparametrowy konstruktor wymagany przez WPF XAML parser
-    public MigrationView() : this(null)
-    {
-    }
-
-    public MigrationView(MigrationViewModel? viewModel)
+    // Konstruktor dla XAML Designer (bez DI)
+    public MigrationView()
     {
         InitializeComponent();
 
-        // Jeśli viewModel nie został przekazany, pobierz z kontenera DI
-        DataContext = viewModel
-            ?? ((App)System.Windows.Application.Current).Host.Services
-                .GetRequiredService<MigrationViewModel>();
+        if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+            return;
+
+        Loaded += MigrationView_Loaded;
+    }
+
+    // Konstruktor dla DI (wstrzyknięcie z kontenera)
+    public MigrationView(MigrationViewModel viewModel) : this()
+    {
+        DataContext = viewModel;
+    }
+
+    private void MigrationView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (DataContext != null) return;
+        if (System.Windows.Application.Current is App app && app.Host != null)
+            DataContext = app.Host.Services.GetRequiredService<MigrationViewModel>();
     }
 }

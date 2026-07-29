@@ -5,7 +5,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels"
              mc:Ignorable="d"
-    d:IsDesignTimeCreatable="False"
              d:DataContext="{d:DesignInstance Type=vm:MigrationViewModel}"
              Background="#FFF5F5F5">
 

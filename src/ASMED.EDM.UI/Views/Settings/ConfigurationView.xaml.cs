@@ -6,30 +6,45 @@ namespace ASMED.EDM.UI.Views.Settings;
 
 public partial class ConfigurationView : UserControl
 {
-    private ConfigurationViewModel _viewModel;
+    private ConfigurationViewModel? _viewModel;
 
-    // Domyślny konstruktor dla XAML
-    public ConfigurationView() : this(null)
-    {
-    }
-
-    public ConfigurationView(ConfigurationViewModel? viewModel)
+    // Konstruktor dla XAML Designer (bez DI)
+    public ConfigurationView()
     {
         InitializeComponent();
 
-        // Jeśli viewModel nie został przekazany, pobierz z DI
-        _viewModel = viewModel ?? ((App)System.Windows.Application.Current).Host.Services.GetRequiredService<ConfigurationViewModel>();
+        if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+            return;
+
+        Loaded += ConfigurationView_Loaded;
+    }
+
+    // Konstruktor dla DI (wstrzyknięcie z kontenera)
+    public ConfigurationView(ConfigurationViewModel viewModel) : this()
+    {
+        SetViewModel(viewModel);
+    }
+
+    private void ConfigurationView_Loaded(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (_viewModel != null) return;
+        if (System.Windows.Application.Current is App app && app.Host != null)
+            SetViewModel(app.Host.Services.GetRequiredService<ConfigurationViewModel>());
+    }
+
+    private void SetViewModel(ConfigurationViewModel viewModel)
+    {
+        _viewModel = viewModel;
         DataContext = _viewModel;
 
-        // Bind PasswordBox values (cannot be done via XAML binding for security)
+        // PasswordBox nie obsługuje bindingu XAML — podpinamy ręcznie
         PrimaryPasswordBox.PasswordChanged += (s, e) => _viewModel.PrimaryPassword = PrimaryPasswordBox.Password;
-        BackupPasswordBox.PasswordChanged += (s, e) => _viewModel.BackupPassword = BackupPasswordBox.Password;
-        LocalPasswordBox.PasswordChanged += (s, e) => _viewModel.LocalPassword = LocalPasswordBox.Password;
+        BackupPasswordBox.PasswordChanged  += (s, e) => _viewModel.BackupPassword  = BackupPasswordBox.Password;
+        LocalPasswordBox.PasswordChanged   += (s, e) => _viewModel.LocalPassword   = LocalPasswordBox.Password;
 
-        // Initialize PasswordBox values from ViewModel
         PrimaryPasswordBox.Password = _viewModel.PrimaryPassword;
-        BackupPasswordBox.Password = _viewModel.BackupPassword;
-        LocalPasswordBox.Password = _viewModel.LocalPassword;
+        BackupPasswordBox.Password  = _viewModel.BackupPassword;
+        LocalPasswordBox.Password   = _viewModel.LocalPassword;
     }
 }
 

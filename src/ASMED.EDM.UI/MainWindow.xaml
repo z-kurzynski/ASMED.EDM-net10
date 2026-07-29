@@ -15,7 +15,6 @@
         xmlns:viewsorzeczenie="clr-namespace:ASMED.EDM.UI.Views.Orzeczenie"
 
         mc:Ignorable="d"
-    d:IsDesignTimeCreatable="False"
     Title="ASMED EDM -- v20 -2026" 
     WindowState="Normal"
     WindowStartupLocation="CenterScreen" 
