@@ -1,4 +1,4 @@
-<UserControl x:Class="ASMED.EDM.UI.Views.Patients.PatientsView"
+﻿<UserControl x:Class="ASMED.EDM.UI.Views.Patients.PatientsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,6 +6,7 @@
              xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
              xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels"
              mc:Ignorable="d"
+    d:IsDesignTimeCreatable="False"
              d:DesignHeight="680" d:DesignWidth="1500"
              Background="#FFF7F9FA">
 

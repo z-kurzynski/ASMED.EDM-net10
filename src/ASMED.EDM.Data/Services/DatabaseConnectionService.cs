@@ -7,11 +7,13 @@ using MySqlConnector;
 namespace ASMED.EDM.Data.Services;
 
 /// <summary>
-/// Implementacja zarządzania połączeniami z bazą danych MySQL z failover
+/// Implementacja zarządzania połączeniami z bazą danych MySQL z failover.
+/// Używa DbConnectionFactory jako źródła connection stringów (rejestr → appsettings fallback).
+/// Automatycznie testuje Primary → Backup → Local i zapisuje wynik w rejestrze.
 /// </summary>
 public class DatabaseConnectionService : IDatabaseConnectionService
 {
-    private readonly DatabaseSettings _settings;
+    private readonly DbConnectionFactory _dbFactory;
     private readonly ILogger<DatabaseConnectionService> _logger;
     private ConnectionType _currentConnectionType = ConnectionType.Primary;
 
@@ -20,30 +22,36 @@ public class DatabaseConnectionService : IDatabaseConnectionService
     public ConnectionType CurrentConnectionType => _currentConnectionType;
 
     public DatabaseConnectionService(
-        IOptions<DatabaseSettings> settings,
+        DbConnectionFactory dbFactory,
         ILogger<DatabaseConnectionService> logger)
     {
-        _settings = settings.Value;
+        _dbFactory = dbFactory;
         _logger = logger;
+
+        // Ustaw bieżący typ na podstawie tego co jest w rejestrze
+        if (Enum.TryParse<ConnectionType>(_dbFactory.ActiveConnectionType, out var saved))
+            _currentConnectionType = saved;
     }
 
     /// <summary>
-    /// Pobiera aktywny connection string z automatycznym failover
+    /// Pobiera aktywny connection string z automatycznym failover.
+    /// Kolejność prób: Primary → Backup → Local.
+    /// Wynik (aktywny typ) jest zapisywany w rejestrze per-stacja.
     /// </summary>
     public async Task<string> GetActiveConnectionStringAsync(CancellationToken cancellationToken = default)
     {
-        if (!_settings.EnableFailover)
+        if (!_dbFactory.EnableFailover)
         {
             _logger.LogInformation("Failover wyłączony, używam Primary connection");
-            return _settings.PrimaryConnection;
+            return _dbFactory.PrimaryConnectionString;
         }
 
-        // Próbujemy połączenia w kolejności: Primary → Backup → Local
+        // Automatyczny failover tylko: Primary → Local
+        // Backup jest wyłącznie do ręcznego przełączania (testy, podgląd danych)
         var connections = new[]
         {
-            (Type: ConnectionType.Primary, ConnectionString: _settings.PrimaryConnection),
-            (Type: ConnectionType.Backup, ConnectionString: _settings.BackupConnection),
-            (Type: ConnectionType.Local, ConnectionString: _settings.LocalConnection)
+            (Type: ConnectionType.Primary, ConnectionString: _dbFactory.PrimaryConnectionString),
+            (Type: ConnectionType.Local,   ConnectionString: _dbFactory.LocalConnectionString)
         };
 
         foreach (var (type, connectionString) in connections)
@@ -61,20 +69,24 @@ public class DatabaseConnectionService : IDatabaseConnectionService
                 if (_currentConnectionType != type)
                 {
                     _logger.LogWarning(
-                        "Zmiana połączenia z {OldType} na {NewType}",
+                        "⚠️ Failover: zmiana połączenia {OldType} → {NewType}",
                         _currentConnectionType,
                         type);
 
                     _currentConnectionType = type;
+
+                    // Zapisz aktywny typ do rejestru — kolejne scope DbContextu użyją właściwego połączenia
+                    _dbFactory.ActiveConnectionType = type.ToString();
+
                     ConnectionChanged?.Invoke(this, type);
                 }
 
-                _logger.LogInformation("Używam połączenia {ConnectionType}", type);
+                _logger.LogInformation("✅ Używam połączenia {ConnectionType}", type);
                 return connectionString;
             }
         }
 
-        _logger.LogError("Wszystkie połączenia z bazą danych są niedostępne!");
+        _logger.LogError("❌ Wszystkie połączenia z bazą danych są niedostępne!");
         throw new InvalidOperationException(
             "Nie można nawiązać połączenia z żadną bazą danych (Primary/Backup/Local)");
     }
@@ -87,17 +99,13 @@ public class DatabaseConnectionService : IDatabaseConnectionService
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(connectionString))
-        {
             return false;
-        }
 
         try
         {
-            // Tworzymy connection string z krótkim timeout dla szybkiego failover
             var builder = new MySqlConnectionStringBuilder(connectionString)
             {
-                ConnectionTimeout = (uint)_settings.ConnectionTimeout,
-                // Wymuszamy test połączenia
+                ConnectionTimeout = (uint)_dbFactory.ConnectionTimeout,
                 Pooling = false
             };
 

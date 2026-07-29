@@ -37,20 +37,21 @@ public static class DataLayerServiceExtensions
         // Rejestracja fabryki połączeń (Registry + appsettings.json fallback)
         services.AddSingleton<DbConnectionFactory>();
 
-        // Rejestracja DbContext z preloaded connection string
+        // Rejestracja DbContext z dynamicznym connection stringiem (rejestr → failover)
         services.AddDbContext<AsmedDbContext>((serviceProvider, options) =>
         {
             var logger = serviceProvider.GetRequiredService<ILogger<AsmedDbContext>>();
-            var connectionService = serviceProvider.GetRequiredService<IDatabaseConnectionService>();
+            var dbFactory = serviceProvider.GetRequiredService<DbConnectionFactory>();
 
-            // Używamy preloaded connection string jeśli dostępny (unika deadlocka)
-            var connectionString = preloadedConnectionString ?? dbSettings.PrimaryConnection;
+            // Czyta ActiveConnectionType z rejestru → zwraca właściwy connection string
+            // (ustawiony przez DatabaseConnectionService po ostatnim teście failoveru)
+            var connectionString = preloadedConnectionString ?? dbFactory.ActiveConnectionString;
 
             logger.LogInformation(
-                "Konfiguracja DbContext z połączeniem {ConnectionType}",
-                connectionService.CurrentConnectionType);
+                "Konfiguracja DbContext z połączeniem {ConnectionType}: {Server}",
+                dbFactory.ActiveConnectionType,
+                connectionString.Split(';').FirstOrDefault(p => p.StartsWith("Server", StringComparison.OrdinalIgnoreCase)) ?? "?");
 
-            // MySQL 8.4
             var serverVersion = new MySqlServerVersion(new Version(8, 4, 0));
 
             options.UseMySql(
