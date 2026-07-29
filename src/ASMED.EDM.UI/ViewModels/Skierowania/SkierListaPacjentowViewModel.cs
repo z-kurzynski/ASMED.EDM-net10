@@ -1,5 +1,6 @@
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models;
+using ASMED.EDM.UI.Views.Skierowania;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -49,6 +50,7 @@ public class SkierListaPacjentowViewModel : ViewModelBase
 
     public ICommand ClearSearchTextCommand { get; }
     public ICommand EditPatientNewCommand { get; }
+    public ICommand OpenHistoriaCommand { get; }
 
     // ─── Konstruktor ────────────────────────────────────────────────────────
 
@@ -57,7 +59,8 @@ public class SkierListaPacjentowViewModel : ViewModelBase
         _dbFactory = dbFactory;
 
         ClearSearchTextCommand = new RelayCommand(() => SearchText = string.Empty);
-        EditPatientNewCommand = new RelayCommand(OpenNowyPacjent);
+        EditPatientNewCommand  = new RelayCommand(OpenNowyPacjent);
+        OpenHistoriaCommand    = new RelayCommand<object?>(OpenHistoria);
 
         LoadPacjenciFromDb();
     }
@@ -198,5 +201,28 @@ public class SkierListaPacjentowViewModel : ViewModelBase
     {
         // TODO: nawigacja do widoku dodawania nowego pacjenta
         // (wdrożymy w kolejnym kroku)
+    }
+
+    private void OpenHistoria(object? obj)
+    {
+        if (obj is not PacjentSkier pacjent || pacjent.P_ID <= 0)
+        {
+            System.Windows.MessageBox.Show("Wybierz pacjenta z listy.",
+                "Informacja", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Information);
+            return;
+        }
+
+        var dialog = new Views.Skierowania.PacjentHistoriaDialog(
+            pacjentId: pacjent.P_ID,
+            imie:      pacjent.FirstName,
+            nazwisko:  pacjent.LastName,
+            pesel:     pacjent.PESEL,
+            firma:     pacjent.Company)
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+
+        dialog.ShowDialog();
     }
 }

@@ -4,52 +4,182 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     mc:Ignorable="d"
-    Title="Historia Badań Pacjenta" 
-    Width="800" 
-    Height="600"
-    WindowStartupLocation="CenterScreen"
+    Title="Historia Badań Pacjenta"
+    Width="980"
+    Height="640"
+    MinWidth="800"
+    WindowStartupLocation="CenterOwner"
     Background="#FFF7F9FA">
 
-    <Grid Margin="20">
+    <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" 
-                   Text="Historia Badań Pacjenta" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   Foreground="#FF1976D2"
-                   Margin="0,0,0,20"/>
+        <!-- ═══ NAGŁÓWEK: dane pacjenta ═══ -->
+        <Border Grid.Row="0"
+                Background="#1976D2"
+                CornerRadius="5"
+                Padding="14,10"
+                Margin="0,0,0,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="60"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <Border Grid.Row="1" 
-                BorderThickness="1" 
-                BorderBrush="#CCCCCC"
-                Background="White">
-            <DataGrid x:Name="HistoriaGrid"
-                AutoGenerateColumns="False"
-                ItemsSource="{Binding Historia}"
-                IsReadOnly="True"
-                AlternationCount="2"
-                GridLinesVisibility="Horizontal">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Data" Binding="{Binding Data, StringFormat='dd-MM-yyyy'}" Width="100"/>
-                    <DataGridTextColumn Header="Typ Badania" Binding="{Binding TypBadania}" Width="*"/>
-                    <DataGridTextColumn Header="Wynik" Binding="{Binding Wynik}" Width="100"/>
-                </DataGrid.Columns>
-            </DataGrid>
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="Imię i Nazwisko:" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,8,4"/>
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                           x:Name="txtImieNazwisko"
+                           Foreground="White" FontSize="16" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="0,0,20,4"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="2"
+                           Text="PESEL:" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,8,4"/>
+                <TextBlock Grid.Row="0" Grid.Column="3"
+                           x:Name="txtPesel"
+                           Foreground="White" FontSize="15"
+                           VerticalAlignment="Center" Margin="0,0,20,4"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="4"
+                           Text="Kart badań:" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,8,4"/>
+                <TextBlock Grid.Row="0" Grid.Column="5"
+                           x:Name="txtLiczbaSkierowan"
+                           Foreground="#FFD700" FontSize="18" FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                           Text="Firma:" FontWeight="Bold" Foreground="White"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5"
+                           x:Name="txtFirma"
+                           Foreground="White" FontSize="13"
+                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </Grid>
         </Border>
 
-        <Button Grid.Row="2" 
-                Content="Zamknij" 
-                Width="100" 
-                Height="35" 
+        <!-- ═══ TREŚĆ: dwie kolumny ═══ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="6"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- LEWA: Karty Badań (skierowania) -->
+            <Border Grid.Column="0"
+                    BorderBrush="#CCCCCC" BorderThickness="1"
+                    CornerRadius="4" Background="White">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Text="📋 KARTY BADAŃ"
+                               FontSize="14" FontWeight="Bold"
+                               Foreground="#1976D2"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,6"/>
+                    <DataGrid x:Name="gridSkierowania"
+                              Grid.Row="1"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              AlternationCount="2"
+                              RowHeight="32"
+                              FontSize="13"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalScrollBarVisibility="Disabled">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Lp"   Binding="{Binding Lp}"
+                                               Width="35"/>
+                            <DataGridTextColumn Header="Data skier."
+                                               Binding="{Binding B_DataSkierowania, StringFormat='dd-MM-yyyy'}"
+                                               Width="90"/>
+                            <DataGridTextColumn Header="Typ badania"
+                                               Binding="{Binding B_TypBadania}"
+                                               Width="*"/>
+                            <DataGridTextColumn Header="Uwagi"
+                                               Binding="{Binding B_Comments}"
+                                               Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- Separator -->
+            <GridSplitter Grid.Column="1"
+                          Width="5"
+                          HorizontalAlignment="Stretch"
+                          Background="#DDDDDD"/>
+
+            <!-- PRAWA: Wyniki Badań -->
+            <Border Grid.Column="2"
+                    BorderBrush="#CCCCCC" BorderThickness="1"
+                    CornerRadius="4" Background="White">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Text="🔬 WYNIKI BADAŃ"
+                               FontSize="14" FontWeight="Bold"
+                               Foreground="#388E3C"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,6"/>
+                    <DataGrid x:Name="gridBadania"
+                              Grid.Row="1"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              AlternationCount="2"
+                              RowHeight="32"
+                              FontSize="13"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalScrollBarVisibility="Disabled">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Lp"   Binding="{Binding Lp}"
+                                               Width="35"/>
+                            <DataGridTextColumn Header="Data bad."
+                                               Binding="{Binding Bad_Data, StringFormat='dd-MM-yyyy'}"
+                                               Width="88"/>
+                            <DataGridTextColumn Header="Typ"
+                                               Binding="{Binding Bad_Typ}"
+                                               Width="60"/>
+                            <DataGridTextColumn Header="Wynik"
+                                               Binding="{Binding Bad_Wynik}"
+                                               Width="*"/>
+                            <DataGridTextColumn Header="Data do"
+                                               Binding="{Binding Bad_Data_Do, StringFormat='dd-MM-yyyy'}"
+                                               Width="88"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ═══ STOPKA ═══ -->
+        <Button Grid.Row="2"
+                Content="✖ Zamknij"
+                Width="110" Height="34"
                 HorizontalAlignment="Right"
                 Margin="0,10,0,0"
                 Click="Close_Click"
-                Background="#FF1976D2"
+                Background="#1976D2"
                 Foreground="White"
                 FontSize="14"/>
     </Grid>
