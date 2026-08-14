@@ -5,6 +5,7 @@ using ASMED.EDM.UI.Views.badania;
 using ASMED.EDM.UI.Views.Badanie;
 using ASMED.EDM.UI.Views.Orzeczenie;
 using ASMED.EDM.UI.Views.lista_do_faktur;
+using ASMED.EDM.UI.Views.Faktura;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -54,7 +55,7 @@ public partial class MainWindow : Window
         Console.WriteLine("📝 MainWindow: Creating BadaniaEditNewView...");
         EdycjaBadanContent.Content    = new BadaniaEditNewView();
 
-        ListaDoFakturContent.Content  = new ListaFaktAddView();
+        // ListaDoFakturContent ładowany lazy z DI
         BadanieContent.Content        = new BadanieView();
         OrzeczenieContent.Content     = new OrzeczenieView();
         Console.WriteLine("✅ MainWindow: All tab views created");
@@ -67,7 +68,8 @@ public partial class MainWindow : Window
             { KartyBadanContent,      () => new SkierowaniaView() },
             { ZakonczBadanieContent,  () => new BadaniaNewView() },
             { EdycjaBadanContent,     () => new BadaniaEditNewView() },
-            { ListaDoFakturContent,   () => new ListaFaktAddView() },
+            // ListaDoFakturContent — odświeżenie przez double-click tworzy nową instancję przez DI
+            { ListaDoFakturContent,   () => CreateFakturaAddView() },
             { BadanieContent,         () => new BadanieView() },
             { OrzeczenieContent,      () => new OrzeczenieView() },
         };
@@ -76,7 +78,9 @@ public partial class MainWindow : Window
         LocationChanged   += MainWindow_LocationChanged;
 
         // Lazy-load widoku EDM/P1 — tworzy się dopiero gdy ContentControl jest widoczny
-        EdmP1TestContent.Loaded += EdmP1TestContent_Loaded;
+        EdmP1TestContent.Loaded    += EdmP1TestContent_Loaded;
+        // Lazy-load nowego widoku fakturowania — z DI
+        ListaDoFakturContent.Loaded += ListaDoFakturContent_Loaded;
         Console.WriteLine("✅ MainWindow: Constructor completed");
     }
 
@@ -128,6 +132,41 @@ public partial class MainWindow : Window
                 FontSize     = 12
             };
         }
+    }
+
+    // ── Fakturowanie: lazy-load z DI ──────────────────────────────────────────
+
+    private void ListaDoFakturContent_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (ListaDoFakturContent.Content is not null) return;
+        try
+        {
+            var app = System.Windows.Application.Current as App
+                      ?? throw new InvalidOperationException("App nie jest dostępna.");
+            var vm   = app.Host.Services.GetRequiredService<ViewModels.Faktura.FakturaAddViewModel>();
+            var view = new FakturaAddView { DataContext = vm };
+            ListaDoFakturContent.Content = view;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ MainWindow: błąd ładowania FakturaAddView: " + ex.Message);
+            ListaDoFakturContent.Content = new TextBlock
+            {
+                Text         = "❌ Błąd ładowania widoku Fakturowania:\n\n" + ex.Message,
+                Foreground   = System.Windows.Media.Brushes.Red,
+                Margin       = new Thickness(20),
+                TextWrapping = TextWrapping.Wrap,
+                FontSize     = 12
+            };
+        }
+    }
+
+    private FakturaAddView CreateFakturaAddView()
+    {
+        var app = System.Windows.Application.Current as App
+                  ?? throw new InvalidOperationException("App nie jest dostępna.");
+        var vm   = app.Host.Services.GetRequiredService<ViewModels.Faktura.FakturaAddViewModel>();
+        return new FakturaAddView { DataContext = vm };
     }
 
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
