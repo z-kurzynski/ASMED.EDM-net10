@@ -1,0 +1,594 @@
+{
+  "info": {
+    "_postman_id": "9f53acbe-a150-4d5e-9aff-204dfaa56ba1",
+    "name": "Medycyna pracy przykłady dla klienta",
+    "description": "Przykłady oparte na danych testowych z projektu SoapUI CEZ (Projekt-testow-MPR-24072026): PESEL/PWZ/REGON to wartości z ObslugaMedycynyPracyWS-CeZ-SoapUI.xml, nie prawdziwe dane. Wszystkie endpointy medycynapracy/* wymagają nagłówka Authorization: Bearer {{auth_token}} (JWT erecepta, nie mylić z tokenem P1 — ten erecepta zarządza wewnętrznie).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "11956590"
+  },
+  "item": [
+    {
+      "name": "Dane pacjenta",
+      "item": [
+        {
+          "name": "Wyszukaj pacjenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data && !data.isError && data.pacjent && data.pacjent.total === 1) {",
+                  "    pm.environment.set('mp_pacjent_id', data.pacjent.entry[0].resource.id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author_min}}",
+                  "type": "text"
+                },
+                {
+                  "key": "pacjent",
+                  "value": "{{mp_pacjent}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/pacjent/wyszukaj",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "pacjent",
+                "wyszukaj"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Zarejestruj pacjenta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data && !data.isError && data.pacjent && data.pacjent.id) {",
+                  "    pm.environment.set('mp_pacjent_id', data.pacjent.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author_min}}",
+                  "type": "text"
+                },
+                {
+                  "key": "pacjent",
+                  "value": "{{mp_pacjent}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/pacjent",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "pacjent"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Odczytaj pacjenta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author_min}}",
+                  "type": "text"
+                },
+                {
+                  "key": "id",
+                  "value": "{{mp_pacjent_id}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/pacjent/odczyt",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "pacjent",
+                "odczyt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Aktualizuj pacjenta",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author_min}}",
+                  "type": "text"
+                },
+                {
+                  "key": "id",
+                  "value": "{{mp_pacjent_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "pacjent",
+                  "value": "{\"identyfikator\":\"70032816894\",\"imie\":\"Anna\",\"nazwisko\":\"Kasina\",\"plec\":\"K\",\"dataUrodzenia\":\"1970-03-28\",\"adres\":{\"miejscowosc\":\"Warszawa\",\"kodPocztowy\":\"03-135\",\"ulica\":\"Odkryta\",\"nrDomu\":\"41\",\"nrLokalu\":\"14\"}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/pacjent",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "pacjent"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Orzeczenia",
+      "item": [
+        {
+          "name": "Wystaw orzeczenie — osoba przyjmowana do pracy (symbol 21)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "orzeczenie",
+                  "value": "{{mp_orzeczenie_przyjmowany}}",
+                  "type": "text"
+                },
+                {
+                  "key": "doctor_pass",
+                  "value": "n5wGwkG6W6fv",
+                  "type": "text",
+                  "uuid": "ac6eaa4f-701f-4779-9ac8-64d5500d47b6"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wystaw orzeczenie — osoba zatrudniona, utrata zdolności (symbol 23)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "orzeczenie",
+                  "value": "{{mp_orzeczenie_zatrudniony_utrata}}",
+                  "type": "text"
+                },
+                {
+                  "key": "doctor_pass",
+                  "value": "n5wGwkG6W6fv",
+                  "type": "text",
+                  "uuid": "3d7cd0f3-0ee4-4eff-a376-e344af94da41"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Zweryfikuj orzeczenie (bez zapisu)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "orzeczenie",
+                  "value": "{{mp_orzeczenie_przyjmowany}}",
+                  "type": "text"
+                },
+                {
+                  "key": "doctor_pass",
+                  "value": "n5wGwkG6W6fv",
+                  "type": "text",
+                  "uuid": "33a35028-f068-4923-8ff9-9b532e82ff8a"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie/weryfikuj",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie",
+                "weryfikuj"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Odczytaj orzeczenie",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "identyfikatorRoot",
+                  "value": "{{mp_orzeczenie_identyfikator_root}}",
+                  "type": "text"
+                },
+                {
+                  "key": "identyfikatorExtension",
+                  "value": "{{mp_orzeczenie_identyfikator_ext}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie/odczyt",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie",
+                "odczyt"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wyszukaj orzeczenia",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "kryteria",
+                  "value": "{{mp_kryteria_wyszukiwania}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie/wyszukaj",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie",
+                "wyszukaj"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anuluj orzeczenie",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "author",
+                  "value": "{{mp_author}}",
+                  "type": "text"
+                },
+                {
+                  "key": "idPodmiotu",
+                  "value": "{{mp_id_podmiotu}}",
+                  "type": "text"
+                },
+                {
+                  "key": "anulowanie",
+                  "value": "{{mp_anulowanie}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/medycynapracy/orzeczenie/anuluj",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "medycynapracy",
+                "orzeczenie",
+                "anuluj"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"success\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    if (pm.response.code === 200 && jsonData.access_token) {\r",
+              "        console.log(jsonData.access_token);\r",
+              "        pm.environment.set(\"auth_token\", jsonData.access_token);\r",
+              "    } else {\r",
+              "        pm.environment.unset(\"auth_token\", \"\");\r",
+              "    }\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/login?username=cered&password=Cered_01",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "login"
+          ],
+          "query": [
+            {
+              "key": "username",
+              "value": "cered"
+            },
+            {
+              "key": "password",
+              "value": "Cered_01"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

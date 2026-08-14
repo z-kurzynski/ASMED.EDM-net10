@@ -74,7 +74,7 @@
                 <StackPanel Orientation="Horizontal">
                     <StackPanel x:Name="NIP" Orientation="Vertical" Width="300" Margin="10,0,0,0">
                         <TextBlock Text="NIP:" FontWeight="Bold"/>
-                        <TextBox Text="{Binding NIP, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding Nip, UpdateSourceTrigger=PropertyChanged}"
                             Height="35"
                             FontSize="16" VerticalAlignment="Center" Margin="0,-3,0,0"
                          />

@@ -76,6 +76,7 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
     private void ExecuteClearCommand()
     {
         Console.WriteLine("🧹 ExecuteClearCommand - clearing selected prices and resetting toggle buttons");
+        DataBadania = DateTime.Today; // to wywoła setter i ustawi DataWaznosci na +3 lata
         ClearSelectedPrices();
     }
 

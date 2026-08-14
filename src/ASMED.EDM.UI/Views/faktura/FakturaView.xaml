@@ -60,6 +60,7 @@
                         <Button Width="32" Height="28" Margin="8,0,0,0" ToolTip="Wyczyść pole" Command="{Binding ClearSearchTextCommand}">
                             <TextBlock Text="✖" FontSize="10" />
                         </Button>
+                        <!-- flow handled by ViewModel commands below -->
 
                         <ComboBox x:Name="Filtr_lista" Width="80" Height="28" FontSize="14" Margin="5,0,8,0"
                               SelectedItem="{Binding ActiveFilterType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -76,7 +77,7 @@
                                       VerticalAlignment="Top" Width="180" 
                                       Background="#FFFF5722" Foreground="#FFFBFBFB" 
                                       FontSize="16" Margin="0,10,10,0" IconHeight="0" IconWidth="0" 
-                                      Click="RefreshList_Click"  >
+                                      Command="{Binding OdswiezCommand}"  >
                     <syncfusion:ButtonAdv.IconTemplate>
                         <DataTemplate/>
                     </syncfusion:ButtonAdv.IconTemplate>
@@ -110,7 +111,7 @@
                                       VerticalAlignment="Top" Width="180" 
                                       Background="#FF009688" Foreground="#FFFBFBFB" 
                                       FontSize="16" Margin="0,10,0,0" 
-                                      Click="NewInvoice_Click" IconHeight="0" IconWidth="0"  >
+                                      Command="{Binding ToggleNewInvoiceCommand}" IconHeight="0" IconWidth="0"  >
                     <syncfusion:ButtonAdv.IconTemplate>
                         <DataTemplate/>
                     </syncfusion:ButtonAdv.IconTemplate>
@@ -124,12 +125,13 @@
                     BorderThickness="1" VerticalAlignment="Top" MinHeight="2">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <StackPanel x:Name="NewInvoice" Orientation="Horizontal" 
-                                Margin="0,0,0,10" Visibility="Collapsed">
+                                Margin="0,0,0,10" Visibility="{Binding IsNewInvoiceVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                         <StackPanel Orientation="Vertical" Margin="0,0,12,0">
                             <TextBlock Text="Firma" FontSize="12" FontWeight="Bold"/>
                             <DockPanel>
-                                <TextBox Width="380" IsReadOnly="True" Text="{Binding NewFirmaName}" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="11" />
-                                <Button Content="Wybierz..." Margin="6,0,0,0" Click="BtnSelectFirma_Click" FontSize="11" />
+                                <ComboBox Width="380" Height="25" FontSize="11" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                          ItemsSource="{Binding Firmy}" DisplayMemberPath="Nazwa"
+                                          SelectedItem="{Binding SelectedNewFirma, Mode=TwoWay}" />
                             </DockPanel>
                         </StackPanel>
 
@@ -166,7 +168,7 @@
                             <Button x:Name="Dodaj_Fakture" 
                                     Content="Dadaj Fakturę" 
                                     Padding="12,6" Margin="6,0,0,0" 
-                                    Click="AddInvoice_Click"
+                                    Command="{Binding AddInvoiceCommand}"
                                     Background="#FF1976D2" 
                                     Foreground="#FFFDFCFC" FontSize="14" />
                         </StackPanel>
@@ -228,7 +230,7 @@
                         Padding="0,0,2,2" />
 
                     <!-- Lista (template z kolorem, readonly) -->
-                    <syncfusion:GridTemplateColumn MappingName="Lista" HeaderText="L" 
+                    <syncfusion:GridTemplateColumn MappingName="ListaBadanId" HeaderText="L" 
                                                    Width="20" IsReadOnly="True" 
                                                    AllowSorting="False" 
                                                    AllowFiltering="False" 
@@ -237,7 +239,7 @@
                             <DataTemplate>
                                 <Border Padding="2" CornerRadius="2"
                                         Background="#FF4CAF50">
-                                    <TextBlock Text="{Binding Lista}" HorizontalAlignment="Center" 
+                                    <TextBlock Text="{Binding ListaBadanId}" HorizontalAlignment="Center" 
                                                VerticalAlignment="Center" FontWeight="Normal" 
                                                FontSize="10" Foreground="White"/>
                                 </Border>
@@ -247,7 +249,7 @@
 
                     <!-- Numer_Faktury (edytowalne) -->
                     <syncfusion:GridTextColumn 
-                        MappingName="Numer_Faktury" 
+                        MappingName="NumerFaktury" 
                         HeaderText="Numer_Faktury" 
                         Width="100" 
                         TextAlignment="Right" 
@@ -259,27 +261,27 @@
 
                     <!-- Data (edytowalne) -->
                     <syncfusion:GridDateTimeColumn 
-                        MappingName="Data" HeaderText="Data" Width="100" 
+                        MappingName="DataWystawienia" HeaderText="Data" Width="100" 
                         HorizontalHeaderContentAlignment="Center" Padding="5,0,2,0" 
                         AllowEditing="True"
                         Pattern="ShortDate"/>
 
-                    <!-- Firma (edytowalne) -->
+                    <!-- Firma (readonly) -->
                     <syncfusion:GridTextColumn 
-                        x:Name="Firma" MappingName="Firma" HeaderText="Firma" 
+                        x:Name="FirmaColumn" MappingName="Firma.Nazwa" HeaderText="Firma" 
                         TextWrapping="Wrap" HorizontalHeaderContentAlignment="Left" Padding="3,0,0,0" 
-                        AllowEditing="True" IsReadOnly="True" SetCellBoundValue="False"/>
+                        AllowEditing="False" IsReadOnly="True"/>
 
                     <!-- Kwota (edytowalne, numeric) -->
                     <syncfusion:GridNumericColumn 
-                        MappingName="Kwota" HeaderText="Faktura" Width="80" 
+                        MappingName="KwotaBrutto" HeaderText="Faktura" Width="80" 
                         Padding="0,0,2,0" ImmediateUpdateColumnFilter="True"
                         NumberDecimalDigits="2"
                         AllowEditing="True"/>
 
                     <!-- Kwota_B (edytowalne, numeric) -->
                     <syncfusion:GridNumericColumn 
-                        MappingName="Kwota_B" HeaderText="Badanie" Width="80" 
+                        MappingName="SumaBadan" HeaderText="Badanie" Width="80" 
                         Padding="0,0,5,0"
                         NumberDecimalDigits="2"
                         AllowEditing="True"/>

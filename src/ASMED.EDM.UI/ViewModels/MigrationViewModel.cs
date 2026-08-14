@@ -17,10 +17,13 @@ namespace ASMED.EDM.UI.ViewModels;
 public partial class MigrationViewModel : ViewModelBase
 {
     private readonly IMigrationService _migrationService;
+    private readonly IAccessExportService _exportService;
+    private readonly AccessAutoSyncService _autoSyncService;
     private readonly ILogger<MigrationViewModel> _logger;
     private readonly DbConnectionFactory _dbFactory;
 
     private CancellationTokenSource? _cts;
+    private CancellationTokenSource? _exportCts;
 
     // ── Właściwości bindowane ──────────────────────────────────────────────
 
@@ -66,12 +69,34 @@ public partial class MigrationViewModel : ViewModelBase
     [ObservableProperty]
     private DatabaseConnectionItem? _copyTargetDatabase;
 
-    // ── Kolekcje ───────────────────────────────────────────────────────────
+    // ── Właściwości eksportu MySQL → Access ──────────────────────────────────────
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ExportNowCommand))]
+    [NotifyCanExecuteChangedFor(nameof(TestExportAccessCommand))]
+    private string _exportAccessPath = string.Empty;
+
+    [ObservableProperty]
+    private string _lastExportTimestamp = "Nigdy";
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ExportNowCommand))]
+    private bool _isExporting;
+
+    [ObservableProperty]
+    private string _exportStatusMessage = "Wybierz plik Access i naciśnij Eksportuj.";
+
+    [ObservableProperty]
+    private bool _isAutoSyncEnabled;
+
+    // ── Kolekcje
 
     public ObservableCollection<DatabaseConnectionItem>    MySqlDatabases      { get; } = [];
     public ObservableCollection<TableGroupViewModel>       TableGroups         { get; } = [];
     public ObservableCollection<string>                    MigrationLog        { get; } = [];
     public ObservableCollection<TableVerificationResult>   VerificationResults { get; } = [];
+    public ObservableCollection<ExportTableResult>         ExportResults       { get; } = [];
+    public ObservableCollection<string>                    ExportLog           { get; } = [];
 
     // ── Właściwości obliczane ──────────────────────────────────────────────
 
@@ -102,19 +127,36 @@ public partial class MigrationViewModel : ViewModelBase
         CopyTargetDatabase != null &&
         CopySourceDatabase != CopyTargetDatabase;
 
-    // ── Konstruktor ────────────────────────────────────────────────────────
+    public bool CanExportNow =>
+        !IsExporting && !IsMigrating &&
+        !string.IsNullOrWhiteSpace(ExportAccessPath) &&
+        File.Exists(ExportAccessPath) &&
+        SelectedMySqlDatabase != null;
+
+    public bool CanTestExportAccess =>
+        !string.IsNullOrWhiteSpace(ExportAccessPath);
+
+    // ── Konstruktor
 
     public MigrationViewModel(
         IMigrationService migrationService,
+        IAccessExportService exportService,
+        AccessAutoSyncService autoSyncService,
         DbConnectionFactory dbFactory,
         ILogger<MigrationViewModel> logger)
     {
-        _migrationService = migrationService;
-        _dbFactory = dbFactory;
-        _logger = logger;
+        _migrationService  = migrationService;
+        _exportService     = exportService;
+        _autoSyncService   = autoSyncService;
+        _dbFactory         = dbFactory;
+        _logger            = logger;
 
         LoadMySqlDatabases();
         LoadTableGroups();
+        LoadExportState();
+
+        _autoSyncService.ExportCompleted += OnAutoSyncCompleted;
+        _autoSyncService.ExportError     += OnAutoSyncError;
     }
 
     // ── Partial property-change hooks ────────────────────────────────────────
@@ -138,6 +180,34 @@ public partial class MigrationViewModel : ViewModelBase
     {
         RestoreBackupCommand.NotifyCanExecuteChanged();
         CopyDatabaseCommand.NotifyCanExecuteChanged();
+        ExportNowCommand.NotifyCanExecuteChanged();
+    }
+
+    partial void OnExportAccessPathChanged(string value)
+    {
+        ExportNowCommand.NotifyCanExecuteChanged();
+        TestExportAccessCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanExportNow));
+        OnPropertyChanged(nameof(CanTestExportAccess));
+
+        // Aktualizuj auto-sync
+        _autoSyncService.AccessPath = value;
+    }
+
+    partial void OnIsAutoSyncEnabledChanged(bool value)
+    {
+        _autoSyncService.IsEnabled = value;
+        if (value && SelectedMySqlDatabase != null)
+            _autoSyncService.MySqlConnectionString = SelectedMySqlDatabase.ConnectionString;
+        ExportStatusMessage = value
+            ? "✅ Auto-sync włączony — zmiany będą automatycznie eksportowane do Access."
+            : "Auto-sync wyłączony.";
+    }
+
+    partial void OnSelectedMySqlDatabaseChanged(DatabaseConnectionItem? value)
+    {
+        if (value != null)
+            _autoSyncService.MySqlConnectionString = value.ConnectionString;
     }
 
     // ── Inicjalizacja ──────────────────────────────────────────────────────
@@ -164,6 +234,16 @@ public partial class MigrationViewModel : ViewModelBase
             MySqlDatabases.Add(new DatabaseConnectionItem("Lokalna (Local)", local));
 
         SelectedMySqlDatabase = MySqlDatabases.FirstOrDefault();
+    }
+
+    private void LoadExportState()
+    {
+        var state = _exportService.GetExportState();
+        if (!string.IsNullOrWhiteSpace(state.LastAccessPath))
+            ExportAccessPath = state.LastAccessPath;
+        LastExportTimestamp = state.LastExportAt.HasValue
+            ? state.LastExportAt.Value.ToString("yyyy-MM-dd HH:mm")
+            : "Nigdy";
     }
 
     private void LoadTableGroups()
@@ -643,6 +723,142 @@ public partial class MigrationViewModel : ViewModelBase
         var entry = $"[{DateTime.Now:HH:mm:ss}] {message}";
         MigrationLog.Add(entry);
         _logger.LogInformation("{Entry}", entry);
+    }
+
+    private void AddExportLog(string message)
+    {
+        var entry = $"[{DateTime.Now:HH:mm:ss}] {message}";
+        App.Current.Dispatcher.Invoke(() => ExportLog.Add(entry));
+        _logger.LogInformation("{Entry}", entry);
+    }
+
+    // ── Komendy eksportu ─────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void BrowseExportAccess()
+    {
+        var dlg = new OpenFileDialog
+        {
+            Title  = "Wybierz plik Access do eksportu",
+            Filter = "Baza Access (*.accdb;*.mdb)|*.accdb;*.mdb|Wszystkie pliki (*.*)|*.*",
+            CheckFileExists = true
+        };
+        if (dlg.ShowDialog() != true) return;
+        ExportAccessPath = dlg.FileName;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanTestExportAccess))]
+    private async Task TestExportAccessAsync()
+    {
+        ExportStatusMessage = "Testowanie połączenia z Access...";
+        var (ok, msg) = await _exportService.TestAccessConnectionAsync(ExportAccessPath);
+        ExportStatusMessage = ok ? $"✅ {msg}" : $"❌ {msg}";
+    }
+
+    [RelayCommand(CanExecute = nameof(CanExportNow))]
+    private async Task ExportNowAsync()
+    {
+        if (SelectedMySqlDatabase is null) return;
+
+        _exportCts = new CancellationTokenSource();
+        IsExporting = true;
+        ExportResults.Clear();
+        ExportLog.Clear();
+        ExportStatusMessage = "Eksport w toku...";
+        AddExportLog($"▶ Eksport MySQL → Access");
+        AddExportLog($"   Baza MySQL: {SelectedMySqlDatabase.DisplayName}");
+        AddExportLog($"   Plik Access: {ExportAccessPath}");
+        AddExportLog(new string('─', 55));
+
+        OnPropertyChanged(nameof(CanExportNow));
+
+        try
+        {
+            var progress = new Progress<ExportProgress>(p =>
+            {
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    ExportStatusMessage = p.Message;
+                    OverallProgress = p.OverallFraction * 100;
+                });
+            });
+
+            var results = await _exportService.ExportToAccessAsync(
+                SelectedMySqlDatabase.ConnectionString,
+                ExportAccessPath,
+                progress,
+                _exportCts.Token);
+
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (var r in results)
+                {
+                    ExportResults.Add(r);
+                    AddExportLog(r.Success ? $"✔ {r.Summary}" : $"✖ {r.Summary}");
+                }
+            });
+
+            var ok   = results.Count(r => r.Success);
+            var fail = results.Count(r => !r.Success);
+
+            ExportStatusMessage = fail == 0
+                ? $"✅ Eksport zakończony — {ok} tabel OK"
+                : $"⚠️ Eksport: {ok} OK, {fail} błędów — sprawdź log";
+
+            AddExportLog(new string('─', 55));
+            AddExportLog($"🏁 Wynik: {ok} ✔  |  {fail} ✖");
+
+            // Zapisz stan eksportu
+            _exportService.SaveExportState(new ExportState
+            {
+                LastExportAt  = DateTime.Now,
+                LastAccessPath = ExportAccessPath
+            });
+            LastExportTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        }
+        catch (OperationCanceledException)
+        {
+            ExportStatusMessage = "⚠️ Eksport anulowany.";
+            AddExportLog("⚠️ Eksport anulowany przez użytkownika.");
+        }
+        catch (Exception ex)
+        {
+            ExportStatusMessage = $"❌ Błąd: {ex.Message}";
+            AddExportLog($"❌ BŁĄD: {ex.Message}");
+            _logger.LogError(ex, "Błąd eksportu MySQL → Access");
+        }
+        finally
+        {
+            IsExporting = false;
+            OverallProgress = 0;
+            _exportCts?.Dispose();
+            _exportCts = null;
+            OnPropertyChanged(nameof(CanExportNow));
+        }
+    }
+
+    // ── Auto-sync event handlers ─────────────────────────────────────────────────
+
+    private void OnAutoSyncCompleted(object? sender, IReadOnlyList<ExportTableResult> results)
+    {
+        App.Current.Dispatcher.Invoke(() =>
+        {
+            foreach (var r in results)
+                AddExportLog(r.Success ? $"🔄 Auto: {r.Summary}" : $"⚠️ Auto: {r.Summary}");
+
+            LastExportTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            _exportService.SaveExportState(new ExportState
+            {
+                LastExportAt   = DateTime.Now,
+                LastAccessPath = ExportAccessPath
+            });
+        });
+    }
+
+    private void OnAutoSyncError(object? sender, string errorMessage)
+    {
+        App.Current.Dispatcher.Invoke(() =>
+            AddExportLog($"❌ Auto-sync błąd: {errorMessage}"));
     }
 }
 

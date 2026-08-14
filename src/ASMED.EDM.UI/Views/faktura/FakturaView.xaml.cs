@@ -1,5 +1,6 @@
-using System.Windows;
 using System.Windows.Controls;
+using ASMED.EDM.UI.ViewModels.faktura;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ASMED.EDM.UI.Views.faktura
 {
@@ -8,31 +9,34 @@ namespace ASMED.EDM.UI.Views.faktura
         public FakturaView()
         {
             InitializeComponent();
+
+            if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+                return;
+
+            Loaded += FakturaView_Loaded;
         }
 
-        private void RefreshList_Click(object sender, RoutedEventArgs e)
+        public FakturaView(FakturaViewModel viewModel) : this()
         {
-            // Placeholder for refresh logic
+            DataContext = viewModel;
         }
 
-        private void NewInvoice_Click(object sender, RoutedEventArgs e)
+        private async void FakturaView_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
-            if (NewInvoice != null)
+            if (DataContext is not FakturaViewModel viewModel)
             {
-                NewInvoice.Visibility = NewInvoice.Visibility == Visibility.Visible 
-                    ? Visibility.Collapsed 
-                    : Visibility.Visible;
+                if (System.Windows.Application.Current is App app && app.Host != null)
+                {
+                    viewModel = app.Host.Services.GetRequiredService<FakturaViewModel>();
+                    DataContext = viewModel;
+                }
+                else
+                {
+                    return;
+                }
             }
-        }
 
-        private void BtnSelectFirma_Click(object sender, RoutedEventArgs e)
-        {
-            // Placeholder for firma selection dialog
-        }
-
-        private void AddInvoice_Click(object sender, RoutedEventArgs e)
-        {
-            // Placeholder for add invoice logic
+            await viewModel.OnNavigatedToAsync();
         }
     }
 }

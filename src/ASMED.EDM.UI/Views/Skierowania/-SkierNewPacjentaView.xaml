@@ -9,7 +9,7 @@
     Width="Auto" 
     VerticalAlignment="Top" 
     MaxWidth="1600" 
-    MinWidth="1200" Background="#FFF7F9FA" MinHeight="700" MaxHeight="800" Height="720" d:DesignWidth="1496.294">
+    MinWidth="1200" MinHeight="700" MaxHeight="800" Height="720" d:DesignWidth="1496.294">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -53,7 +53,7 @@
 
 
 
-            <StackPanel x:Name="DefaultCalendarDatePanel" Grid.Column="1" Grid.ColumnSpan="2" Margin="14,0,364,0">
+            <StackPanel x:Name="DefaultCalendarDatePanel" Grid.Column="1" Margin="14,0,0,0" IsEnabled="False">
                 <TextBlock Text="Data Domyślna Kalendarza" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left" Foreground="#FF2C3E50"/>
 
                 <StackPanel Orientation="Horizontal">
@@ -78,7 +78,7 @@
 					Command="{Binding CloseCommand}"
                     Background="#FF9E2C24"  Foreground="White" FontSize="16"
                     BorderThickness="0" Cursor="Hand"
-                    Margin="10,0,0,0" Width="160" HorizontalAlignment="Left">
+                    Margin="10,0,0,0" Width="170" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8F4;" FontSize="16" Margin="0,0,8,0"/>
                     <TextBlock Text="Zakończ" FontSize="18"/>
@@ -150,26 +150,39 @@
                         <syncfusion:SfScheduler.DaysViewSettings>
                             <syncfusion:DaysViewSettings 
                                 TimeIntervalSize="20"
-                                StartHour="11"
+                                StartHour="10"
                                 EndHour="15" 
                                 TimeInterval="00:05:00"
                                 TimeRulerFormat="HH:mm"/>
                         </syncfusion:SfScheduler.DaysViewSettings>
                     </syncfusion:SfScheduler>
+                    <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
 
-                    <Button 
-                        Command="{Binding AddAppointmentCommand}"
-                        CommandParameter="{Binding SelectedDate, ElementName=Schedule}"
-                        Background="#2196F3" 
-                        Foreground="White" 
-                        Height="35" 
-                        Margin="0,10,0,0"
-                        Visibility="{Binding WydrukiVisibility}" BorderBrush="{x:Null}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="14" Margin="0,0,6,0"/>
-                            <TextBlock Text="Rejestracja" FontSize="16"/>
-                        </StackPanel>
-                    </Button>
+                        <Button 
+                            Command="{Binding AddAppointmentCommand}"
+                            CommandParameter="{Binding SelectedDate, ElementName=Schedule}"
+                            Background="#2196F3" 
+                            Foreground="White" 
+                            Height="35"
+                            Visibility="{Binding WydrukiVisibility}" BorderBrush="{x:Null}" Margin="0,0,10,0" Width="324">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="Rejestracja" FontSize="16"/>
+                            </StackPanel>
+                        </Button>
+                        <Button 
+                            Command="{Binding AddAppointmentCommand}"
+                            CommandParameter="{Binding SelectedDate, ElementName=Schedule}"
+                            Background="#FF1264C5" 
+                            Foreground="White" 
+                            Height="35"
+                            Visibility="{Binding WydrukiVisibility}" BorderBrush="{x:Null}" Width="150">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="Dziś" FontSize="16"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Border>
 
@@ -340,7 +353,6 @@
                                             <TextBlock Text="Sanitarne" FontSize="14" Margin="8,0,0,0"/>
                                         </StackPanel>
                                     </Button>
-
                                     <Button Command="{Binding PrintAnkietaCommand}" Background="#4CAF50" Foreground="White" Height="35" Width="190" BorderBrush="#F8F0F0F0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8D4;" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
@@ -349,12 +361,17 @@
                                     </Button>
 
                                 </StackPanel>
-                                <StackPanel Height="40" Margin="0,3,0,0">
-
-                                    <Button Command="{Binding PrintZaswiadczenieCommand}" Background="#FF34495E" Foreground="White" Height="35" BorderBrush="#F8F0F0F0" VerticalAlignment="Center">
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A1;" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                            <TextBlock Text="Komplet (K+O)" FontSize="14" Margin="5,0,0,0"/>
+                                <StackPanel Height="40" Margin="0,3,0,0" Orientation="Horizontal">
+                                    <Button Command="{Binding PrintUrlpoCommand}" Background="#FF1264C5" Foreground="White" Height="35" Width="190" BorderBrush="#F8F0F0F0" Margin="0,0,10,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8D4;" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Urlop" FontSize="14" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Command="{Binding PrintAllCommand}" Background="#FC060606" Foreground="White" Height="35" Width="190" BorderBrush="#F8F0F0F0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8D4;" FontSize="14" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                            <TextBlock Text="📑 Komplet" FontSize="14" Margin="5,0,0,0" VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Button>
                                 </StackPanel>
@@ -380,7 +397,12 @@
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
                             <StackPanel Margin="0,0,10,0">
-                                <TextBlock Text="📋 Dane skierowania" FontSize="18" Foreground="#FFFFEB10" Margin="0,0,0,10" FontWeight="SemiBold"/>
+
+                                <!-- Data Skier. + Data Rej. + Typ Badania -->
+                                <StackPanel x:Name="header" Orientation="Vertical">
+                                    <TextBlock Text="📋 Dane skierowania" FontSize="18" Foreground="#FFFFEB10" FontWeight="SemiBold"/>
+
+                                </StackPanel>
 
                                 <!-- Data Skier. + Data Rej. + Typ Badania -->
                                 <Grid Margin="0,5">
@@ -409,6 +431,8 @@
                                             <RadioButton Content="W" GroupName="GrupaWOK" IsChecked="{Binding IsGroupW}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
                                             <RadioButton Content="O" GroupName="GrupaWOK" IsChecked="{Binding IsGroupO}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
                                             <RadioButton Content="K" GroupName="GrupaWOK" IsChecked="{Binding IsGroupK}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                            <RadioButton Content="S" GroupName="GrupaWOK" IsChecked="{Binding IsGroupS}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                            <RadioButton Content="U" GroupName="GrupaWOK" IsChecked="{Binding IsGroupU}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
                                         </StackPanel>
                                         <syncfusion1:SfTextBoxExt x:Name="typ_wiz" Text="{Binding TestType, UpdateSourceTrigger=PropertyChanged}" IsReadOnly="False" FontSize="16" TextAlignment="Center" Margin="0,5,0,0" Width="60" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -475,7 +499,7 @@
                                 <!-- Inne (checkboxy) -->
                                 <TextBlock Text="Inne:" FontSize="14" Margin="0,10,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                 <CheckBox Content="Orzeczenie do celów sanitarno-epid." IsChecked="{Binding IsbookletSanepid}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,11,0,0"/>
-                                <CheckBox Content="Urlop dla poratowania zdrowia" IsChecked="{Binding IsCertificate}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Foreground="#FFF0F0F0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,10,0,0"/>
+                                <CheckBox Content="Urlop dla poratowania zdrowia" IsChecked="{Binding IsLeave}" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}" Foreground="#FFF0F0F0" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,10,0,0"/>
                             </StackPanel>
                         </Grid>
 
@@ -509,7 +533,7 @@
                                         Background="#FF6D7FC7" 
                                         Foreground="White" 
                                         Height="45"
-                                        Width="224" BorderBrush="#FFF0F0F0" Visibility="Hidden">
+                                        Width="190" BorderBrush="#FFF0F0F0" ScrollViewer.VerticalScrollBarVisibility="Disabled" Visibility="Hidden">
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE70F;" FontSize="16" Margin="0,0,5,0"/>
                                             <TextBlock Text="Nowa Karta Badań" FontSize="14" VerticalAlignment="Center" Margin="5,0,0,0"/>
@@ -534,7 +558,7 @@
                                         Command="{Binding SaveCommand}" 
                                         Background="#FF0078D7" 
                                         Foreground="White" 
-                                        Height="44" BorderBrush="#FFF0F0F0" Margin="10,0,0,0" Width="190">
+                                        Height="45" BorderBrush="#FFF0F0F0" Margin="10,0,0,0" Width="190">
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                             <TextBlock Text="💾" FontSize="16" Margin="0,0,5,0" VerticalAlignment="Center"/>
                                             <TextBlock Text="Zapisz Kartę Badań" FontSize="16" VerticalAlignment="Center" Margin="5,0,0,0"/>

@@ -81,28 +81,28 @@
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0"/>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,20,0">
-                    <TextBlock FontSize="24"
-                        FontWeight="Bold"
-                        Foreground="#FF1976D2"><Run Text="{Binding TotalCount}"/></TextBlock>
-                    <TextBlock Text=" / "
+                    <TextBlock Text=" / Rejestracje / "
                         FontSize="18"
                         FontWeight="Normal"
                         Foreground="#FF666666"
-                        Margin="3,0"/>
-                    <!-- zrealzowane wizyty (odbyta) 
-                                            <TextBlock Text="{Binding CompletedCount}"
-                                                       FontSize="24"
-                                                       FontWeight="Bold"
-                                                       Foreground="#FF4CAF50"/>
-                                            <TextBlock Text=" / "
-                                                       FontSize="18"
-                                                       FontWeight="Normal"
-                                                       Foreground="#FF666666"
-                                                       Margin="3,0"/> -->
+                        Margin="3,0" VerticalAlignment="Center"/>
+                    <TextBlock FontSize="24"
+                        FontWeight="Bold"
+                        Foreground="#FF1976D2"><Run Text="{Binding TotalCount}"/></TextBlock>
+                    <TextBlock Text=" / Wizyty / "
+                        FontSize="18"
+                        FontWeight="Normal"
+                        Foreground="#FF666666"
+                        Margin="3,0" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding OtherStatusCount}"
                         FontSize="24"
                         FontWeight="Bold"
                         Foreground="#FF4CAF50"/>
+                    <TextBlock Text=" / Orzeczenia / "
+                        FontSize="18"
+                        FontWeight="Normal"
+                        Foreground="#FF666666"
+                        Margin="3,0" VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
 
@@ -204,17 +204,17 @@
 
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,1,0">
 
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,0,0">
 
                             <TextBlock Text="👥 Lista Pacjentów"
                                 FontSize="18"
                                 FontWeight="SemiBold"
-                                Foreground="#FFEDEB47" Width="156"/>
+                                Foreground="#FFEDEB47" Width="156" VerticalAlignment="Center"/>
 
                             <TextBlock Text="{Binding SelectedDateFormatted}"
                                        FontSize="14"
-                                       Foreground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"
-                                       Width="200" Margin="20,0,0,0" VerticalAlignment="Bottom"/>
+                                       Foreground="{DynamicResource {x:Static SystemColors.AccentColorLight3BrushKey}}"
+                                       Width="200" Margin="20,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
                             <TextBlock Text=" | "
                                        FontSize="14"
                                        Foreground="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" Width="10" VerticalAlignment="Bottom"/>
@@ -238,7 +238,7 @@
                                     BorderBrush="{DynamicResource {x:Static SystemColors.ScrollBarBrushKey}}"
                                     BorderThickness="1"
                                     CornerRadius="4"
-                                    Padding="4,2,5,2">
+                                    Padding="5,1,5,1">
                                 <Grid Height="30">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*"/>
@@ -295,25 +295,25 @@
                                     x:Name="odswierz_wybrana_liste_z_kalendarza"
                                     Content="🔄"
                                     Width="40"
-                                    Height="30"
+                                    Height="28"
                                     Background="#FF4CAF50"
-                                    BorderThickness="0"
+                                    BorderThickness="1,1,1,1"
                                     Foreground="White"
                                     FontSize="18"
                                     Cursor="Hand"
                                     ToolTip="Odśwież listę pacjentów na wybrany dzień"
-                                    Command="{Binding OdswiezCommand}" HorizontalAlignment="Left" Margin="10,0,0,0"/>
+                                    Command="{Binding OdswiezCommand}" HorizontalAlignment="Left" Margin="10,5,0,5" Panel.ZIndex="-2"/>
                         </Grid>
 
                     </StackPanel>
 
-                    <ListBox Grid.Row="1"
+                    <ListBox x:Name="lista_rejestracja" Grid.Row="1"
                              ItemsSource="{Binding FilteredPacjenciNaDzien}"
                              SelectedItem="{Binding SelectedPacjent, Mode=TwoWay}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              Width="476"
                              HorizontalAlignment="Left" Background="{x:Null}"
-                             Visibility="{Binding ShowDetailsView, Converter={StaticResource InverseBooleanToVisibilityConverter}}" Margin="0,0,0,-2">
+                             Visibility="{Binding ShowDetailsView, Converter={StaticResource InverseBooleanToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{DynamicResource {x:Static SystemColors.AppWorkspaceBrushKey}}"
@@ -384,7 +384,7 @@
                             Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
                             Visibility="{Binding ShowDetailsView, Converter={StaticResource BooleanToVisibilityConverter}}"
                             MaxHeight="650"
-                            Grid.RowSpan="2">
+                            Grid.RowSpan="2" d:IsHidden="True">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -393,7 +393,7 @@
 
                             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
-                                    <Grid Margin="0,0,0,10" HorizontalAlignment="Left" Width="476">
+                                    <Grid Margin="0,0,0,5" HorizontalAlignment="Left" Width="438">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="Auto" MinWidth="268"/>
@@ -401,7 +401,7 @@
 
                                         <TextBlock Grid.Column="0"
                                            Text="👤 Dane pacjenta"
-                                           FontSize="18"
+                                           FontSize="15"
                                            FontWeight="Bold"
                                            Foreground="#FF27AE60"
                                            VerticalAlignment="Center" Height="23" />
@@ -413,7 +413,7 @@
                                           Command="{Binding SaveSelectedPacjentCommand}" Margin="0,0,3,0"
                                           Background="#FF27AE60" Foreground="White"
                                           FontSize="15" FontWeight="SemiBold"
-                                          BorderThickness="0" Cursor="Hand" Width="150"/>
+                                          BorderThickness="0" Cursor="Hand" Width="150" Height="35"/>
                                             <Button Grid.Column="1"
                                           Content="◀ Powrót"
                                           Command="{Binding BackToListCommand}" Margin="3,0,0,0"
@@ -431,8 +431,8 @@
 
 
                                             <!-- Imię + Nazwisko -->
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                                <StackPanel Width="215" Margin="0,0,8,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel Margin="0,0,10,0" Width="180">
                                                     <TextBlock Text="Imię:" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <syncfusion:SfTextBoxExt
                                                     Text="{Binding SelectedPacjent.P_Imie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -443,9 +443,9 @@
                                                     SuggestionBoxPlacement="Bottom"
                                                     MaxDropDownHeight="180"
                                                     Watermark="Imię"
-                                                    Height="30" FontSize="16" FontWeight="SemiBold" Padding="4,2"/>
+                                                    Height="30" FontSize="14" Padding="4,2" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                                <StackPanel Width="217">
+                                                <StackPanel Width="239" Panel.ZIndex="-3">
                                                     <TextBlock Text="Nazwisko:" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <syncfusion:SfTextBoxExt
                                                     Text="{Binding SelectedPacjent.P_Nazwisko, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -456,40 +456,44 @@
                                                     SuggestionBoxPlacement="Bottom"
                                                     MaxDropDownHeight="180"
                                                     Watermark="Nazwisko"
-                                                    Height="30" FontSize="16" FontWeight="SemiBold" Padding="4,2" Width="206" HorizontalAlignment="Left"/>
+                                                    Height="30" FontSize="14" Padding="4,2" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </StackPanel>
 
                                             <!-- PESEL + Brak + Płeć + Data urodzenia + Wiek -->
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
+                                            <StackPanel Orientation="Horizontal">
                                                 <StackPanel Width="120" Margin="0,0,10,0">
                                                     <TextBlock Text="PESEL:" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <TextBox Text="{Binding SelectedPacjent.P_Pesel, Mode=TwoWay}" 
-                                                    FontSize="16" FontWeight="SemiBold" Height="30"/>
+                                                    FontSize="16" FontWeight="SemiBold" Height="30" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                                <StackPanel Width="40" Margin="0,0,10,0">
-                                                    <TextBlock Text="Brak" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                                <StackPanel Width="20" Margin="0,0,10,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="Brak" FontSize="11" Foreground="Gray" Margin="0,0,0,2" VerticalAlignment="Center"/>
                                                     <CheckBox IsChecked="{Binding BrakPESEL, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,5,0,0"/>
                                                 </StackPanel>
+                                                <StackPanel Width="25" Panel.ZIndex="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="Wer." FontSize="11" Foreground="Gray" Margin="0,0,0,2" VerticalAlignment="Center"/>
+                                                    <CheckBox IsChecked="{Binding BrakPESEL, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,5,0,0" BorderBrush="{DynamicResource {x:Static SystemColors.AccentColorDark1BrushKey}}" Background="#00000000"/>
+                                                </StackPanel>
                                                 <StackPanel Width="40" Margin="0,0,10,0">
-                                                    <TextBlock Text="Płeć" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                                    <TextBlock Text="Płeć" FontSize="11" Foreground="Gray" Margin="6,0,0,2" HorizontalAlignment="Left"/>
                                                     <TextBox Text="{Binding SelectedPacjent.P_Plec, Mode=TwoWay}" 
-                                                    FontSize="16" FontWeight="SemiBold" MaxLength="1" Height="30" Width="30"/>
+                                                    FontSize="16" FontWeight="SemiBold" MaxLength="1" Height="30" Width="30" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Width="120" Margin="0,0,10,0">
                                                     <TextBlock Text="Data urodzenia" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
-                                                    <DatePicker SelectedDate="{Binding SelectedPacjent.P_DataUrodzenia, Mode=TwoWay}" 
-                                                    FontSize="14" Height="30"/>
+                                                    <DatePicker SelectedDate="{Binding SelectedPacjent.P_Data_Urodzenia, Mode=TwoWay}" 
+                                                    FontSize="14" Height="30" VerticalAlignment="Center"/>
                                                 </StackPanel>
-                                                <StackPanel Width="80">
+                                                <StackPanel Width="64">
                                                     <TextBlock Text="Wiek:" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <TextBlock Text="{Binding SelectedPacjent.Wiek, Mode=OneWay, StringFormat=\{0\} lat}" 
-                                                    FontSize="16" Margin="0,5,0,0"/>
+                                                    FontSize="16" Margin="0,5,0,0" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </StackPanel>
 
                                             <!-- Ulica -->
-                                            <StackPanel Margin="0,0,0,3">
+                                            <StackPanel>
                                                 <TextBlock Text="Ulica numer domu" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                 <syncfusion:SfTextBoxExt
                                                 Text="{Binding SelectedPacjent.P_AdresUlica, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -500,17 +504,17 @@
                                                 SuggestionBoxPlacement="Bottom"
                                                 MaxDropDownHeight="180"
                                                 Watermark="Ulica i numer domu"
-                                                Height="30" FontSize="14" Padding="4,2"/>
+                                                Height="30" FontSize="14" Padding="4,2" VerticalAlignment="Center"/>
                                             </StackPanel>
 
                                             <!-- Kod pocztowy + Miasto -->
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
-                                                <StackPanel Width="109" Margin="0,0,10,0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <StackPanel Width="110" Margin="0,0,10,0">
                                                     <TextBlock Text="Kod pocztowy" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <TextBox Text="{Binding SelectedPacjent.P_AdresKod, Mode=TwoWay}" 
                                                     FontSize="14" Height="30"/>
                                                 </StackPanel>
-                                                <StackPanel Width="319">
+                                                <StackPanel Width="310">
                                                     <TextBlock Text="Miejscowość" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <syncfusion:SfTextBoxExt
                                                     Text="{Binding SelectedPacjent.P_AdresMiasto, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -521,12 +525,12 @@
                                                     SuggestionBoxPlacement="Bottom"
                                                     MaxDropDownHeight="180"
                                                     Watermark="Miejscowość"
-                                                    Height="30" FontSize="14" Padding="4,2" HorizontalAlignment="Left" Width="312"/>
+                                                    Height="30" FontSize="14" Padding="4,2" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </StackPanel>
 
                                             <!-- Stanowisko/Zawód -->
-                                            <StackPanel Margin="0,0,0,3">
+                                            <StackPanel>
                                                 <TextBlock Text="Stanowisko/Zawód" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                 <syncfusion:SfTextBoxExt
                                                 Text="{Binding SelectedPacjent.P_Zawod, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -537,24 +541,17 @@
                                                 SuggestionBoxPlacement="Bottom"
                                                 MaxDropDownHeight="180"
                                                 Watermark="Stanowisko / zawód"
-                                                Height="30" FontSize="14" Padding="4,2"/>
+                                                Height="30" FontSize="14" Padding="4,2" VerticalAlignment="Center"/>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Grid Height="47" Width="430">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="1*"/>
-                                                        <ColumnDefinition Width="10"/>
-                                                        <ColumnDefinition Width="1*"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <StackPanel>
-                                                        <TextBlock Text="e-mail" FontSize="11" Foreground="Gray"/>
-                                                        <TextBox Text="{Binding SelectedPacjent.P_Email, Mode=TwoWay}" 
+                                                <StackPanel Width="242" Margin="0,0,8,0" VerticalAlignment="Top">
+                                                    <TextBlock Text="e-mail" FontSize="11" Foreground="Gray"/>
+                                                    <TextBox Text="{Binding SelectedPacjent.P_Email, Mode=TwoWay}" 
                                                             FontSize="14" Height="30"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="2">
-                                                        <TextBlock Text="Telefon" FontSize="11" Foreground="Gray"/>
-                                                        <syncfusion1:SfTextBoxExt
+                                                </StackPanel>
+                                                <StackPanel Width="180">
+                                                    <TextBlock Text="Telefon" FontSize="11" Foreground="Gray"/>
+                                                    <syncfusion1:SfTextBoxExt
                                                             Text="{Binding SelectedPacjent.P_Telefon, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                             AutoCompleteSource="{Binding TelefonItems}"
                                                             AutoCompleteMode="SuggestAppend"
@@ -562,10 +559,8 @@
                                                             SearchItemPath="."
                                                             SuggestionBoxPlacement="Bottom"
                                                             MaxDropDownHeight="180"
-                                                            Watermark="Telefon"
-                                                            Height="30" FontSize="14" Padding="4,2" HorizontalAlignment="Left" Width="210"/>
-                                                    </StackPanel>
-                                                </Grid>
+                                                            Watermark="Telefon" FontSize="14" Padding="4,2" VerticalAlignment="Center" Height="30"/>
+                                                </StackPanel>
                                             </StackPanel>
 
                                             <!-- Firma -->
@@ -627,18 +622,17 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="📑 Komplet"
-                                            Command="{Binding PrintAllCommand}"
-                                            Height="30" Margin="0,0,3,0"
-                                            Background="#FF34495E" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
-                                    <Button Grid.Column="1" Content="🗂️ Karta"
+                                    <Button Content="🗂️ Karta"
                                             Command="{Binding PrintKartaCommand}"
-                                            Height="30" Margin="3,0,0,0"
+                                            Height="35"
                                             Background="#FF4A90E2" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Margin="0,0,5,0"/>
+                                    <Button Grid.Column="1" Content="📝 Orzecz. x2"
+                                            Command="{Binding PrintOrzeczenieCommand}"
+                                            Background="#FF8E44AD" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Margin="5,0,0,0"/>
                                 </Grid>
 
                                 <!-- Wiersz 2: Orzecz x 2 | Sanitarne -->
@@ -647,18 +641,16 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="📝 Orzecz. x2"
-                                            Command="{Binding PrintOrzeczenieCommand}"
-                                            Height="30" Margin="0,0,3,0"
-                                            Background="#FF8E44AD" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
-                                    <Button Grid.Column="1" Content="🧪 Sanitarne"
+                                    <Button Content="🧪 Sanitarne"
                                             Command="{Binding PrintSanitarneCommand}"
-                                            Height="30" Margin="3,0,0,0"
                                             Background="#FF16A085" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Margin="0,0,5,0" Height="35"/>
+                                    <Button Content="📋 Ankieta"
+                                            Command="{Binding PrintAnkietaCommand}"
+                                            Background="#FF4CAF50" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Grid.Column="1" Margin="5,0,0,0"/>
                                 </Grid>
 
                                 <!-- Wiersz 3: Urlop | Ankieta -->
@@ -667,18 +659,17 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Content="🏖️ Urlop"
+                                    <Button Grid.Column="1" Content="📑 Komplet"
+                                            Command="{Binding PrintAllCommand}"
+                                            Height="35"
+                                            Background="#FC060606" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Margin="5,0,0,0"/>
+                                    <Button Content="🏖️ Urlop"
                                             Command="{Binding PrintUrlopCommand}"
-                                            Height="30" Margin="0,0,3,0"
-                                            Background="#FFC0392B" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
-                                    <Button Grid.Column="1" Content="📋 Ankieta"
-                                            Command="{Binding PrintAnkietaCommand}"
-                                            Height="30" Margin="3,0,0,0"
-                                            Background="#FFD35400" Foreground="White"
-                                            FontSize="12" FontWeight="SemiBold"
-                                            BorderThickness="0" Cursor="Hand"/>
+                                            Background="#FF1264C5" Foreground="White"
+                                            FontSize="14" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Margin="0,0,5,0"/>
                                 </Grid>
 
                                 <!-- Zapisz + Powrót -->
@@ -747,38 +738,43 @@
                         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                             <StackPanel>
 
-                                <StackPanel Orientation="Horizontal">
+                                <Grid Margin="0,0,0,10" Width="438">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto" MinWidth="268"/>
+                                    </Grid.ColumnDefinitions>
+
                                     <TextBlock Text="📋 Karta badań"
-                                        FontSize="18"
+                                        FontSize="15"
                                         FontWeight="Bold"
-                                        Foreground="#FF1976D2"
+                                        Foreground="#FF1976D2" VerticalAlignment="Center"
                                            />
 
-                                    <StackPanel Orientation="Horizontal" Height="23" Margin="10,0,0,0">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1">
                                         <!-- Buttons moved to bottom of the middle column (see Grid.Row=1) -->
                                         <Button Grid.Column="0"
-                                        Content="💾 Zapisz"
-                                        Command="{Binding SaveSelectedPacjentCommand}" Margin="0,0,3,0"
-                                        Background="#FF27AE60" Foreground="White"
-                                        FontSize="15" FontWeight="SemiBold"
-                                        BorderThickness="0" Cursor="Hand" Width="150"/>
+                                            Content="💾 Zapisz"
+                                            Command="{Binding SaveSelectedPacjentCommand}" Margin="0,0,3,0"
+                                            Background="#FF27AE60" Foreground="White"
+                                            FontSize="15" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Width="150" Height="35"/>
                                         <Button Grid.Column="1"
-                                        Content="◀ Powrót"
-                                        Command="{Binding BackToListCommand}" Margin="3,0,0,0"
-                                        Background="#FF7B8D93" Foreground="White"
-                                        FontSize="15" FontWeight="SemiBold"
-                                        BorderThickness="0" Cursor="Hand" Width="150"/>
+                                            Content="◀ Powrót"
+                                            Command="{Binding BackToListCommand}" Margin="3,0,0,0"
+                                            Background="#FF7B8D93" Foreground="White"
+                                            FontSize="15" FontWeight="SemiBold"
+                                            BorderThickness="0" Cursor="Hand" Width="150"/>
                                     </StackPanel>
 
-                                </StackPanel>
+                                </Grid>
 
                                 <Border Background="{Binding SelectedPacjent.R_Status, Converter={StaticResource StatusToBrushConverter}}"
                                         CornerRadius="4"
                                         Padding="3,1,3,1"
-                                        Margin="0,6,0,10" Height="20">
+                                        Margin="0,6,0,10" Height="30" VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SelectedPacjent.StatusWizytyTekst}"
                                                Foreground="White"
-                                               HorizontalAlignment="Center" FontSize="14" FontFamily="Sitka Subheading"/>
+                                               HorizontalAlignment="Center" FontSize="14" VerticalAlignment="Center"/>
                                 </Border>
 
                                 <StackPanel Orientation="Horizontal">
@@ -823,60 +819,19 @@
                                         <TextBlock Text="TYP Badania" HorizontalAlignment="Left" Margin="0,0,10,5" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"/>
                                         <StackPanel Orientation="Horizontal">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <RadioButton
-                                                    Content="W"
-                                                    GroupName="GrupaWOK"
-                                                    Margin="2,0,5,0"
-                                                    IsChecked="{Binding IsTypBadaniaWstepne, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    FontWeight="Bold"
-                                                    ToolTip="Wstępne">
-                                                    <RadioButton.BorderBrush>
-                                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
-                                                    </RadioButton.BorderBrush>
-                                                </RadioButton>
 
-                                                <RadioButton
-                                                    Content="O"
-                                                    GroupName="GrupaWOK"
-                                                    Margin="2,0,5,0"
-                                                    IsChecked="{Binding IsTypBadaniaPeriodyczne, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    FontWeight="Bold"
-                                                    ToolTip="Okresowe/Badania Kontrolne">
-                                                    <RadioButton.BorderBrush>
-                                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
-                                                    </RadioButton.BorderBrush>
-                                                </RadioButton>
-
-                                                <RadioButton
-                                                    Content="K"
-                                                    GroupName="GrupaWOK"
-                                                    Margin="2,0,5,0.3"
-                                                    IsChecked="{Binding IsTypBadaniaKontrolne, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    FontWeight="Bold"
-                                                    ToolTip="Kontrolne">
-                                                    <RadioButton.BorderBrush>
-                                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
-                                                    </RadioButton.BorderBrush>
-                                                </RadioButton>
-
-                                                <RadioButton
-                                                    Content="K/O"
-                                                    GroupName="GrupaWOK"
-                                                    Margin="2,0,5,0.3"
-                                                    IsChecked="{Binding IsTypBadaniaKontrolneOkresowe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                    FontWeight="Bold"
-                                                    ToolTip="Kontrolne/Okresowe">
-                                                    <RadioButton.BorderBrush>
-                                                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"/>
-                                                    </RadioButton.BorderBrush>
-                                                </RadioButton>
-
-
+                                                <StackPanel Orientation="Horizontal">
+                                                    <RadioButton Content="W" GroupName="GrupaWOK" IsChecked="{Binding IsGroupW}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                                    <RadioButton Content="O" GroupName="GrupaWOK" IsChecked="{Binding IsGroupO}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                                    <RadioButton Content="K" GroupName="GrupaWOK" IsChecked="{Binding IsGroupK}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                                    <RadioButton Content="S" GroupName="GrupaWOK" IsChecked="{Binding IsGroupS}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                                    <RadioButton Content="U" GroupName="GrupaWOK" IsChecked="{Binding IsGroupU}" Margin="3,0" Foreground="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                                                </StackPanel>
                                             </StackPanel>
 
                                             <TextBox
                                                 Text="{Binding SelectedPacjent.B_TypBadania, Mode=TwoWay}"
-                                                Width="57"
+                                                Width="53"
                                                 FontSize="18"
                                                 ToolTip="Wybrany typ badania"
                                                 TextAlignment="Center"
@@ -895,16 +850,16 @@
                                     </StackPanel>
                                 </StackPanel>
 
-                                <StackPanel Margin="0,0,0,3">
+                                <StackPanel Margin="0,0,0,3" HorizontalAlignment="Left">
                                     <TextBlock Text="Stanowisko: "
                                                FontSize="11"
                                                Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionTextBrushKey}}"
-                                               Width="90" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,5"/>
+                                               Width="90" VerticalAlignment="Center" Margin="0,0,0,5" HorizontalAlignment="Left"/>
                                     <TextBox
                                         Width="420"
                                         Height="30"
                                         FontSize="16"
-                                        Text="{Binding SelectedPacjent.B_Stanowisko, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left"/>
+                                        Text="{Binding SelectedPacjent.B_Stanowisko, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
                                 <Separator Margin="0,5,0,10" Background="#FFDDDDDD"/>
@@ -917,13 +872,13 @@
                                            Margin="0,0,0,8"/>
 
                                 <StackPanel Margin="0,0,0,10">
-                                    <CheckBox Content="📖 Książeczka"
+                                    <CheckBox Content="📖 Orzeczenie do celów sanitarno-epidemiologicznych"
                                               IsChecked="{Binding SelectedPacjent.B_Ksiazeczka, Mode=TwoWay}"
-                                              FontSize="18"
+                                              FontSize="14"
                                               VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" Padding="10,0,0,0" VerticalContentAlignment="Center" Margin="0,0,0,10"/>
                                     <CheckBox Content="✅ Urlop Dla Poratowania Zdrowia"
                                               IsChecked="{Binding SelectedPacjent.B_Zaswiadczenie, Mode=TwoWay}"
-                                              FontSize="18" Background="White" Foreground="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" Margin="0,0,0,5" Padding="10,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                                              FontSize="14" Background="White" Foreground="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" Margin="0,0,0,5" Padding="10,0,0,0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
@@ -936,7 +891,7 @@
                                        FontSize="11"
                                        Foreground="Gray"
                                        Margin="0,0,0,4"
-                                       HorizontalAlignment="Center"/>
+                                       HorizontalAlignment="Left"/>
                             <Grid Margin="0,0,0,4">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -945,37 +900,36 @@
                                 <Button Grid.Column="0"
                                         Content="📄 Dokumenty"
                                         Command="{Binding SetStatusDokumentyCommand}"
-                                        Height="30" Margin="0,0,3,0"
+                                        Height="35" Margin="0,0,5,0"
                                         Background="#FF34495E" Foreground="White"
-                                        FontSize="12" FontWeight="SemiBold"
+                                        FontSize="14" FontWeight="SemiBold"
                                         BorderThickness="0" Cursor="Hand"/>
                                 <Button Grid.Column="1"
-                                        Content="🏥 w trakcie"
-                                        Command="{Binding SetStatusWizytaCommand}"
-                                        Height="30" Margin="3,0,0,0"
+                                        Content="🏥W trakcie"
+                                        Command="{Binding SetStatusWizytaCommand}" Margin="5,0,0,0"
                                         Background="#FF1565C0" Foreground="White"
-                                        FontSize="12" FontWeight="SemiBold"
+                                        FontSize="14" FontWeight="SemiBold"
                                         BorderThickness="0" Cursor="Hand"/>
                             </Grid>
                             <Grid Margin="0,5,0,12">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="223*"/>
+                                    <ColumnDefinition Width="23*"/>
+                                    <ColumnDefinition Width="200*"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0"
                                         Content="📝 Rejestracja"
                                         Command="{Binding SetStatusRejestracjaCommand}"
-                                        Height="30" Margin="0,0,3,0"
+                                        Height="35" Margin="0,0,5,0"
                                         Background="#FF6A1B9A" Foreground="White"
-                                        FontSize="12" FontWeight="SemiBold"
+                                        FontSize="14" FontWeight="SemiBold"
                                         BorderThickness="0" Cursor="Hand"/>
                                 <Button Grid.Column="1"
                                         Content="🔒 Zamknij Badanie"
-                                        Command="{Binding SetStatusZamknijCommand}"
-                                        Height="30" Margin="3,0,0,0"
+                                        Command="{Binding SetStatusZamknijCommand}" Margin="5,0,0,0"
                                         Background="#FFC62828" Foreground="White"
-                                        FontSize="12" FontWeight="SemiBold"
-                                        BorderThickness="0" Cursor="Hand"/>
+                                        FontSize="14" FontWeight="SemiBold"
+                                        BorderThickness="0" Cursor="Hand" Grid.ColumnSpan="2"/>
                             </Grid>
 
                             <!-- Zapisz + Powrót -->

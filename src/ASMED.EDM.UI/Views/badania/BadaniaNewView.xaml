@@ -18,20 +18,22 @@
         <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
             <Setter Property="Fill" Value="Cyan"/>
         </Style>
+        
         <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
             <Setter Property="Background" Value="#00000000"/>
             <Setter Property="BorderBrush" Value="#00000000"/>
             <Setter Property="Foreground" Value="Cyan"/>
             <Setter Property="Padding" Value="1"/>
         </Style>
+        
     </UserControl.Resources>
-    <Grid VerticalAlignment="Top">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" VerticalAlignment="Top" 
-            MaxWidth="1500" MinWidth="1100" Height="55">
+        
+        <Grid Grid.Row="0" VerticalAlignment="Top" Height="55">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0"/>
                 <ColumnDefinition Width="420"/>
@@ -43,13 +45,13 @@
                 <ColumnDefinition Width="8"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel x:Name="Filtr" Grid.Column="1" VerticalAlignment="Top" Height="46" HorizontalAlignment="Left" Margin="20,0,0,0" Width="407">
+            <StackPanel x:Name="Filtr" Grid.Column="1" VerticalAlignment="Top" Height="46" HorizontalAlignment="Left" Width="407">
                 <TextBlock Text="Wyszukaj Kartę Badań" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
 
                 <DockPanel HorizontalAlignment="Left">
                     <TextBox x:Name="txtFilterTop" 
-                        Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
-                        Height="28" Width="247" FontSize="14">
+                                Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" 
+                                Height="28" Width="247" FontSize="14" Margin="20,0,0,0">
                         <TextBox.ToolTip>
                             <ToolTip>
                                 <StackPanel>
@@ -68,15 +70,21 @@
                     </TextBox>
 
                     <Button Width="32" Height="28" Margin="10,0,0,0" 
-                        ToolTip="Wyczyść pole" Click="ClearFilter_Click">
+                                ToolTip="Wyczyść pole" Click="ClearFilter_Click">
                         <Image Source="/Assets/no.png" Width="10" Height="10" IsEnabled="False" />
                     </Button>
 
                     <ComboBox Width="100" Height="28" FontSize="14" Margin="10,0,8,0"
-                        SelectedItem="{Binding SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        ItemsSource="{Binding FilterOptions}"/>
+                                SelectedItem="{Binding SelectedFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ItemsSource="{Binding FilterOptions}"/>
                 </DockPanel>
             </StackPanel>
+
+
+
+            <!--  Command="{Binding OpenSkierPacjWoborCommand}" -->
+
+            <!--  Command="{Binding OpenSkierPacjWoborCommand}" -->
 
             <!-- ✅ NOWY: Checkbox + DatePicker dla domyślnej daty badania (Grid.Column="2") -->
             <StackPanel x:Name="DefaultDatePanel" Grid.Column="2" VerticalAlignment="Top" Height="46" HorizontalAlignment="Left" Margin="10,0,0,0" Width="185">
@@ -84,33 +92,25 @@
 
                 <StackPanel x:Name="data_bad_dzien" Orientation="Horizontal">
                     <CheckBox IsChecked="{Binding UseCustomDefaultDate, Mode=TwoWay}" 
-                        Content="Użyj" 
-                        VerticalAlignment="Center" 
-                        FontSize="11" 
-                        Margin="0,0,8,0"
-                        ToolTip="Zaznacz aby używać wybranej daty jako domyślnej dla Data Badania"/>
+                                Content="Użyj" 
+                                VerticalAlignment="Center" 
+                                FontSize="11" 
+                                Margin="0,0,8,0"
+                                ToolTip="Zaznacz aby używać wybranej daty jako domyślnej dla Data Badania"/>
 
                     <syncfusion:SfDatePicker Value="{Binding CustomDefaultDate, Mode=TwoWay}" 
-                        FormatString="dd.MM.yyyy"
-                        Width="120" 
-                        FontSize="11"
-                        ToolTip="Data która będzie ustawiana jako Data Badania przy wyborze karty"/>
+                                FormatString="dd.MM.yyyy"
+                                Width="120" 
+                                FontSize="11"
+                                ToolTip="Data która będzie ustawiana jako Data Badania przy wyborze karty"/>
                 </StackPanel>
             </StackPanel>
 
 
 
-            <!--  Command="{Binding OpenSkierPacjWoborCommand}" -->
-
-            <!--  Command="{Binding OpenSkierPacjWoborCommand}" -->
-
         </Grid>
-
-
-
-        <Grid 
-            Grid.Row="1"
-            VerticalAlignment="Top" Margin="0,-10,0,0">
+        <Grid
+                    VerticalAlignment="Top" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="600"/>
                 <ColumnDefinition/>
@@ -118,45 +118,43 @@
 
             <!-- PRAWA KOLUMNA: Edycja badania (skopiowane 1:1 z BadaniaNewEditWindow) -->
             <!-- LEWA KOLUMNA: Lista skierowań -->
-            <Border Grid.Column="0" VerticalAlignment="Top" Height="625" Background="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" BorderThickness="1,1,1,1" CornerRadius="8,8,8,8" Margin="8,15,0,0">
+            <Border Grid.Column="0" Margin="10,0,1,0" BorderBrush="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" CornerRadius="8,8,8,8" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" VerticalAlignment="Top" Height="625" BorderThickness="1,1,1.3,1">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Margin="2,0,2,8" Orientation="Vertical" Grid.Row="1">
-                        <StackPanel Height="69" Margin="10,0,0,0">
+                    <StackPanel Orientation="Vertical" Grid.Row="1" Margin="2,0,2,0">
+                        <StackPanel Margin="10,0,0,0" Height="69">
                             <TextBlock Text="📋 Karty  Badań - Do zamknięcia Wizyty" 
-                                FontSize="16" FontWeight="SemiBold" Margin="0,10,0,5" Foreground="#FFEDEB47"/>
+                                        FontSize="16" FontWeight="SemiBold" Margin="0,10,0,5" Foreground="#FFEDEB47"/>
                             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <TextBlock Text="{Binding SkierowaniaCount, StringFormat=Liczba: \{0\}}" 
-                                    FontSize="12" 
-                                    VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                            FontSize="12" 
+                                            VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                 <Button Content="🔄 Odśwież" 
-                                    Command="{Binding RefreshCommand}"
-                                    Background="#FF1565C0" Foreground="White"
-                                    Padding="8,4" Margin="15,0,0,0"
-                                    BorderThickness="0" Cursor="Hand"
-                                    FontSize="11"/>
+                                            Command="{Binding RefreshCommand}"
+                                            Background="#FF1565C0" Foreground="White"
+                                            Padding="8,4" Margin="15,0,0,0"
+                                            BorderThickness="0" Cursor="Hand"
+                                            FontSize="11"/>
                             </StackPanel>
                         </StackPanel>
-
                         <syncfusion:SfDataGrid x:Name="gridSkierowania"
-                            ItemsSource="{Binding Skierowania}"
-                            SelectedItem="{Binding SelectedSkierowanie, Mode=TwoWay}"
-                            AutoGenerateColumns="False"
-                            AllowSorting="True"
-                            AllowFiltering="True"
-                            SelectionMode="Single"
-                            AlternationCount="2"
-                            RowHeight="55"
-                            ColumnSizer="Star"
-                            FontSize="14"
-                            SelectionUnit="Row"
-                            FontFamily="Arial Narrow"
-                            GridLinesVisibility="Both" 
-                            AllowResizingColumns="True" 
-                            CurrentCellBorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Height="545" Margin="10,0,10,7" RenderTransformOrigin="0.5,0.5" BorderThickness="0,0,0,0">
+                                    ItemsSource="{Binding Skierowania}"
+                                    SelectedItem="{Binding SelectedSkierowanie, Mode=TwoWay}"
+                           AutoGenerateColumns="False"
+                           AllowSorting="True"
+                           AllowFiltering="True"
+                           SelectionMode="Single"
+                           AlternationCount="2"
+                           RowHeight="60"
+                           ColumnSizer="Star"
+                           SelectionUnit="Row"
+                           FontFamily="Arial Narrow"
+                           GridLinesVisibility="Both" 
+                           AllowResizingColumns="True" 
+                           CurrentCellBorderBrush="{x:Null}" Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Margin="2,0,2,7" RenderTransformOrigin="0.5,0.5" BorderThickness="0,0,0,0" FontSize="13" VerticalContentAlignment="Stretch" Height="545">
                             <syncfusion:SfDataGrid.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -165,71 +163,66 @@
                                     <TranslateTransform Y="1.328"/>
                                 </TransformGroup>
                             </syncfusion:SfDataGrid.RenderTransform>
-
                             <syncfusion:SfDataGrid.Columns>
                                 <syncfusion:GridTextColumn HeaderText="ID" 
-                                    MappingName="B_ID" 
-                                    TextAlignment="Center"
-                                    Width="45"/>
+                                            MappingName="B_ID" 
+                                            TextAlignment="Center"
+                                            Width="45"/>
 
                                 <syncfusion:GridTextColumn HeaderText="Data" 
-                                    MappingName="B_DataSkierowania" 
-                                    TextAlignment="Center"
-                                    Width="85"
-                                    DisplayBinding="{Binding B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}"/>
+                                            MappingName="B_DataSkierowania" 
+                                            TextAlignment="Center"
+                                            Width="85"
+                                            DisplayBinding="{Binding B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}"/>
 
                                 <syncfusion:GridTextColumn HeaderText="Typ" 
-                                    MappingName="B_TypBadania" 
-                                    AllowFiltering="False"
-                                    Width="40" TextAlignment="Center" />
+                                            MappingName="B_TypBadania" 
+                                            AllowFiltering="False"
+                                            Width="40" TextAlignment="Center" />
 
                                 <syncfusion:GridTemplateColumn HeaderText="Pacjent" 
-                                    AllowFiltering="False"
-                                    Width="120" AllowSorting="False">
+                                            AllowFiltering="False"
+                                            Width="120" AllowSorting="False">
                                     <syncfusion:GridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextWrapping="Wrap" 
-                                                VerticalAlignment="Center"
-                                                Padding="4,2"><Run Text="{Binding P_imie}" FontWeight="Bold"/><LineBreak/><Run Text="{Binding P_nazwisko}"/></TextBlock>
+                                                        VerticalAlignment="Center"
+                                                        Padding="4,2"><Run Text="{Binding P_imie}" FontWeight="Bold"/><LineBreak/><Run Text="{Binding P_nazwisko}"/></TextBlock>
                                         </DataTemplate>
                                     </syncfusion:GridTemplateColumn.CellTemplate>
                                 </syncfusion:GridTemplateColumn>
 
                                 <syncfusion:GridTextColumn HeaderText="Firma" 
-                                    MappingName="Firma_Nazwa" 
-                                    TextWrapping="Wrap"
+                                            MappingName="Firma_Nazwa" 
+                                            TextWrapping="Wrap"
                                               />
                             </syncfusion:SfDataGrid.Columns>
                         </syncfusion:SfDataGrid>
                     </StackPanel>
 
                     <!-- Nagłówek -->
-
                     <!-- Nagłówek -->
-
                     <!-- Lista skierowań -->
                 </Grid>
             </Border>
-            <Border BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" BorderThickness="1,0.9,1,1" CornerRadius="8,8,8,8" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Grid.Column="1" Margin="5,15,10,0" Height="625" VerticalAlignment="Top">
-                <Grid Height="640" VerticalAlignment="Top">
+            <Border BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" CornerRadius="8,8,8,8" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Top" Height="625">
+                <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="75"/>
                         <RowDefinition/>
-                        <RowDefinition Height="Auto" MinHeight="100"/>
+                        <RowDefinition Height="Auto" MinHeight="68.3"/>
                         <RowDefinition Height="Auto" MinHeight="100"/>
                     </Grid.RowDefinitions>
 
                     <!-- Przyciski zapisu -->
                     <!-- Nagłówek prawej kolumny -->
-
-
                     <!-- Nagłówek prawej kolumny -->
-                    <StackPanel VerticalAlignment="Top" Margin="19,11,0,0" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Top" Margin="19,11,0,0" Orientation="Horizontal" Height="21">
                         <TextBlock Text="✏️ Zakończenie Badania" 
-                            FontSize="16" FontWeight="SemiBold" 
-                            Foreground="#FFEDEB47" VerticalAlignment="Center"/>
+                                    FontSize="16" FontWeight="SemiBold" 
+                                    Foreground="#FFEDEB47" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <Grid Margin="15,50,0,0" Grid.RowSpan="2">
+                    <Grid Margin="15,0,0,20" Grid.Row="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="113"/>
                             <RowDefinition Height="Auto" MinHeight="66.96"/>
@@ -245,11 +238,11 @@
 
                             <!-- Pacjent -->
                             <Border Grid.Column="0" 
-                                    BorderBrush="#FFA9CEF3" BorderThickness="1" 
-                                    CornerRadius="4" Padding="8" Margin="0,0,5,0">
+                                        BorderBrush="#FFA9CEF3" BorderThickness="1" 
+                                        CornerRadius="4" Padding="8" Margin="0,0,5,0">
                                 <StackPanel>
                                     <TextBlock Text="Dane Pacjenta" FontWeight="SemiBold" FontSize="12" 
-                                            Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                                                Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
                                     <Grid Margin="6,4,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition/>
@@ -267,12 +260,12 @@
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" Width="156">
                                             <TextBlock Text="Pesel: " FontSize="11" FontWeight="Normal" VerticalAlignment="Center" Margin="0,0,3,0" Width="40" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                             <TextBlock FontSize="13" 
-                                                    Text="{Binding SelectedSkierowanie.FormattedPesel}" 
-                                                    FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                                        Text="{Binding SelectedSkierowanie.FormattedPesel}" 
+                                                        FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock Margin="6,4,0,0" FontSize="14" 
-                                            Text="{Binding SelectedSkierowanie.B_Stanowisko}" Foreground="#FFEDEB47"/>
+                                                Text="{Binding SelectedSkierowanie.B_Stanowisko}" Foreground="#FFEDEB47"/>
                                     <Grid Margin="6,6,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -281,17 +274,17 @@
                                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                                             <TextBlock Text="Typ" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" VerticalAlignment="Center"/>
                                             <Border Width="40" Margin="8,0,0,0" Height="22" 
-                                                    BorderBrush="#1976D2" CornerRadius="2" BorderThickness="1" Padding="3,1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                                                        BorderBrush="#1976D2" CornerRadius="2" BorderThickness="1" Padding="3,1" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
                                                 <TextBlock Text="{Binding SelectedSkierowanie.B_TypBadania}" 
-                                                        FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                                            FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
                                             </Border>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="8,0,0,0">
                                             <TextBlock Text="Data Skier." FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                             <Border Margin="8,0,0,0" BorderBrush="#1976D2" BorderThickness="1" 
-                                                    CornerRadius="2" Padding="3,1" Height="22">
+                                                        CornerRadius="2" Padding="3,1" Height="22">
                                                 <TextBlock Text="{Binding SelectedSkierowanie.B_DataSkierowania, StringFormat=\{0:dd-MM-yyyy\}}" 
-                                                        FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                                            FontSize="12" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                             </Border>
                                         </StackPanel>
                                     </Grid>
@@ -300,14 +293,14 @@
 
                             <!-- Firma -->
                             <Border Grid.Column="1" 
-                                    BorderBrush="#FFA9CEF3" BorderThickness="1" 
-                                    CornerRadius="4" Padding="8" Margin="6,0,15,0">
+                                        BorderBrush="#FFA9CEF3" BorderThickness="1" 
+                                        CornerRadius="4" Padding="8" Margin="6,0,15,0">
                                 <StackPanel>
                                     <TextBlock Text="Dane Firmy" FontWeight="SemiBold" FontSize="12" 
-                                            Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
+                                                Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"/>
                                     <TextBlock Margin="6,4,0,0" FontSize="16" 
-                                            Text="{Binding SelectedSkierowanie.Firma_Nazwa}" 
-                                            TextWrapping="Wrap" FontWeight="SemiBold" Height="45" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                                Text="{Binding SelectedSkierowanie.Firma_Nazwa}" 
+                                                TextWrapping="Wrap" FontWeight="SemiBold" Height="45" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <Grid Margin="6,6,0,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -316,15 +309,15 @@
                                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                                             <TextBlock Text="NIP" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                             <TextBlock Text="{Binding SelectedSkierowanie.Firma_NIP}" 
-                                                    FontSize="11" Margin="8,0,0,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+                                                        FontSize="11" Margin="8,0,0,0" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                                             <TextBlock Text="Cennik" FontSize="11" VerticalAlignment="Center" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                             <ComboBox x:Name="select_cennik" 
-                                                    ItemsSource="{Binding CennikList}" 
-                                                    SelectedItem="{Binding SelectedCennik, Mode=TwoWay}" 
-                                                    DisplayMemberPath="bn_cennik"
-                                                    Width="150" Margin="6,0,0,0" FontSize="11"/>
+                                                        ItemsSource="{Binding CennikList}" 
+                                                        SelectedItem="{Binding SelectedCennik, Mode=TwoWay}" 
+                                                        DisplayMemberPath="bn_cennik"
+                                                        Width="150" Margin="6,0,0,0" FontSize="11"/>
                                         </StackPanel>
                                     </Grid>
                                 </StackPanel>
@@ -337,15 +330,15 @@
                             <!-- ✅ NOWY: Selektor lat ważności -->
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,6" VerticalAlignment="Top">
                                 <TextBlock Text="Ważność Badania do roku:" FontSize="11" 
-                                        Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                        VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                            Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                            VerticalAlignment="Center" Margin="0,0,6,0"/>
                                 <ListBox x:Name="lista_lat" ItemsSource="{Binding ValidityYearOptions}"
-                                        SelectedValuePath="Years"
-                                        SelectedValue="{Binding ValidityYears, Mode=TwoWay}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Focusable="False"
-                                        VerticalAlignment="Center">
+                                            SelectedValuePath="Years"
+                                            SelectedValue="{Binding ValidityYears, Mode=TwoWay}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Focusable="False"
+                                            VerticalAlignment="Center">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Horizontal"/>
@@ -360,11 +353,11 @@
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                         <Border x:Name="chip"
-                                                                Background="#FF546E7A"
-                                                                CornerRadius="4"
-                                                                Padding="10,4"
-                                                                BorderThickness="2"
-                                                                BorderBrush="Transparent">
+                                                                    Background="#FF546E7A"
+                                                                    CornerRadius="4"
+                                                                    Padding="10,4"
+                                                                    BorderThickness="2"
+                                                                    BorderBrush="Transparent">
                                                             <ContentPresenter/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -384,24 +377,24 @@
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Label}" FontSize="12" 
-                                                    Foreground="White" FontWeight="SemiBold"/>
+                                                        Foreground="White" FontWeight="SemiBold"/>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
 
                                 <!-- ✅ NOWY: Separator -->
                                 <TextBlock Text="miesiąc:" FontSize="11" 
-                                        Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-                                        VerticalAlignment="Center" Margin="10,0,6,0"/>
+                                            Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+                                            VerticalAlignment="Center" Margin="10,0,6,0"/>
 
                                 <!-- ✅ NOWY: Selektor miesięcy -->
                                 <ListBox x:Name="lista_miesiecy" ItemsSource="{Binding ValidityMonthOptions}"
-                                        SelectedValuePath="Month"
-                                        SelectedValue="{Binding ValidityMonth, Mode=TwoWay}"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Focusable="False"
-                                        VerticalAlignment="Center">
+                                            SelectedValuePath="Month"
+                                            SelectedValue="{Binding ValidityMonth, Mode=TwoWay}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Focusable="False"
+                                            VerticalAlignment="Center">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <StackPanel Orientation="Horizontal"/>
@@ -416,11 +409,11 @@
                                                 <Setter.Value>
                                                     <ControlTemplate TargetType="{x:Type ListBoxItem}">
                                                         <Border x:Name="chip"
-                                                                Background="#FF546E7A"
-                                                                CornerRadius="4"
-                                                                Padding="5,4"
-                                                                BorderThickness="2"
-                                                                BorderBrush="Transparent">
+                                                                    Background="#FF546E7A"
+                                                                    CornerRadius="4"
+                                                                    Padding="5,4"
+                                                                    BorderThickness="2"
+                                                                    BorderBrush="Transparent">
                                                             <ContentPresenter/>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -440,7 +433,7 @@
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Label}" FontSize="11" 
-                                                    Foreground="White" FontWeight="SemiBold"/>
+                                                        Foreground="White" FontWeight="SemiBold"/>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
@@ -451,32 +444,37 @@
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Data Badania" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <syncfusion:SfDatePicker x:Name="Data_Bad_Karta" Value="{Binding DataBadania, Mode=TwoWay}" 
-                                                        FormatString="dd.MM.yyyy" Width="140" 
-                                                        Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold"/>
+                                                FormatString="dd.MM.yyyy" Width="140" 
+                                                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold" AllowNull="True" AllowInlineEditing="True" SelectorFormatString="dd.MM.yyyy" SelectorItemCount="-3"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Data Ważności" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <syncfusion:SfDatePicker x:Name="Data_Waznosci_Bad" Value="{Binding DataWaznosci, Mode=TwoWay}" 
-                                                        FormatString="dd.MM.yyyy" Width="140" 
-                                                        Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold"/>
+                                                FormatString="dd.MM.yyyy" Width="140" 
+                                                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold" AllowNull="True" AllowInlineEditing="True"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="bez Daty" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,10,0"/>
+                                     <Button x:Name="btnClearDates" Content="🗑️" Width="22" Height="22" FontSize="11" 
+                                        Background="#FFD0D3D6" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" 
+                                        Click="ClearDates_Click"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Wynik" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <ComboBox x:Name="Wynik_Bad" ItemsSource="{Binding WynikOptions}" 
-                                            SelectedItem="{Binding SelectedWynik, Mode=TwoWay}" Width="130" FontSize="11"/>
+                                                SelectedItem="{Binding SelectedWynik, Mode=TwoWay}" Width="130" FontSize="11"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Nr Księgi" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <TextBox Text="{Binding NrKsiegi, Mode=TwoWay}" Width="130" Height="22" FontSize="11"/>
                                 </StackPanel>
                                 <!-- Badanie Sanitarne: icon colored green when true (B_ksiazeczka), gray when false -->
-
                                 <!-- Urlop dla poratowania zdrowia: icon colored green when true, gray when false -->
                             </StackPanel>
                         </StackPanel>
 
                         <!-- Wiersz 2: Wycena badania -->
-                        <Border x:Name="wycena_badania" Grid.Row="2" BorderBrush="#ddd" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,0,20,-10">
+                        <Border x:Name="wycena_badania" Grid.Row="2" BorderBrush="#ddd" BorderThickness="1" CornerRadius="5" Padding="10" Margin="-0.1,10,20,-10">
                             <Grid Margin="0,0,0,-17">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -499,22 +497,23 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
+                                    
                                     <TextBlock Grid.Column="0" Text="Badanie" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="1" Text="Laryngolog" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="2" Text="Okulista" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="3" Text="Książeczka" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="4" Text="Lipidogram" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="5" Text="EKG" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="6" Text="Urlop" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="7" Text="Inne" FontWeight="Bold" FontSize="10" 
-                                            HorizontalAlignment="Center" Padding="3"/>
+                                                HorizontalAlignment="Center" Padding="3"/>
                                 </Grid>
 
                                 <!-- Ceny z cennika -->
@@ -531,37 +530,37 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Grid.Column="0" Text="{Binding PriceBasicText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="1" Text="{Binding PriceLaryngologistText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="2" Text="{Binding PriceOphthalmologistText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="3" Text="{Binding PriceSanitaryText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="4" Text="{Binding PriceLipidogramText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="5" Text="{Binding PriceEKGText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="6" Text="{Binding PriceHealthClinicText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                     <TextBlock Grid.Column="7" Text="{Binding PriceOtherText}" 
-                                            FontSize="14"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Foreground="DarkBlue"/>
+                                                FontSize="14"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Foreground="DarkBlue"/>
                                 </Grid>
                                 <!-- Wartości (TextBoxy) -->
                                 <Grid x:Name="Wybrane_Ceny" Grid.Row="2">
@@ -576,29 +575,29 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0" Text="{Binding Cena1, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="1" Text="{Binding Cena2, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="2" Text="{Binding Cena3, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="3" Text="{Binding Cena4, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="4" Text="{Binding Cena5, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}"
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="5" Text="{Binding Cena6, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="6" Text="{Binding Cena7, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                     <TextBox Grid.Column="7" Text="{Binding Cena8, Mode=TwoWay, StringFormat=\{0:0\}, UpdateSourceTrigger=PropertyChanged}" 
-                                            FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
-                                            Height="28" TextAlignment="Center"/>
+                                                FontSize="18" FontWeight="Bold" Margin="2,2,2,2" 
+                                                Height="28" TextAlignment="Center"/>
                                 </Grid>
 
                                 <!-- Przyciski toggle -->
@@ -615,56 +614,56 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Button x:Name="btnNewToggleBasic" Grid.Column="0" 
-                                            Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Click="ToggleNewExamination_Click" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" Tag="Basic"/>
+                                                Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                                Click="ToggleNewExamination_Click" 
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" Tag="Basic"/>
 
                                     <Button x:Name="btnNewToggleLaryngologist" Grid.Column="1" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click" 
-                                            Tag="Laryngologist"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click" 
+                                                Tag="Laryngologist"/>
 
                                     <Button x:Name="btnNewToggleOphthalmologist" Grid.Column="2" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click"
-                                            Tag="Ophthalmologist"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click"
+                                                Tag="Ophthalmologist"/>
                                     <Button x:Name="btnNewToggleSanitary" Grid.Column="3" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click" 
-                                            Tag="Sanitary"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click" 
+                                                Tag="Sanitary"/>
                                     <Button x:Name="btnNewToggleLipidogram" Grid.Column="4" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click"
-                                            Tag="Lipidogram"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click"
+                                                Tag="Lipidogram"/>
                                     <Button x:Name="btnNewToggleEKG" Grid.Column="5" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click" 
-                                            Tag="EKG"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click" 
+                                                Tag="EKG"/>
                                     <Button x:Name="btnNewToggleHealthClinic" Grid.Column="6" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click" 
-                                            Tag="HealthClinic"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click" 
+                                                Tag="HealthClinic"/>
                                     <Button x:Name="btnNewToggleOther" Grid.Column="7" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
-                                            Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
-                                            Click="ToggleNewExamination_Click"
-                                            Tag="Other"/>
+                                                Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
+                                                Click="ToggleNewExamination_Click"
+                                                Tag="Other"/>
                                 </Grid>
 
                                 <!-- Suma - nagłówek -->
                                 <Grid x:Name="Suma_Header" Grid.Row="4" Visibility="Collapsed">
                                     <TextBlock Text="SUMA:" FontSize="13" FontWeight="Bold" 
-                                            HorizontalAlignment="Right" Margin="0,8,10,0"/>
+                                                HorizontalAlignment="Right" Margin="0,8,10,0"/>
                                 </Grid>
 
                                 <!-- Suma - wartość -->
                                 <Grid x:Name="Suma_Wartość" Grid.Row="5" Margin="0,15,0,0">
                                     <TextBlock Text="{Binding SumaText}" FontSize="18" FontWeight="Bold" 
-                                            HorizontalAlignment="Right" Foreground="#FF81FD4A" Margin="0,0,10,8" Height="25"/>
+                                                HorizontalAlignment="Right" Foreground="#FF81FD4A" Margin="0,0,10,8" Height="25"/>
                                 </Grid>
                             </Grid>
                         </Border>
                     </Grid>
-                    <StackPanel x:Name="Status_Info" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,5,20,0" Grid.Row="2" HorizontalAlignment="Right">
+                    <StackPanel x:Name="Status_Info" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,20,20,0" Grid.Row="2" HorizontalAlignment="Right" Height="41" Width="507">
                         <!-- Ankieta: icon colored green when true, gray when false -->
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Książeczka" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" TextWrapping="Wrap" />
@@ -831,17 +830,17 @@
                     </StackPanel>
 
                     <!-- Zawartość edycji -->
-                    <StackPanel Grid.Row ="3"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,13,20,0" Height="45">
+                    <StackPanel Grid.Row ="3"  Orientation="Horizontal" Margin="0,13,20,0" Height="45" Width="410" HorizontalAlignment="Right">
 
                         <syncfusion:ButtonAdv
-                            x:Name="btnWyczysc"
-                            Height="45"
-                            Label="🔄 Wyczyść"
-                            Width="200"
-                            Background="#FF607D8B"
-                            Foreground="#FFFBFBFB"
-                            FontSize="16"
-                            Command="{Binding ClearCommand}" IconHeight="0" IconWidth="0">
+                                    x:Name="btnWyczysc"
+                                    Height="45"
+                                    Label="🔄 Wyczyść"
+                                    Width="200"
+                                    Background="#FF607D8B"
+                                    Foreground="#FFFBFBFB"
+                                    FontSize="16"
+                                    Command="{Binding ClearCommand}" IconHeight="0" IconWidth="0">
                             <syncfusion:ButtonAdv.BorderBrush>
                                 <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
                             </syncfusion:ButtonAdv.BorderBrush>
@@ -850,16 +849,16 @@
                             </syncfusion:ButtonAdv.IconTemplate>
                         </syncfusion:ButtonAdv>
                         <syncfusion:ButtonAdv
-                            x:Name="btnSaveBadanie"
-                            Height="45"
-                            Label="💾 Zapisz Badanie"
-                            Width="200"
-                            Background="#FF1976D2"
-                            Foreground="#FFFBFBFB"
-                            FontSize="16"
-                            Command="{Binding SaveBadanieCommand}"
-                            IconHeight="0" IconWidth="0" Margin="10,0,0,0" 
-                            HorizontalAlignment="Left">
+                                    x:Name="btnSaveBadanie"
+                                    Height="45"
+                                    Label="💾 Zapisz Badanie"
+                                    Width="200"
+                                    Background="#FF1976D2"
+                                    Foreground="#FFFBFBFB"
+                                    FontSize="16"
+                                    Command="{Binding SaveBadanieCommand}"
+                                    IconHeight="0" IconWidth="0" Margin="10,0,0,0" 
+                                    HorizontalAlignment="Left">
                             <syncfusion:ButtonAdv.BorderBrush>
                                 <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
                             </syncfusion:ButtonAdv.BorderBrush>

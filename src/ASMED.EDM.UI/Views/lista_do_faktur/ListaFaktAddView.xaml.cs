@@ -1,136 +1,131 @@
-using System;
+﻿using ASMED.EDM.Core.DTOs;
+using ASMED.EDM.Data.Services;
+using ASMED.EDM.UI.Models.ListaDoFaktur;
+using ASMED.EDM.UI.ViewModels.ListaDoFaktur;
+using Microsoft.Extensions.DependencyInjection;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace ASMED.EDM.UI.Views.lista_do_faktur
 {
     public partial class ListaFaktAddView : UserControl
     {
-        public IFormatProvider? PlCulture { get; private set; }
+        private readonly CultureInfo _pl = CultureInfo.GetCultureInfo("pl-PL");
+
+        private ListaFaktAddViewModel? Vm => DataContext as ListaFaktAddViewModel;
 
         public ListaFaktAddView()
         {
             InitializeComponent();
-            PlCulture = CultureInfo.GetCultureInfo("pl-PL");
-            this.Loaded += ListaFaktAddView_Loaded;
+
+            if (!System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+            {
+                if (Application.Current is App app && app.Host != null)
+                {
+                    var dbFactory     = app.Host.Services.GetService<DbConnectionFactory>();
+                    var scopeFactory  = app.Host.Services.GetService<IServiceScopeFactory>();
+                    var vm            = new ListaFaktAddViewModel(dbFactory, scopeFactory);
+                    vm.RequestResetSelectionState += ResetSelectionState;
+                    DataContext = vm;
+                }
+            }
+
+            Loaded += ListaFaktAddView_Loaded;
         }
 
-        private void ListaFaktAddView_Loaded(object? sender, RoutedEventArgs e)
+        private async void ListaFaktAddView_Loaded(object? sender, RoutedEventArgs e)
         {
-            // Placeholder for ViewModel initialization
+            if (Vm == null) return;
+            await Vm.LoadAvailableBadaniaAsync();
         }
 
+        // ===== WYBÓR FIRMY =====
         private void OpenFirmaDialog_Click(object sender, RoutedEventArgs e)
         {
-            // Placeholder for company selection dialog
             var dlg = new FirmaSelectDialog { Owner = Window.GetWindow(this) };
-            var result = dlg.ShowDialog();
-
-            if (result == true)
-            {
-                // TODO: Handle selected firma
-            }
+            if (dlg.ShowDialog() == true && dlg.SelectedFirma != null)
+                Vm?.SetSelectedFirma(dlg.SelectedFirma);
         }
 
+        // ===== POWRÓT =====
         private void OpenListaDoFaktur_Click(object sender, RoutedEventArgs e)
         {
-            // Placeholder for navigation back to list view
+            Vm?.NavigateBack?.Invoke();
         }
 
-        private void PriceTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // Placeholder for price calculation
-            try { RecalculateTotal(); } catch { }
-        }
-
+        // ===== TOGGLE AKTYWNA/NIEAKTYWNA =====
         private void ToggleExamination_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not Button btn) return;
-
             var tag = btn.Tag?.ToString() ?? string.Empty;
             TextBox? target = tag switch
             {
-                "Basic" => txtBasicPrice,
-                "Laryngologist" => txtLaryngologistPrice,
+                "Basic"           => txtBasicPrice,
+                "Laryngologist"   => txtLaryngologistPrice,
                 "Ophthalmologist" => txtOphthalmologistPrice,
-                "Sanitary" => txtSanitaryPrice,
-                "Lipidogram" => txtLipidogramPrice,
-                "EKG" => txtEKGPrice,
-                "HealthClinic" => txtHealthClinicPrice,
-                "Other" => txtOtherPrice,
-                _ => null
+                "Sanitary"        => txtSanitaryPrice,
+                "Lipidogram"      => txtLipidogramPrice,
+                "EKG"             => txtEKGPrice,
+                "HealthClinic"    => txtHealthClinicPrice,
+                "Other"           => txtOtherPrice,
+                _                 => null
             };
-
             if (target == null) return;
 
-            // Toggle active/inactive state
-            var isActive = btn.Content?.ToString()?.Contains("✓") == true;
-
+            var isActive = btn.Content?.ToString()?.Contains("\u2713") == true;
             if (isActive)
             {
-                // Deactivate
-                btn.Content = "✗ NIEAKTYWNA";
-                btn.Background = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0xD0, 0xD3, 0xD6));
+                btn.Content      = "\u2717 NIEAKTYWNA";
+                btn.Background   = new SolidColorBrush(Color.FromRgb(0xD0, 0xD3, 0xD6));
                 target.IsEnabled = false;
-                target.Text = "0";
+                target.Text      = string.Empty;
             }
             else
             {
-                // Activate
-                btn.Content = "✓ AKTYWNA";
-                btn.Background = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50));
+                btn.Content      = "\u2713 AKTYWNA";
+                btn.Background   = new SolidColorBrush(Color.FromRgb(0x4C, 0xAF, 0x50));
                 target.IsEnabled = true;
                 target.Focus();
             }
-
-            RecalculateTotal();
         }
 
-        private void RecalculateTotal()
+        // ===== PRZELICZ SUMĘ (lokalnie w row) =====
+        private void PriceTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
-                decimal total = 0;
+                decimal Parse(TextBox? tb) =>
+                    tb != null && decimal.TryParse(tb.Text, NumberStyles.Any, _pl, out var v) ? v : 0;
 
-                decimal ParsePrice(TextBox? tb)
-                {
-                    if (tb == null || string.IsNullOrWhiteSpace(tb.Text)) return 0;
-                    if (decimal.TryParse(tb.Text, NumberStyles.Any, PlCulture, out var val))
-                        return val;
-                    return 0;
-                }
-
-                total += ParsePrice(txtBasicPrice);
-                total += ParsePrice(txtLaryngologistPrice);
-                total += ParsePrice(txtOphthalmologistPrice);
-                total += ParsePrice(txtSanitaryPrice);
-                total += ParsePrice(txtLipidogramPrice);
-                total += ParsePrice(txtEKGPrice);
-                total += ParsePrice(txtHealthClinicPrice);
-                total += ParsePrice(txtOtherPrice);
+                decimal total = Parse(txtBasicPrice)
+                              + Parse(txtLaryngologistPrice)
+                              + Parse(txtOphthalmologistPrice)
+                              + Parse(txtSanitaryPrice)
+                              + Parse(txtLipidogramPrice)
+                              + Parse(txtEKGPrice)
+                              + Parse(txtHealthClinicPrice)
+                              + Parse(txtOtherPrice);
 
                 if (lblTotalPrice != null)
-                {
-                    lblTotalPrice.Text = total.ToString("N2", PlCulture) + " zł";
-                }
+                    lblTotalPrice.Text = total.ToString("N2", _pl) + " z\u0142";
             }
-            catch
-            {
-                // Ignore calculation errors
-            }
+            catch { }
         }
 
+        // ===== DWUKLIK → EDYCJA WIERSZA =====
         private void dgAssignedBadania_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            // Placeholder for editing assigned examination
+            if (sender is DataGrid dg && dg.SelectedItem is BadanieRowDto dto && Vm != null)
+                Vm.SelectedAssignedBadanie = dto;
         }
 
+        // ===== RESET UI =====
         private void ResetSelectionState()
         {
-            // Placeholder for resetting UI state
+            if (dgAssignedBadania != null)
+                dgAssignedBadania.SelectedItem = null;
         }
     }
 }

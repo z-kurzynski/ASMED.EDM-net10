@@ -76,6 +76,48 @@ namespace ASMED.EDM.UI.Views.Skierowania
                 DataContext = app.Host.Services.GetService(typeof(SkierPacjentaEditViewModel))
                               as SkierPacjentaEditViewModel;
             }
+
+            if (DataContext is SkierPacjentaEditViewModel vm)
+                vm.NavigateCopyPacjent = OpenKopiaWNowejFirmie;
+        }
+
+        /// <summary>
+        /// Kopiuje dane osobowe i adresowe aktualnego pacjenta, otwiera pusty formularz
+        /// nowego pacjenta z wstępnie uzupełnionymi polami — ten sam wzorzec co OpenNowyPacjent
+        /// w SkierListaPacjentowView, ale z pre-fill danych.
+        /// </summary>
+        private void OpenKopiaWNowejFirmie()
+        {
+            if (DataContext is not SkierPacjentaEditViewModel sourceVm) return;
+
+            var mainWindow = Window.GetWindow(this) as MainWindow;
+            if (mainWindow == null) return;
+
+            if (Application.Current is not App app || app.Host == null) return;
+
+            var newVm = app.Host.Services.GetService(typeof(SkierPacjentaEditViewModel))
+                        as SkierPacjentaEditViewModel;
+            if (newVm == null) return;
+
+            // Skopiuj dane osobowe i kontaktowe — ID = 0 (nowy pacjent)
+            newVm.Imie        = sourceVm.Imie;
+            newVm.Nazwisko    = sourceVm.Nazwisko;
+            newVm.PESEL       = sourceVm.PESEL;
+            newVm.Ulica       = sourceVm.Ulica;
+            newVm.KodPocztowy = sourceVm.KodPocztowy;
+            newVm.Miejscowosc = sourceVm.Miejscowosc;
+            newVm.Email       = sourceVm.Email;
+            newVm.Telefon     = sourceVm.Telefon;
+
+            var newView = new SkierPacjentaEditView(newVm);
+
+            newVm.RequestPowrot += () =>
+            {
+                // Po zapisie/anulowaniu wróć do tego widoku edycji
+                mainWindow.SetNowaKartaContent(this);
+            };
+
+            mainWindow.SetNowaKartaContent(newView);
         }
 
         private void PobierzZEdm_Click(object sender, RoutedEventArgs e)

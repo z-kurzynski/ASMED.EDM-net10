@@ -80,6 +80,24 @@ public partial class BadaniaNewView : UserControl
         }
     }
 
+    private void ClearDates_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is not BadaniaNewViewModel vm) return;
+
+        if (vm.DataWaznosci == DateTime.MinValue)
+        {
+            // Drugie wciśnięcie → przywróć DataBadania + ValidityYears
+            vm.DataWaznosci = vm.DataBadania.AddYears(vm.ValidityYears);
+        }
+        else
+        {
+            // Pierwsze wciśnięcie → ustaw 01.01.0001
+            vm.DataWaznosci = DateTime.MinValue;
+            if (Data_Waznosci_Bad != null)
+                Data_Waznosci_Bad.Value = DateTime.MinValue;
+        }
+    }
+
     private void Lista_Badan_Click(object sender, RoutedEventArgs e)
     {
         // TODO: Navigate to Lista Badań
@@ -134,4 +152,6 @@ public partial class BadaniaNewView : UserControl
             Console.WriteLine($"🟢 Toggle ON: {examinationType} = {price:N2} zł");
         }
     }
-}
+
+    }
+

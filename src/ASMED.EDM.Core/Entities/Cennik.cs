@@ -10,7 +10,7 @@ public class Cennik : BaseEntity
     public string Nazwa { get; set; } = string.Empty;
 
     /// <summary>Czy cennik jest aktywny — Access: b_activ</summary>
-    public bool IsActiv { get; set; } = true;
+    public bool? IsActiv { get; set; } = true;
 
     /// <summary>Cena badania podstawowego (lekarz) — Access: Bad_Cena1</summary>
     public decimal? CenaPodstawowa { get; set; }

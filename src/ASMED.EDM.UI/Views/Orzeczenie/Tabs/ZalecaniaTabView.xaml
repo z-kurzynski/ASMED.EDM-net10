@@ -1,0 +1,43 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             x:Class="ASMED.EDM.UI.Views.Orzeczenie.Tabs.ZalecaniaTabView"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Zalecenia dla pacjenta" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <GroupBox Header="Zalecenia ogólne" Margin="0,0,0,8" Padding="8">
+                    <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
+                             VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+                <GroupBox Header="Ograniczenia" Padding="8">
+                    <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
+                             VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="&#x2190; Wróć" Width="90" Height="30" HorizontalAlignment="Left"
+                    Command="{Binding WrocCommand}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Zapisz" Width="90" Height="30" Margin="0,0,8,0"/>
+                <Button Content="Drukuj" Width="90" Height="30"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

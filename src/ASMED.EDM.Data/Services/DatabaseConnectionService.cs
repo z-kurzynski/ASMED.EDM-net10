@@ -3,6 +3,7 @@ using ASMED.EDM.Core.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
+using System.Runtime.Versioning;
 
 namespace ASMED.EDM.Data.Services;
 
@@ -11,6 +12,7 @@ namespace ASMED.EDM.Data.Services;
 /// Używa DbConnectionFactory jako źródła connection stringów (rejestr → appsettings fallback).
 /// Automatycznie testuje Primary → Backup → Local i zapisuje wynik w rejestrze.
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class DatabaseConnectionService : IDatabaseConnectionService
 {
     private readonly DbConnectionFactory _dbFactory;

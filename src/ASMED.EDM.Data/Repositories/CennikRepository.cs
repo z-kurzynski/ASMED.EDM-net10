@@ -12,8 +12,9 @@ public class CennikRepository : Repository<Cennik>, ICennikRepository
 
     public async Task<IEnumerable<Cennik>> GetActiveCennikiAsync(CancellationToken cancellationToken = default)
     {
+        // IsActiv != false obsługuje NULL (migrowane rekordy z Access mogą mieć NULL)
         return await _dbSet
-            .Where(c => c.IsActiv)
+            .Where(c => c.IsActiv != false)
             .OrderBy(c => c.Nazwa)
             .ToListAsync(cancellationToken);
     }

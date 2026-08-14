@@ -1,0 +1,65 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Syncfusion="http://schemas.syncfusion.com/wpf"
+             mc:Ignorable="d"
+             x:Class="ASMED.EDM.UI.Views.Orzeczenie.Tabs.BadaniaSanitarneTabView"
+             d:DesignHeight="450" d:DesignWidth="800">
+	<Grid Margin="5">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<Grid Margin="0,0,0,2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<TextBlock Grid.Row="0" Text="Badania sanitarno-epidemiologiczne" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Grid.Column="1">
+				<TextBlock Text="Data badania:" FontSize="12"
+				 VerticalAlignment="Center" Margin="0,0,6,0"
+				 Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"/>
+				<DatePicker x:Name="bad_Sanit_data" SelectedDate="{Binding SanitarneDataBadania, Mode=TwoWay}" Width="130" FontSize="12"/>
+			</StackPanel>
+
+		</Grid>
+
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+			<StackPanel>
+				<GroupBox Header="Wynik badania" Margin="0,0,0,8" Padding="8">
+					<StackPanel>
+						<RadioButton x:Name="rbSanit_Pozytywny" Content="Pozytywny" Margin="0,2" GroupName="badSanKarta" IsChecked="True"/>
+						<RadioButton x:Name="rbSanit_Negatywny" Content="Negatywny" Margin="0,2" GroupName="badSanKarta"/>
+						<RadioButton x:Name="rbSanit_WymagaUzupelnienia" Content="Wymaga uzupełnienia" Margin="0,2" GroupName="badSanKarta"/>
+					</StackPanel>
+				</GroupBox>
+				<GroupBox Header="Uwagi" Padding="8">
+					<TextBox x:Name="tbSanitUwagi" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
+							 VerticalScrollBarVisibility="Auto"/>
+				</GroupBox>
+			</StackPanel>
+		</ScrollViewer>
+
+		<Grid Grid.Row="2" Margin="0,8,0,0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+			<Syncfusion:ButtonAdv Grid.Column="0" Content="" Label="&#x2190; Wróć" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+				Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
+			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+				<Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+					Command="{Binding AnulujSanitarneCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+				<Syncfusion:ButtonAdv Label="Drukuj"
+	   Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+				<Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+	   Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+			</StackPanel>
+		</Grid>
+	</Grid>
+</UserControl>

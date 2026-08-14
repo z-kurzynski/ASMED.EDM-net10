@@ -221,6 +221,9 @@ public class SkierPacjentaViewModel : ObservableObject
     private bool _isGroupK;
     public bool IsGroupK { get => _isGroupK; set { SetProperty(ref _isGroupK, value); UpdateTestType(); } }
 
+    private bool _isGroupS;
+
+    public bool IsGroupS { get => _isGroupS; set { SetProperty(ref _isGroupS, value); UpdateTestType(); } }
     private string _testType = "W";
     public string TestType
     {
@@ -260,6 +263,32 @@ public class SkierPacjentaViewModel : ObservableObject
     private bool _isCertificate;
     public bool IsCertificate { get => _isCertificate; set => SetProperty(ref _isCertificate, value); }
 
+    private string _certificateDescription = string.Empty;
+    public string CertificateDescription { get => _certificateDescription; set => SetProperty(ref _certificateDescription, value); }
+
+    /*
+               Ankieta               = reader["B_Ankieta"]             is not DBNull && Convert.ToBoolean(reader["B_Ankieta"]);
+               Uwagi                 = reader["B_Uwagi"]?.ToString()   ?? string.Empty;
+               wywiad                = reader["B_wywiad"]             is not DBNull && Convert.ToBoolean(reader["B_wywiad"]);
+               Orzeczenie            = reader["B_orzeczenie"]         is not DBNull && Convert.ToBoolean(reader["B_orzeczenie"]);
+               Orzeczenie_id         = reader["B_orzeczenie_ID"]      is not DBNull ? Convert.ToInt32(reader["B_orzeczenie_ID"]) : (int?)null;
+               EDM_P1                = reader["B_EDM"]                is not DBNull && Convert.ToBoolean(reader["B_EDM"]);
+               EDM_document_id       = reader["B_edm_document_id"]    is not DBNull ? Convert.ToInt32(reader["B_edm_document_id"]) : (int?)null;
+
+       */
+    private bool _ankieta;
+    public bool Ankieta { get => _ankieta; set => SetProperty(ref _ankieta, value); }
+    private bool _wywiad;
+    public bool Wywiad { get => _wywiad; set => SetProperty(ref _wywiad, value); }
+    private bool _orzeczenie;
+    public bool Orzeczenie { get => _orzeczenie; set => SetProperty(ref _orzeczenie, value); }
+    private int? _orzeczenieId;
+    public int? OrzeczenieId { get => _orzeczenieId; set => SetProperty(ref _orzeczenieId, value); }
+    private bool _B_EDM;
+    public bool B_EDM { get => _B_EDM; set => SetProperty(ref _B_EDM, value); }
+    private int? _edmDocumentId;
+    public int? EdmDocumentId { get => _edmDocumentId; set => SetProperty(ref _edmDocumentId, value); }
+
     // ─── Widocznosc ──────────────────────────────────────────────────────────
     public Visibility WydrukiVisibility =>
         PatientSkierowanieId > 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -293,6 +322,7 @@ public class SkierPacjentaViewModel : ObservableObject
         IsGroupW = TestType == "W";
         IsGroupO = TestType == "O";
         IsGroupK = TestType == "K";
+        IsGroupS = TestType == "S";
 
         LoadPelneDaneZBazy(item.PacjentId);
         LoadSkierowanieSzczegoly(item.Id);
@@ -374,7 +404,7 @@ public class SkierPacjentaViewModel : ObservableObject
                     B_czynnik_chemiczny, B_czynnik_chemiczny_opis,
                     B_czynnik_biologiczny, B_czynnik_biologiczny_opis,
                     B_czynnik_inny, B_czynnik_inny_opis,
-                    B_Zaswiadczenie, B_ksiazeczka
+                    B_Zaswiadczenie, B_ksiazeczka, B_Ankieta, B_Uwagi, B_wywiad, B_orzeczenie, B_orzeczenie_ID, B_EDM   
                 FROM B_Skierowania
                 WHERE B_ID = @id";
             cmd.Parameters.AddWithValue("@id", skierowanieId);
@@ -393,6 +423,7 @@ public class SkierPacjentaViewModel : ObservableObject
                 IsGroupW = typ == "W";
                 IsGroupO = typ == "O";
                 IsGroupK = typ == "K";
+                IsGroupS = typ == "S";
             }
 
             if (reader["B_Stanowisko"] is not DBNull)
@@ -414,6 +445,12 @@ public class SkierPacjentaViewModel : ObservableObject
             OtherDescription      = reader["B_czynnik_inny_opis"]?.ToString()       ?? string.Empty;
             IsCertificate         = reader["B_Zaswiadczenie"]       is not DBNull && Convert.ToBoolean(reader["B_Zaswiadczenie"]);
             IsbookletSanepid      = reader["B_ksiazeczka"]          is not DBNull && Convert.ToBoolean(reader["B_ksiazeczka"]);
+            Ankieta               = reader["B_Ankieta"]             is not DBNull && Convert.ToBoolean(reader["B_Ankieta"]);
+            Uwagi                 = reader["B_Uwagi"]?.ToString()   ?? string.Empty;
+            Wywiad                = reader["B_wywiad"]             is not DBNull && Convert.ToBoolean(reader["B_wywiad"]);
+            Orzeczenie            = reader["B_orzeczenie"]         is not DBNull && Convert.ToBoolean(reader["B_orzeczenie"]);
+            OrzeczenieId          = reader["B_orzeczenie_ID"]      is not DBNull ? Convert.ToInt32(reader["B_orzeczenie_ID"]) : (int?)null;
+            B_EDM                  = reader["B_EDM"]                is not DBNull && Convert.ToBoolean(reader["B_EDM"]);
         }
         catch (Exception ex)
         {
@@ -475,6 +512,8 @@ public class SkierPacjentaViewModel : ObservableObject
             cmd.Parameters.AddWithValue("@czInnyOpis", string.IsNullOrWhiteSpace(OtherDescription) ? (object)DBNull.Value : OtherDescription.Trim());
             cmd.Parameters.AddWithValue("@zaswiadczenie", IsCertificate);
             cmd.Parameters.AddWithValue("@ksiazeczka", IsbookletSanepid);
+    
+
 
             cmd.ExecuteNonQuery();
 

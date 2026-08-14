@@ -303,6 +303,46 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<bool> AdminSetPasswordAsync(int userId, string newPassword, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Administracyjne ustawienie hasła dla użytkownika ID: {UserId}", userId);
+
+        try
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            {
+                throw new InvalidOperationException("Nowe hasło musi mieć minimum 6 znaków");
+            }
+
+            user.PasswordHash = HashPassword(newPassword);
+            user.ModifiedAt = DateTime.UtcNow;
+
+            _unitOfWork.Users.Update(user);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await _auditService.LogOperationAsync(
+                userId: userId,
+                operationType: "ADMIN_SET_PASSWORD",
+                entityName: nameof(User),
+                entityId: userId.ToString(),
+                cancellationToken: cancellationToken);
+
+            _logger.LogInformation("Administracyjnie ustawiono hasło dla użytkownika ID: {UserId}", userId);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd podczas administracyjnego ustawiania hasła użytkownika ID: {UserId}", userId);
+            return false;
+        }
+    }
+
     public async Task<string> GeneratePasswordResetTokenAsync(int userId, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Generowanie tokenu resetowania hasła dla użytkownika ID: {UserId}", userId);

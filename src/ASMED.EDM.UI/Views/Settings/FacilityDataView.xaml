@@ -316,6 +316,28 @@
                             <TextBox Style="{StaticResource InputBox}"
                                      Text="{Binding OrganizationalUnitCode, UpdateSourceTrigger=PropertyChanged}"/>
 
+                            <!-- Middleware (API Medycyny Pracy) -->
+                            <Separator Style="{StaticResource HSep}"/>
+                            <TextBlock Style="{StaticResource SectionTitle}"
+                                       Foreground="{StaticResource Col2Accent}"
+                                       Text="Middleware - API Medycyny Pracy"/>
+
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="URL API Middleware"/>
+                            <TextBox Style="{StaticResource InputBox}"
+                                     Text="{Binding MiddlewareBaseUrl, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="Login (username)"/>
+                            <TextBox Style="{StaticResource InputBox}"
+                                     Text="{Binding MiddlewareUsername, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="Haslo"/>
+                            <TextBox Style="{StaticResource InputBox}"
+                                     Text="{Binding MiddlewarePassword, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Style="{StaticResource FieldLabel}" Text="PWZ lekarza wystawiajacego"/>
+                            <TextBox Style="{StaticResource InputBox}"
+                                     Text="{Binding DoctorPwz, UpdateSourceTrigger=PropertyChanged}"/>
+
                             <!-- Certyfikat TLS -->
                             <Separator Style="{StaticResource HSep}"/>
                             <TextBlock Style="{StaticResource SectionTitle}"

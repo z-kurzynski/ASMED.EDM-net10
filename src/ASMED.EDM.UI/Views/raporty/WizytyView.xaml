@@ -3,74 +3,24 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
     mc:Ignorable="d"
-    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="#FFB9D1EA">
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100">
 
     <UserControl.Resources>
-        <!-- ✅ Converter Bool → Visibility -->
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
-        <!-- ✅ NOWE: Template dla standardowego tooltipa (Karty, Badania, Wizyty) -->
-        <DataTemplate x:Key="TooltipTemplate">
-            <Border Background="#FF333333" 
-                    BorderBrush="#FF666666" 
-                    BorderThickness="1" 
-                    CornerRadius="4" 
-                    Padding="10,6">
-                <StackPanel>
-                    <!-- Miesiąc -->
-                    <TextBlock Text="{Binding Item.MiesiacNazwa}" 
-                               FontWeight="Bold" 
-                               FontSize="13" 
-                               Foreground="White"/>
-
-                    <!-- Nazwa serii + Wartość -->
-                    <TextBlock FontSize="12" Foreground="White" Margin="0,4,0,0">
-                        <Run Text="{Binding Series.Label}" FontWeight="SemiBold"/>
-                        <Run Text=": "/>
-                        <Run Text="{Binding Item.YValue}" FontWeight="Bold" Foreground="#FF4CAF50"/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-
-        <!-- ✅ NOWE: Template dla tooltipa Wartość [zł] (pokazuje ORYGINALNĄ wartość) -->
-        <DataTemplate x:Key="TooltipWartoscTemplate">
-            <Border Background="#FF333333" 
-                    BorderBrush="#FF4CAF50" 
-                    BorderThickness="2" 
-                    CornerRadius="4" 
-                    Padding="10,6">
-                <StackPanel>
-                    <!-- Miesiąc -->
-                    <TextBlock Text="{Binding Item.MiesiacNazwa}" 
-                               FontWeight="Bold" 
-                               FontSize="13" 
-                               Foreground="White"/>
-
-                    <!-- Wartość ORYGINALNA (nie skalowana) -->
-                    <TextBlock FontSize="12" Foreground="White" Margin="0,4,0,0">
-                        <Run Text="Wartość: " FontWeight="SemiBold"/>
-                        <Run Text="{Binding Item.WartoscBadan, StringFormat='{}{0:N2} zł'}" 
-                             FontWeight="Bold" 
-                             Foreground="#FF4CAF50"/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-
-        <!-- ✅ Style dla DataGrid -->
         <Style TargetType="{x:Type DataGridColumnHeader}">
             <Setter Property="Background" Value="#FF1976D2"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,5"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
 
         <Style TargetType="{x:Type DataGridCell}">
-            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Padding" Value="8,5"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="BorderBrush" Value="#FFE0E0E0"/>
         </Style>
@@ -96,28 +46,261 @@
         </Grid.RowDefinitions>
 
         <!-- Nagłówek -->
-        <Border Grid.Row="0" 
-                Background="#FF2196F3" 
-                Padding="15,10" 
-                Margin="0,0,0,10" 
+        <Border Grid.Row="0"
+                Background="#FF2196F3"
+                Padding="15,10"
+                Margin="0,0,0,10"
                 CornerRadius="8,8,0,0">
-            <TextBlock Text="📊 Raporty Wizyt" 
-                       FontSize="20" 
-                       FontWeight="Bold" 
+            <TextBlock Text="📊 Raporty Wizyt"
+                       FontSize="20"
+                       FontWeight="Bold"
                        Foreground="White"/>
         </Border>
 
-        <!-- Zawartość -->
-        <Border Grid.Row="1" 
-                BorderBrush="#FF1976D2" 
-                BorderThickness="2" 
-                CornerRadius="8" 
-                Background="White" 
-                Padding="15">
-            <TextBlock Text="Szczegółowe raporty wizyt zostaną dodane w późniejszym etapie rozwoju aplikacji." 
-                       FontSize="14" 
-                       Foreground="#FF666666"
-                       TextWrapping="Wrap"/>
-        </Border>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="480"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- KOLUMNA 1: Niezafakturowane Badania -->
+            <Border Grid.Column="0"
+                    BorderBrush="#FF1976D2"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Background="White"
+                    Padding="10" Height="515">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                        <TextBlock Text="🏢 Niezafakturowane Badania"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="#FF1976D2"
+                                   Margin="0,0,0,10"/>
+
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="5"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding FilterFirmaNazwa, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="14"
+                                     Padding="8,5"
+                                     ToolTip="Wpisz nazwę firmy (filtruje automatycznie)">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Return" Command="{Binding ApplyFilterCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+
+                            <Button Grid.Column="2"
+                                    Content="✖"
+                                    Width="32" Height="32"
+                                    FontWeight="Bold"
+                                    Background="#FFFF5722"
+                                    Foreground="White"
+                                    Command="{Binding ClearFilterCommand}"
+                                    ToolTip="Wyczyść filtr"/>
+
+                            <Button Grid.Column="4"
+                                    Content="🔄 Odśwież"
+                                    Width="100" Height="32"
+                                    FontSize="12"
+                                    FontWeight="Bold"
+                                    Background="#FF4CAF50"
+                                    Foreground="White"
+                                    Command="{Binding OdswiezCommand}"
+                                    ToolTip="Odśwież listę"/>
+                        </Grid>
+
+                        <Border Background="#FFFCFCFC"
+                                BorderBrush="#FF1976D2"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10,8"
+                                Margin="0,8,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                                    <Run Text="Liczba firm: " FontWeight="Bold" Foreground="#FF555555" FontSize="13"/>
+                                    <Run Text="{Binding LiczbaRekordow, Mode=OneWay}" FontWeight="Bold" Foreground="#FF2196F3" FontSize="16"/>
+                                </TextBlock>
+
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <Run Text="Suma: " FontWeight="Bold" Foreground="#FF555555" FontSize="13"/>
+                                    <Run Text="{Binding SumaWartosciWyfiltrowychFormatted, Mode=OneWay}"
+                                         FontWeight="Bold"
+                                         Foreground="#FF4CAF50"
+                                         FontSize="18"/>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding NiezafakturowaneBadania}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              GridLinesVisibility="Horizontal"
+                              CanUserResizeRows="False"
+                              FontSize="13"
+                              RowHeight="35"
+                              AlternatingRowBackground="#FFF9F9F9"
+                              BorderBrush="#FF1976D2"
+                              BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nazwa Firmy" Binding="{Binding NazwaFirmy}" Width="*" MinWidth="150"/>
+                            <DataGridTextColumn Header="Liczba badań" Binding="{Binding LiczbaBadan}" Width="Auto"/>
+                            <DataGridTextColumn Header="Suma wartości" Binding="{Binding SumaWartosciFormatted}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- KOLUMNA 2: Statystyki miesięczne -->
+            <Border Grid.Column="2"
+                    BorderBrush="#FF1976D2"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Background="White"
+                    Padding="10" Height="515"
+                    Visibility="{Binding IsStatystykiVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="📊 Statystyki Miesięczne"
+                                   FontSize="16" FontWeight="Bold" Foreground="#FF1976D2"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding DostepneRoki}"
+                                  SelectedItem="{Binding WybranyRok}"
+                                  Width="90"/>
+                    </Grid>
+
+                    <DataGrid Grid.Row="1"
+                              ItemsSource="{Binding StatystykiMiesieczne}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              SelectionMode="Single"
+                              GridLinesVisibility="Horizontal"
+                              FontSize="12"
+                              RowHeight="30"
+                              AlternatingRowBackground="#FFF9F9F9"
+                              BorderBrush="#FF1976D2"
+                              BorderThickness="1">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Miesiąc" Binding="{Binding MiesiacNazwa}" Width="Auto"/>
+                            <DataGridTextColumn Header="Skier." Binding="{Binding LiczbaSkierowan}" Width="Auto"/>
+                            <DataGridTextColumn Header="Bad." Binding="{Binding BadaniaOdbyte}" Width="Auto"/>
+                            <DataGridTextColumn Header="Wiz." Binding="{Binding WizytyZarejestrowane}" Width="Auto"/>
+                            <DataGridTextColumn Header="Wartość" Binding="{Binding WartoscBadan, StringFormat={}{0:N2} zł}" Width="Auto"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Grid Grid.Row="2" DataContext="{Binding StatystykiPodsumowanie}" Margin="0,8,0,0">
+                        <TextBlock FontWeight="Bold">
+                            <Run Text="RAZEM: "/>
+                            <Run Text="{Binding LiczbaSkierowan, Mode=OneWay}"/>
+                            <Run Text=" skier., "/>
+                            <Run Text="{Binding BadaniaOdbyte, Mode=OneWay}"/>
+                            <Run Text=" bad., "/>
+                            <Run Text="{Binding WizytyZarejestrowane, Mode=OneWay}"/>
+                            <Run Text=" wiz., "/>
+                            <Run Text="{Binding WartoscBadan, Mode=OneWay, StringFormat={}{0:N2} zł}"/>
+                        </TextBlock>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- KOLUMNA 3: Wykres miesięczny -->
+            <Border Grid.Column="4"
+                    BorderBrush="#FF1976D2"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Background="White"
+                    Padding="10" Height="515">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="📈 Wykres Miesięczny"
+                                   FontSize="16" FontWeight="Bold" Foreground="#FF1976D2"/>
+                        <Button Grid.Column="1"
+                                Command="{Binding ToggleStatystykiCommand}"
+                                Width="150" Height="28"
+                                Content="Pokaż/Ukryj Statystyki"
+                                ToolTip="Pokaż/Ukryj kolumnę statystyk"/>
+                    </Grid>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                        <RadioButton Content="Liniowy" IsChecked="{Binding IsLineChart}" Margin="0,0,10,0"/>
+                        <RadioButton Content="Słupkowy" IsChecked="{Binding IsColumnChart, Mode=OneWay}" Command="{Binding SetColumnChartCommand}" Margin="0,0,20,0"/>
+                        <CheckBox Content="Skierowania" IsChecked="{Binding WykresKartyVisible}" Margin="0,0,10,0"/>
+                        <CheckBox Content="Badania" IsChecked="{Binding WykresBadanVisible}" Margin="0,0,10,0"/>
+                        <CheckBox Content="Wizyty" IsChecked="{Binding WykresWizytVisible}" Margin="0,0,10,0"/>
+                        <CheckBox Content="Wartość" IsChecked="{Binding WykresWartosciVisible}"/>
+                    </StackPanel>
+
+                    <syncfusion:SfChart Grid.Row="2">
+                        <syncfusion:SfChart.PrimaryAxis>
+                            <syncfusion:CategoryAxis/>
+                        </syncfusion:SfChart.PrimaryAxis>
+                        <syncfusion:SfChart.SecondaryAxis>
+                            <syncfusion:NumericalAxis/>
+                        </syncfusion:SfChart.SecondaryAxis>
+
+                        <syncfusion:LineSeries ItemsSource="{Binding StatystykiMiesieczne}"
+                                                XBindingPath="MiesiacNazwa" YBindingPath="LiczbaSkierowan"
+                                                Label="Skierowania"
+                                                Visibility="{Binding DataContext.WykresKartyVisible, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <syncfusion:LineSeries ItemsSource="{Binding StatystykiMiesieczne}"
+                                                XBindingPath="MiesiacNazwa" YBindingPath="BadaniaOdbyte"
+                                                Label="Badania"
+                                                Visibility="{Binding DataContext.WykresBadanVisible, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <syncfusion:LineSeries ItemsSource="{Binding StatystykiMiesieczne}"
+                                                XBindingPath="MiesiacNazwa" YBindingPath="WizytyZarejestrowane"
+                                                Label="Wizyty"
+                                                Visibility="{Binding DataContext.WykresWizytVisible, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <syncfusion:LineSeries ItemsSource="{Binding StatystykiMiesieczneSkalowane}"
+                                                XBindingPath="MiesiacNazwa" YBindingPath="WartoscBadanSkalowana"
+                                                Label="Wartość [zł]"
+                                                Visibility="{Binding DataContext.WykresWartosciVisible, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </syncfusion:SfChart>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

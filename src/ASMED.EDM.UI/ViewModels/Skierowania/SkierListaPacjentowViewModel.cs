@@ -1,9 +1,20 @@
+extern alias PdfWpf;
+extern alias XlsWpf;
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.Printing.Services;
 using ASMED.EDM.UI.Models;
 using ASMED.EDM.UI.Views.Skierowania;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Windows.Input;
+using PdfWpf::Syncfusion.Pdf;
+using PdfWpf::Syncfusion.Pdf.Graphics;
+using XlsWpf::Syncfusion.XlsIO;
+using Microsoft.Win32;
 
 namespace ASMED.EDM.UI.ViewModels.Skierowania;
 
@@ -20,7 +31,183 @@ public class SkierListaPacjentowViewModel : ViewModelBase
     public ObservableCollection<PacjentSkier> Pacjenci { get; } = new();
     public ObservableCollection<PacjentSkier> PacjenciFiltered { get; } = new();
 
-    // ─── Filtry ─────────────────────────────────────────────────────────────
+    public void PrintList(System.Collections.Generic.IEnumerable<PacjentSkier>? visibleItems = null)
+    {
+        try
+        {
+            var pacjenci = (visibleItems ?? PacjenciFiltered).ToList();
+
+            var tempPath = Path.Combine(Path.GetTempPath(), $"Lista_pacjentow_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
+
+            using (var document = new PdfDocument())
+            {
+                document.PageSettings.Orientation = PdfPageOrientation.Portrait;
+                var page = document.Pages.Add();
+                var g = page.Graphics;
+                float pageWidth = page.GetClientSize().Width;
+
+                PdfFont titleFont;
+                PdfFont headerFont;
+                PdfFont normalFont;
+
+                var arialPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf");
+                try
+                {
+                    if (File.Exists(arialPath))
+                    {
+                        titleFont = new PdfTrueTypeFont(new Font("Arial", 14f, System.Drawing.FontStyle.Bold), true);
+                        headerFont = new PdfTrueTypeFont(new Font("Arial", 9f, System.Drawing.FontStyle.Bold), true);
+                        normalFont = new PdfTrueTypeFont(new Font("Arial", 8f, System.Drawing.FontStyle.Regular), true);
+                    }
+                    else
+                    {
+                        titleFont = new PdfStandardFont(PdfFontFamily.Helvetica, 14, PdfFontStyle.Bold);
+                        headerFont = new PdfStandardFont(PdfFontFamily.Helvetica, 9, PdfFontStyle.Bold);
+                        normalFont = new PdfStandardFont(PdfFontFamily.Helvetica, 8);
+                    }
+                }
+                catch
+                {
+                    titleFont = new PdfStandardFont(PdfFontFamily.Helvetica, 14, PdfFontStyle.Bold);
+                    headerFont = new PdfStandardFont(PdfFontFamily.Helvetica, 9, PdfFontStyle.Bold);
+                    normalFont = new PdfStandardFont(PdfFontFamily.Helvetica, 8);
+                }
+
+                const string documentName = "Lista pacjentów";
+                float y = 10f;
+
+                // Nagłówek: nazwa wydruku + ilość rekordów
+                g.DrawString(documentName, titleFont, PdfBrushes.Black, new RectangleF(0, y, pageWidth, 20f));
+                y += 20f;
+                g.DrawString($"Liczba rekordów: {pacjenci.Count}", normalFont, PdfBrushes.Gray, new RectangleF(0, y, pageWidth, 16f));
+                y += 20f;
+
+                g.DrawLine(new PdfPen(PdfBrushes.LightGray, 0.5f), 0, y, pageWidth, y);
+                y += 8f;
+
+                // Kolumny: ID | Imię | Nazwisko | PESEL | Firma | Data do
+                float[] colWidths = { 40f, 90f, 90f, 80f, 140f, 70f };
+                string[] headers = { "ID", "Imię", "Nazwisko", "PESEL", "Firma", "Data do" };
+
+                void DrawRow(string[] values, PdfFont font, PdfBrush brush)
+                {
+                    float x = 0f;
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        g.DrawString(values[i] ?? string.Empty, font, brush, new RectangleF(x, y, colWidths[i], 14f));
+                        x += colWidths[i];
+                    }
+                    y += 14f;
+                }
+
+                DrawRow(headers, headerFont, PdfBrushes.Black);
+                g.DrawLine(new PdfPen(PdfBrushes.LightGray, 0.5f), 0, y, pageWidth, y);
+                y += 2f;
+
+                foreach (var p in pacjenci)
+                {
+                    if (y > page.GetClientSize().Height - 20f)
+                    {
+                        page = document.Pages.Add();
+                        g = page.Graphics;
+                        y = 10f;
+                    }
+
+                    var firma = p.Company ?? string.Empty;
+                    if (firma.Length > 30)
+                        firma = firma.Substring(0, 30) + "...";
+
+                    DrawRow(new[]
+                    {
+                        p.P_ID.ToString(),
+                        p.FirstName,
+                        p.LastName,
+                        p.PESEL,
+                        firma,
+                        p.BadWazneDo?.ToString("yyyy-MM-dd") ?? string.Empty
+                    }, normalFont, PdfBrushes.Black);
+                }
+
+                document.Save(tempPath);
+            }
+
+            var printService = new PrintService();
+            printService.PrintPdfWithDefaults(tempPath);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Błąd podczas generowania wydruku:\n\n{ex.Message}",
+                "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    public void ExportToExcel(System.Collections.Generic.IEnumerable<PacjentSkier>? visibleItems = null)
+    {
+        try
+        {
+            var pacjenci = (visibleItems ?? PacjenciFiltered).ToList();
+
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "Plik Excel (*.xlsx)|*.xlsx",
+                FileName = $"Lista_pacjentow_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx"
+            };
+
+            if (saveDialog.ShowDialog() != true)
+                return;
+
+            using var excelEngine = new ExcelEngine();
+            var application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+            var workbook = application.Workbooks.Create(1);
+            var sheet = workbook.Worksheets[0];
+            sheet.Name = "Lista pacjentów";
+
+            // Nagłówek: nazwa wydruku + ilość rekordów
+            sheet.Range["A1"].Text = "Lista pacjentów";
+            sheet.Range["A1"].CellStyle.Font.Bold = true;
+            sheet.Range["A1"].CellStyle.Font.Size = 14;
+
+            sheet.Range["A2"].Text = $"Liczba rekordów: {pacjenci.Count}";
+            sheet.Range["A2"].CellStyle.Font.Italic = true;
+
+            // Nagłówki kolumn
+            string[] headers = { "ID", "Imię", "Nazwisko", "PESEL", "Firma", "Data do" };
+            int headerRow = 4;
+            for (int col = 0; col < headers.Length; col++)
+            {
+                var cell = sheet.Range[headerRow, col + 1];
+                cell.Text = headers[col];
+                cell.CellStyle.Font.Bold = true;
+            }
+
+            int row = headerRow + 1;
+            foreach (var p in pacjenci)
+            {
+                sheet.Range[row, 1].Number = p.P_ID;
+                sheet.Range[row, 2].Text = p.FirstName;
+                sheet.Range[row, 3].Text = p.LastName;
+                sheet.Range[row, 4].Text = p.PESEL;
+                sheet.Range[row, 5].Text = p.Company ?? string.Empty; // pełna, nieobcięta nazwa
+                sheet.Range[row, 6].Text = p.BadWazneDo?.ToString("yyyy-MM-dd") ?? string.Empty;
+                row++;
+            }
+
+            sheet.UsedRange.AutofitColumns();
+
+            workbook.SaveAs(saveDialog.FileName);
+
+            System.Windows.MessageBox.Show("Eksport do Excela zakończony pomyślnie.",
+                "Eksport", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show($"Błąd podczas eksportu do Excela:\n\n{ex.Message}",
+                "Błąd", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+        }
+    }
+
+    // ─── Filtry ─────────────────────────────────────────────────────────
 
     public List<string> FilterTypes { get; } = new() { "All", "Imię", "Nazwisko", "PESEL", "Firma" };
 
@@ -102,7 +289,13 @@ public class SkierListaPacjentowViewModel : ViewModelBase
                     P.P_Nazwisko,
                     P.P_PESEL,
                     P.P_Firma,
-                    COUNT(B.B_ID) AS LiczbaKartBadan
+                    COUNT(B.B_ID) AS LiczbaKartBadan,
+                    (
+                        SELECT MAX(Bad.Bad_Data_Do)
+                        FROM B_Skierowania BS
+                        LEFT JOIN Badanie Bad ON BS.B_ID = Bad.Bad_S_ID
+                        WHERE BS.B_Pacjent_ID = P.P_ID
+                    ) AS BadWazneDo
                 FROM
                     P_Pacjent AS P
                     LEFT JOIN B_Skierowania AS B ON P.P_ID = B.B_Pacjent_ID
@@ -123,7 +316,8 @@ public class SkierListaPacjentowViewModel : ViewModelBase
                     LastName      = reader["P_Nazwisko"]?.ToString() ?? string.Empty,
                     PESEL         = reader["P_PESEL"]?.ToString()    ?? string.Empty,
                     Company       = reader["P_Firma"]?.ToString()    ?? string.Empty,
-                    LiczbaKartBadan = Convert.ToInt32(reader["LiczbaKartBadan"])
+                    LiczbaKartBadan = Convert.ToInt32(reader["LiczbaKartBadan"]),
+                    BadWazneDo = reader["BadWazneDo"] == DBNull.Value ? null : Convert.ToDateTime(reader["BadWazneDo"])
                 });
             }
         }

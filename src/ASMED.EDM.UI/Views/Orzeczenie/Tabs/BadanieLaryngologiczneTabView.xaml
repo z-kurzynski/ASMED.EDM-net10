@@ -1,0 +1,221 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Syncfusion="http://schemas.syncfusion.com/wpf"
+             mc:Ignorable="d"
+             x:Class="ASMED.EDM.UI.Views.Orzeczenie.Tabs.BadanieLaryngologiczneTabView"
+             d:DesignHeight="620" d:DesignWidth="800">
+
+    <UserControl.Resources>
+
+        <!-- Chip bistabilny: zaznaczony = zielony (Prawidłowy / Nie / Wykonano) -->
+        <Style x:Key="ChipOkStyle" TargetType="{x:Type RadioButton}">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Border x:Name="chip" Background="#FF546E7A" CornerRadius="4"
+                                Padding="10,4" BorderThickness="2" BorderBrush="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FF2E7D32"/>
+                                <Setter TargetName="chip" Property="BorderBrush" Value="#FFA5D6A7"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FF455A64"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Chip bistabilny: zaznaczony = czerwony (Nieprawidłowy / Tak / Nie wykonano) -->
+        <Style x:Key="ChipNokStyle" TargetType="{x:Type RadioButton}">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Border x:Name="chip" Background="#FF546E7A" CornerRadius="4"
+                                Padding="10,4" BorderThickness="2" BorderBrush="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FFC62828"/>
+                                <Setter TargetName="chip" Property="BorderBrush" Value="#FFEF9A9A"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FF455A64"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Chip bistabilny: zaznaczony = niebieski (Wykonano) -->
+        <Style x:Key="ChipDoneStyle" TargetType="{x:Type RadioButton}">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type RadioButton}">
+                        <Border x:Name="chip" Background="#FF546E7A" CornerRadius="4"
+                                Padding="10,4" BorderThickness="2" BorderBrush="Transparent">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FF1565C0"/>
+                                <Setter TargetName="chip" Property="BorderBrush" Value="#FF90CAF9"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="chip" Property="Background" Value="#FF455A64"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Nagłówek + data badania -->
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="Badanie laryngologiczne"
+                       FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Data badania:" FontSize="12"
+                           VerticalAlignment="Center" Margin="0,0,6,0"
+                           Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"/>
+                <DatePicker x:Name="bad_Laryn_data" SelectedDate="{Binding LaryngDataBadania, Mode=TwoWay}" Width="130" FontSize="12"/>
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+
+                <!-- Status wykonania -->
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Status badania" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbLarStatus_Wykonano" Content="Wykonano"     GroupName="LarStatus" Style="{StaticResource ChipDoneStyle}" Width="102" IsChecked="True"/>
+                            <RadioButton x:Name="rbLarStatus_NieWykonano" Content="Nie wykonano" GroupName="LarStatus" Style="{StaticResource ChipNokStyle}" Width="102"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Karta VHI" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbVHI_Wypelniona" Content="Wypełniona"     GroupName="VHIStatus" Style="{StaticResource ChipDoneStyle}" Width="102"/>
+                            <RadioButton x:Name="rbVHI_Brak" Content="Brak" GroupName="VHIStatus" Style="{StaticResource ChipNokStyle}" IsChecked="True" Width="50"/>
+                            <TextBox x:Name="txtVHIOpis" TextWrapping="Wrap" Width="40" Margin="2,0,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Krtań" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbKrtan_Prawidlowa" Content="Prawidłowa"    GroupName="LarKrtan" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
+                            <RadioButton x:Name="rbKrtan_Nieprawidlowa" Content="Nieprawidłowa" GroupName="LarKrtan" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Nosogardło" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbNosogardlo_Prawidlowe" Content="Prawidłowe"    GroupName="LarNosogardlo" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
+                            <RadioButton x:Name="rbNosogardlo_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarNosogardlo" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Słuch" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbSluch_Prawidlowy" Content="Prawidłowy"    GroupName="LarSluch" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
+                            <RadioButton x:Name="rbSluch_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarSluch" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Błony bębenkowe" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbBbebenkowe_Prawidlowe" Content="Prawidłowe"    GroupName="LarBbebenkowe" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
+                            <RadioButton x:Name="rbBbebenkowe_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarBbebenkowe" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Równowaga" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbRownowaga_Prawidlowa" Content="Prawidłowa"    GroupName="LarRownowaga" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
+                            <RadioButton x:Name="rbRownowaga_Zaburzona" Content="Zaburzona"     GroupName="LarRownowaga" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <GroupBox Header="Przeciwwskazania do pracy głosem" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbGlos_Brak" Content="brak"    GroupName="Glos_Wynik" Style="{StaticResource ChipOkStyle}" Width="100" IsChecked="True"/>
+                            <RadioButton x:Name="rbGlos_Tak" Content="tak" GroupName="Glos_Wynik" Style="{StaticResource ChipNokStyle}" Width="100" Panel.ZIndex="-3"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Header="Wynik ogólny" Padding="8" Width="240">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton x:Name="rbWynik_Prawidlowy" Content="Prawidłowy"    GroupName="LarWynik" Style="{StaticResource ChipOkStyle}" IsChecked="True"/>
+                            <RadioButton x:Name="rbWynik_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarWynik" Style="{StaticResource ChipNokStyle}"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                </StackPanel>
+
+                <!-- Uwagi -->
+                <GroupBox Header="Uwagi / Opis" Padding="8">
+                    <TextBox x:Name="txtUwagi" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
+                             VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Syncfusion:ButtonAdv Grid.Column="0" Content="" Label="&#x2190; Wróć" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+                Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+                    Command="{Binding AnulujLaryngologCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+                <Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+                    Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

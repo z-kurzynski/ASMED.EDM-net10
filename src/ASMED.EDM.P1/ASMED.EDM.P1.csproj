@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
 	<ProjectReference Include="..\ASMED.EDM.Core\ASMED.EDM.Core.csproj" />
@@ -9,7 +9,6 @@
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.*" />
 	<PackageReference Include="Microsoft.Extensions.Options" Version="10.*" />
 	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.*" />
-	<PackageReference Include="Microsoft.Win32.Registry" Version="5.*" />
 	<PackageReference Include="System.Security.Cryptography.Xml" Version="10.*" />
   </ItemGroup>
 
@@ -23,8 +22,5 @@
 	<InternalsVisibleTo Include="ASMED.EDM.P1.Tests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Http\" />
-  </ItemGroup>
 
-</Project>
+  </Project>

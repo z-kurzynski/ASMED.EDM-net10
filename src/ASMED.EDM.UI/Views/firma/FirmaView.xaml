@@ -7,7 +7,7 @@
     xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
     xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
     syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManager ThemeName=Windows11Light}"
-    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100" Background="White">
+    Height="Auto" Width="Auto" VerticalAlignment="Top" MaxWidth="1800" MinWidth="1100">
 
     <UserControl.Resources>
         <Style x:Key="FirmaGridHeaderStyle" TargetType="{x:Type syncfusion:GridHeaderCellControl}">
@@ -29,9 +29,9 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Górny pasek: przyciski, wyszukiwanie -->
@@ -39,61 +39,19 @@
               Grid.Row="0"
               Margin="10,0,10,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="25"/>
-                <ColumnDefinition Width="485"/>
-                <ColumnDefinition Width="145"/>
-                <ColumnDefinition Width="190"/>
-                <ColumnDefinition Width="0*"/>
-                <ColumnDefinition Width="362"/>
-                <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <!-- Przyciski: Dodaj Firmę i Odśwież -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" Margin="0,0,0,1" HorizontalAlignment="Left" Width="280">
-                <syncfusion:ButtonAdv
-                        x:Name="btnOdswiez"
-                        Height="45"
-                        Label="🔄  Odśwież"
-                        Width="120"
-                        Background="#FF2196F3"
-                        Foreground="#FFFBFBFB"
-                        FontSize="14" 
-                        Margin="0,7,0,0" 
-                        IconHeight="14" 
-                        IconWidth="0"
-                        Command="{Binding OdswiezCommand}"
-                        ToolTip="Odśwież listę firm">
-                    <syncfusion:ButtonAdv.BorderBrush>
-                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                    </syncfusion:ButtonAdv.BorderBrush>
-                    <syncfusion:ButtonAdv.IconTemplate>
-                        <DataTemplate/>
-                    </syncfusion:ButtonAdv.IconTemplate>
-                </syncfusion:ButtonAdv>
-
-                <syncfusion:ButtonAdv
-                        x:Name="btnDodajFirme"
-                        Height="45"
-                        Label="➕  Dodaj Firmę"
-                        Width="150"
-                        Background="#FF009688"
-                        Foreground="#FFFBFBFB"
-                        FontSize="14" 
-                        Margin="8,7,10,0" 
-                        IconHeight="14" 
-                        IconWidth="0"
-                        Command="{Binding DodajFirmeCommand}">
-                    <syncfusion:ButtonAdv.BorderBrush>
-                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                    </syncfusion:ButtonAdv.BorderBrush>
-                    <syncfusion:ButtonAdv.IconTemplate>
-                        <DataTemplate/>
-                    </syncfusion:ButtonAdv.IconTemplate>
-                </syncfusion:ButtonAdv>
-            </StackPanel>
-
-            <!-- Pole wyszukiwania -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Height="46" HorizontalAlignment="Left" Width="450">
                 <TextBlock Text="Wyszukaj Fimę:" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
                 <DockPanel>
@@ -106,10 +64,47 @@
               ItemsSource="{Binding FilterTypes}" HorizontalAlignment="Left"/>
                 </DockPanel>
             </StackPanel>
-        </Grid>
+            <syncfusion:ButtonAdv
+                        x:Name="btnOdswiez"
+                        Label="🔄  Odśwież"
+                        Background="#FF2196F3"
+                        Foreground="#FFFBFBFB"
+                        FontSize="14" 
+                        IconHeight="14" 
+                        IconWidth="0"
+                        Command="{Binding OdswiezCommand}"
+                        ToolTip="Odśwież listę firm" Grid.Column="8" Width="220" Margin="5,5,0,5">
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
+            <syncfusion:ButtonAdv
+                        x:Name="btnDodajFirme"
+                        Label="➕  Dodaj Firmę"
+                        Background="#FF009688"
+                        Foreground="#FFFBFBFB"
+                        FontSize="14" 
+                        IconHeight="14" 
+                        IconWidth="0"
+                        Command="{Binding DodajFirmeCommand}" Margin="5,5,10,4" Grid.Column="9" Width="220">
+                <syncfusion:ButtonAdv.BorderBrush>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                </syncfusion:ButtonAdv.BorderBrush>
+                <syncfusion:ButtonAdv.IconTemplate>
+                    <DataTemplate/>
+                </syncfusion:ButtonAdv.IconTemplate>
+            </syncfusion:ButtonAdv>
 
-        <Grid Margin="10,10,15,0" Grid.Row="1" VerticalAlignment="Top">
-            <syncfusion:SfDataGrid
+            <!-- Przyciski: Dodaj Firmę i Odśwież -->
+
+            <!-- Przyciski: Dodaj Firmę i Odśwież -->
+
+            <!-- Pole wyszukiwania -->
+        </Grid>
+        <syncfusion:SfDataGrid
                                     x:Name="FirmaGrid"
                                     ItemsSource="{Binding FilteredFirmy}"
                                     AutoGenerateColumns="False"
@@ -123,18 +118,13 @@
                                     EditTrigger="OnTap"
                                     SelectionUnit="Row"
                                     FontFamily="Arial Narrow"
-                                    MaxWidth="1500" MinWidth="1400"
                                     CurrentCellBorderBrush="{x:Null}" 
                                     OpacityMask="#FFFFFDFD" 
-                                    Height="565" 
-                                    HorizontalAlignment="Left" 
-                                    VerticalAlignment="Top" 
-                                    Width="1480" 
-                                    Margin="10,0,0,0">
+                                    Margin="10,0,0,0" Grid.Row="1" MinHeight="200">
 
-                <syncfusion:SfDataGrid.Columns>
-                    <syncfusion:GridTextColumn 
-                                    MappingName="id" 
+            <syncfusion:SfDataGrid.Columns>
+                <syncfusion:GridTextColumn 
+                                    MappingName="Id" 
                                     HeaderText="ID" 
                                     Width="30" 
                                     TextAlignment="Right" 
@@ -144,8 +134,8 @@
                                     AllowEditing="True" 
                                     AllowFiltering="False"
                                     IsReadOnly="True"/>
-                    <syncfusion:GridTextColumn 
-                                    MappingName="Cennik" 
+                <syncfusion:GridTextColumn 
+                                    MappingName="NazwaCennika" 
                                     HeaderText="Cennik" 
                                     Width="60" 
                                     TextAlignment="Left" 
@@ -156,8 +146,8 @@
                                     AllowFiltering="True"
                                     IsReadOnly="True" SetCellBoundToolTip="False"/>
 
-                    <!-- ✅ NOWE: Umowa Do -->
-                    <syncfusion:GridTextColumn 
+                <!-- ✅ NOWE: Umowa Do -->
+                <syncfusion:GridTextColumn 
                                     MappingName="UmowaDo" 
                                     HeaderText="Umowa do" 
                                     Width="80" 
@@ -167,21 +157,17 @@
                                     Padding="0,0,5,0" 
                                     AllowEditing="False" 
                                     AllowFiltering="True"
-                                    IsReadOnly="True">
-                        <syncfusion:GridTextColumn.ValueBinding>
-                            <Binding Path="UmowaDo" StringFormat="{}{0:dd.MM.yyyy}" TargetNullValue="-"/>
-                        </syncfusion:GridTextColumn.ValueBinding>
-                    </syncfusion:GridTextColumn>
+                                    IsReadOnly="True" ValueBinding="{Binding UmowaDo, StringFormat=\{0:dd.MM.yyyy\}, TargetNullValue=-}"/>
 
-                    <!-- ✅ NOWE: Czas Nieokreślony -->
-                    <syncfusion:GridCheckBoxColumn 
+                <!-- ✅ NOWE: Czas Nieokreślony -->
+                <syncfusion:GridCheckBoxColumn 
                                     MappingName="CzasNieokreslon" 
                                     HeaderText="Bezterminowa" 
                                     Width="30" 
                                     AllowEditing="False"
                                     IsReadOnly="True"/>
 
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="Nazwa"
                                     HeaderText="Nazwa" 
                                     TextWrapping="Wrap"
@@ -192,7 +178,7 @@
                                     AllowEditing="True" 
                                     AllowFiltering="True"
                                     IsReadOnly="True"/>
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="Miejscowosc" 
                                     HeaderText="Miejscowość" 
                                      Width="92" 
@@ -204,7 +190,7 @@
                                     AllowEditing="True" 
                                     AllowFiltering="True"
                                     IsReadOnly="True"/>
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="Ulica" 
                                     HeaderText="Ulica" 
                                     TextWrapping="Wrap"
@@ -216,7 +202,7 @@
                                     AllowEditing="True" 
                                     AllowFiltering="True"
                                     IsReadOnly="True"/>
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="NIP" 
                                     HeaderText="NIP" 
                                     Width="85"
@@ -229,7 +215,7 @@
                                     IsReadOnly="False" 
                                     TextTrimming="WordEllipsis"/>
 
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="Osoba_kontaktowa" 
                                     HeaderText="Osoba kontaktowa" 
                                     Width="150" 
@@ -243,7 +229,7 @@
                                     IsReadOnly="False" 
                                     TextTrimming="CharacterEllipsis"/>
 
-                    <syncfusion:GridTextColumn 
+                <syncfusion:GridTextColumn 
                                     MappingName="Telefon" 
                                     HeaderText="Telefon" 
                                     Width="95"
@@ -256,8 +242,8 @@
                                     IsReadOnly="False" 
                                     TextTrimming="CharacterEllipsis"/>
 
-                    <syncfusion:GridTextColumn 
-                                    MappingName="FKemail" 
+                <syncfusion:GridTextColumn 
+                                    MappingName="FkEmail" 
                                     HeaderText="FKemail" 
                                     Width="200" 
                                     TextWrapping="Wrap"
@@ -270,51 +256,49 @@
                                     IsReadOnly="False" 
                                     TextTrimming="CharacterEllipsis"/>
 
-                    <syncfusion:GridTemplateColumn HeaderText="Edycja" Width="50" ColumnSizer="Auto" AllowSorting="False" AllowFiltering="False">
-                        <syncfusion:GridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Width="45" Height="50" Background="#FF078247" BorderThickness="0" ToolTip="Edytuj firmę"
+                <syncfusion:GridTemplateColumn HeaderText="Edycja" Width="50" ColumnSizer="Auto" AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Width="45" Height="50" Background="#FF078247" BorderThickness="0" ToolTip="Edytuj firmę"
                                     Command="{Binding DataContext.EdytujFirmeCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
                                     CommandParameter="{Binding}">
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="✏️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </DataTemplate>
-                        </syncfusion:GridTemplateColumn.CellTemplate>
-                    </syncfusion:GridTemplateColumn>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock Text="✏️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
 
-                    <syncfusion:GridTemplateColumn HeaderText="Zapisz" Width="50" 
+                <syncfusion:GridTemplateColumn HeaderText="Zapisz" Width="50" 
                         AllowSorting="False" 
                         AllowFiltering="False">
-                        <syncfusion:GridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Height="45" Width="50" Background="#1976D2" Foreground="White" ToolTip="Zapisz zmiany"
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Height="45" Width="50" Background="#1976D2" Foreground="White" ToolTip="Zapisz zmiany"
                                     Command="{Binding DataContext.SaveFirmaCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
                                     CommandParameter="{Binding}">
-                                    <TextBlock Text="💾" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Button>
-                            </DataTemplate>
-                        </syncfusion:GridTemplateColumn.CellTemplate>
-                    </syncfusion:GridTemplateColumn>
+                                <TextBlock Text="💾" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
 
-                    <syncfusion:GridTemplateColumn HeaderText="Umowy" Width="50" 
+                <syncfusion:GridTemplateColumn HeaderText="Umowy" Width="50" 
                         AllowSorting="False" 
                         AllowFiltering="False">
-                        <syncfusion:GridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Height="45" Width="50" Background="#FF9C27B0" Foreground="White" ToolTip="Zarządzaj umowami firmy"
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Height="45" Width="50" Background="#FF9C27B0" Foreground="White" ToolTip="Zarządzaj umowami firmy"
                                     Command="{Binding DataContext.PokazUmowyCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
                                     CommandParameter="{Binding}">
-                                    <TextBlock Text="📄" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Button>
-                            </DataTemplate>
-                        </syncfusion:GridTemplateColumn.CellTemplate>
-                    </syncfusion:GridTemplateColumn>
-                </syncfusion:SfDataGrid.Columns>
+                                <TextBlock Text="📄" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+            </syncfusion:SfDataGrid.Columns>
 
-            </syncfusion:SfDataGrid>
-
-        </Grid>
+        </syncfusion:SfDataGrid>
     </Grid>
 </UserControl>

@@ -9,98 +9,97 @@ using Microsoft.Extensions.Options;
 namespace ASMED.EDM.P1.Cda;
 
 /// <summary>
-/// Podpisuje dokumenty XML (HL7 CDA) podpisem enveloped (XMLDSig / baza pod XAdES)
-/// certyfikatem placówki (pieczęć — certyfikat WSS z P1).
+/// Podpisuje dokumenty XML pieczątem placówki (certyfikat PKCS#12 / WSS).
+/// Używa standardowego podpisu XMLDSig (enveloped).
 /// </summary>
 public class XadesSigner
 {
     private readonly P1Settings _settings;
     private readonly ILogger<XadesSigner> _logger;
 
-    public XadesSigner(IOptions<P1Settings> settings, ILogger<XadesSigner> logger)
+    public XadesSigner(IOptions<P1Settings> options, ILogger<XadesSigner> logger)
     {
-        _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _settings = options.Value;
+        _logger   = logger;
     }
 
-    /// <summary>
-    /// Czy podpisywanie jest możliwe (skonfigurowany certyfikat WSS).
-    /// </summary>
+    /// <summary>Czy certyfikat WSS jest dostępny i plik istnieje.</summary>
     public bool CanSign =>
         !string.IsNullOrWhiteSpace(_settings.WssCertificatePath) &&
         File.Exists(_settings.WssCertificatePath);
 
     /// <summary>
-    /// Podpisuje dokument XML podpisem enveloped i zwraca podpisany dokument.
+    /// Podpisuje dokument XML i zwraca nowy XDocument z elementem Signature.
     /// </summary>
+    /// <exception cref="InvalidOperationException">Gdy certyfikat jest niedostępny.</exception>
     public XDocument Sign(XDocument document)
     {
-        ArgumentNullException.ThrowIfNull(document);
-
         if (!CanSign)
-            throw new InvalidOperationException("Brak skonfigurowanego certyfikatu WSS (P1Settings:WssCertificatePath).");
+            throw new InvalidOperationException(
+                $"Certyfikat WSS nie jest dostępny: {_settings.WssCertificatePath}");
 
-        using var certificate = new X509Certificate2(
+        var cert = X509CertificateLoader.LoadPkcs12FromFile(
             _settings.WssCertificatePath,
             _settings.WssCertificatePassword,
-            X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+            X509KeyStorageFlags.EphemeralKeySet);
 
-        if (!certificate.HasPrivateKey)
-            throw new InvalidOperationException("Certyfikat WSS nie zawiera klucza prywatnego.");
+        var xmlDoc = ToXmlDocument(document);
 
-        var xmlDoc = new XmlDocument { PreserveWhitespace = true };
-        using (var reader = document.CreateReader())
-        {
-            xmlDoc.Load(reader);
-        }
+        var signedXml = new SignedXml(xmlDoc);
+        signedXml.SigningKey = cert.GetRSAPrivateKey()
+            ?? throw new InvalidOperationException("Certyfikat nie zawiera klucza prywatnego RSA.");
 
-        var signedXml = new SignedXml(xmlDoc)
-        {
-            SigningKey = certificate.GetRSAPrivateKey()
-                ?? throw new InvalidOperationException("Certyfikat WSS nie zawiera klucza prywatnego RSA.")
-        };
-
-        var reference = new Reference { Uri = string.Empty };
+        var reference = new Reference { Uri = "" };
         reference.AddTransform(new XmlDsigEnvelopedSignatureTransform());
-        reference.AddTransform(new XmlDsigExcC14NTransform());
         signedXml.AddReference(reference);
 
         var keyInfo = new KeyInfo();
-        keyInfo.AddClause(new KeyInfoX509Data(certificate));
+        keyInfo.AddClause(new KeyInfoX509Data(cert));
         signedXml.KeyInfo = keyInfo;
 
         signedXml.ComputeSignature();
-        var signatureElement = signedXml.GetXml();
-        xmlDoc.DocumentElement!.AppendChild(xmlDoc.ImportNode(signatureElement, true));
+        xmlDoc.DocumentElement!.AppendChild(signedXml.GetXml());
 
-        _logger.LogInformation("Dokument podpisany certyfikatem placówki (thumbprint: {Thumbprint})", certificate.Thumbprint);
+        _logger.LogInformation("Dokument podpisany certyfikatem {Subject}", cert.Subject);
 
-        using var nodeReader = new XmlNodeReader(xmlDoc);
-        return XDocument.Load(nodeReader);
+        return ToXDocument(xmlDoc);
     }
 
     /// <summary>
-    /// Weryfikuje podpis enveloped dokumentu XML.
+    /// Weryfikuje podpis XMLDSig dokumentu.
     /// </summary>
     public bool Verify(XDocument document)
     {
-        ArgumentNullException.ThrowIfNull(document);
+        var xmlDoc = ToXmlDocument(document);
+        var sigNodes = xmlDoc.GetElementsByTagName("Signature", "http://www.w3.org/2000/09/xmldsig#");
+        if (sigNodes.Count == 0) return false;
 
-        var xmlDoc = new XmlDocument { PreserveWhitespace = true };
-        using (var reader = document.CreateReader())
+        try
         {
-            xmlDoc.Load(reader);
+            var signedXml = new SignedXml(xmlDoc);
+            signedXml.LoadXml((XmlElement)sigNodes[0]!);
+            return signedXml.CheckSignature();
         }
-
-        var signatureNode = xmlDoc.GetElementsByTagName("Signature", SignedXml.XmlDsigNamespaceUrl)
-            .OfType<XmlElement>()
-            .FirstOrDefault();
-
-        if (signatureNode is null)
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Weryfikacja podpisu nie powiodła się");
             return false;
+        }
+    }
 
-        var signedXml = new SignedXml(xmlDoc);
-        signedXml.LoadXml(signatureNode);
-        return signedXml.CheckSignature();
+    private static XmlDocument ToXmlDocument(XDocument xdoc)
+    {
+        var xmlDoc = new XmlDocument { PreserveWhitespace = true };
+        using var reader = xdoc.CreateReader();
+        xmlDoc.Load(reader);
+        return xmlDoc;
+    }
+
+    private static XDocument ToXDocument(XmlDocument xmlDoc)
+    {
+        using var ms = new MemoryStream();
+        xmlDoc.Save(ms);
+        ms.Seek(0, SeekOrigin.Begin);
+        return XDocument.Load(ms);
     }
 }

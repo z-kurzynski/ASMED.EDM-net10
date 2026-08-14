@@ -16,8 +16,11 @@ public interface IUnitOfWork : IDisposable
     IMedicalRecordRepository MedicalRecords { get; }
     IPrescriptionRepository Prescriptions { get; }
     IAuditLogRepository AuditLogs { get; }
+    ILoginHistoryRepository LoginHistories { get; }
     IRepository<EdmDocument> EdmDocuments { get; }
     IRepository<P1SyncLog> P1SyncLogs { get; }
+    IAppTabRepository AppTabs { get; }
+    IRolePermissionRepository RolePermissions { get; }
 
     // Moduł fakturowania
     IFirmaRepository Firmy { get; }
@@ -50,4 +53,9 @@ public interface IUnitOfWork : IDisposable
     /// Czyści ChangeTracker (odczepia wszystkie encje)
     /// </summary>
     void DetachAllEntities();
+
+    /// <summary>
+    /// Wykonuje operację w transakcji z obsługą strategii ponawiania (CreateExecutionStrategy)
+    /// </summary>
+    Task ExecuteInTransactionAsync(Func<Task> operation, CancellationToken cancellationToken = default);
 }

@@ -14,6 +14,11 @@ public class PacjentSkier
     public int LiczbaKartBadan { get; set; }
 
     /// <summary>
+    /// Najwyższa data ważności badania (MAX Bad_Data_Do) ze wszystkich skierowań pacjenta.
+    /// </summary>
+    public DateTime? BadWazneDo { get; set; }
+
+    /// <summary>
     /// Imię i nazwisko razem (pomocnicze do filtrowania)
     /// </summary>
     public string FullName => $"{FirstName} {LastName}".Trim();

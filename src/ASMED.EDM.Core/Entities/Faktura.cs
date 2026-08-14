@@ -18,8 +18,8 @@ public class Faktura : BaseEntity
     /// <summary>Kwota brutto faktury — Access: FK_Kwota</summary>
     public decimal? KwotaBrutto { get; set; }
 
-    /// <summary>Status faktury — Access: FK_Status</summary>
-    public FakturaStatus Status { get; set; } = FakturaStatus.Robocza;
+    /// <summary>Status faktury — Access: FK_Status (VARCHAR w bazie)</summary>
+    public string? Status { get; set; }
 
     /// <summary>Ścieżka do pliku PDF faktury — Access: FK_PDF</summary>
     public string? PdfPath { get; set; }

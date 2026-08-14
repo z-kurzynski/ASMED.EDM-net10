@@ -27,6 +27,10 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
         public ICommand RefreshFirmyCommand { get; }
         public ICommand DodajKarteBadanCommand { get; }
         public ICommand UsunPacjentaCommand { get; }
+        public ICommand CopyPacjentIdCommand { get; }
+
+        /// <summary>Ustawiany przez code-behind — otwiera formularz nowego pacjenta z wstępnie uzupełnionymi danymi.</summary>
+        public Action? NavigateCopyPacjent { get; set; }
 
         public SkierPacjentaEditViewModel(DbConnectionFactory dbFactory)
         {
@@ -38,6 +42,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
             RefreshFirmyCommand     = new RelayCommand(_ => LoadFirmyFromDb());
             DodajKarteBadanCommand  = new RelayCommand(_ => DodajKarteBadan(), _ => PacjentZapisany);
             UsunPacjentaCommand     = new RelayCommand(_ => UsunPacjenta(),    _ => PacjentZapisany);
+            CopyPacjentIdCommand    = new RelayCommand(_ => NavigateCopyPacjent?.Invoke());
 
             LoadAutoCompleteData();
             LoadFirmyFromDb();
@@ -422,11 +427,11 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                         INSERT INTO P_Pacjent
                             (P_Imie, P_Nazwisko, P_PESEL, P_brak, P_Plec,
                              P_data_urodzenia, P_zawod, P_Adres_ulica_numer,
-                             P_Ades_kod, P_Ades_miasto, P_Uwagi, P_Firma_id, P_email, P_telefon, P_activ)
+                             P_Ades_kod, P_Ades_miasto, P_Uwagi, P_Firma_id,P_firma, P_email, P_telefon, P_activ)
                         VALUES
                             (@imie, @nazwisko, @pesel, @brakPesel, @plec,
                              @dataUr, @zawod, @ulica,
-                             @kod, @miasto, @uwagi, @firmaId, @email, @telefon, 1)";
+                             @kod, @miasto, @uwagi, @firmaId, @firma, @email, @telefon, 1)";
                 }
                 else
                 {
@@ -439,6 +444,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                             P_Adres_ulica_numer = @ulica, P_Ades_kod = @kod,
                             P_Ades_miasto = @miasto, P_Uwagi = @uwagi,
                             P_Firma_id = @firmaId,
+                            P_firma = @firma,
                             P_email = @email, 
                             P_telefon = @telefon
                         WHERE P_ID = @id";
@@ -459,6 +465,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                 cmd.Parameters.AddWithValue("@firmaId",   WybranaFirma!.Id);
                 cmd.Parameters.AddWithValue("@email", Email.Trim());
                 cmd.Parameters.AddWithValue("@telefon", Telefon.Trim());
+                cmd.Parameters.AddWithValue("@firma", WybranaFirma?.Nazwa ?? string.Empty);
 
                 cmd.ExecuteNonQuery();
 

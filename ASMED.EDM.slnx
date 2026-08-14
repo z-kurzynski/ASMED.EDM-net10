@@ -4,6 +4,7 @@
     <Project Path="src/ASMED.EDM.Data/ASMED.EDM.Data.csproj" />
     <Project Path="src/ASMED.EDM.Migration/ASMED.EDM.Migration.csproj" />
     <Project Path="src/ASMED.EDM.P1/ASMED.EDM.P1.csproj" />
+    <Project Path="src/ASMED.EDM.Printing/ASMED.EDM.Printing.csproj" />
     <Project Path="src/ASMED.EDM.UI/ASMED.EDM.UI.csproj">
       <BuildDependency Project="src/ASMED.EDM.Migration/ASMED.EDM.Migration.csproj" />
       <BuildDependency Project="tests/ASMED.EDM.P1.Tests/ASMED.EDM.P1.Tests.csproj" />

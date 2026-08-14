@@ -3,12 +3,14 @@ using ASMED.EDM.Core.Configuration;
 using ASMED.EDM.Core.Helpers;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
+using System.Runtime.Versioning;
 
 namespace ASMED.EDM.Data.Services;
 
 /// <summary>
 /// Fabryka połączeń MySQL z obsługą Registry jako primary source + appsettings.json jako fallback.
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class DbConnectionFactory
 {
     private readonly IOptions<DatabaseSettings> _settings;

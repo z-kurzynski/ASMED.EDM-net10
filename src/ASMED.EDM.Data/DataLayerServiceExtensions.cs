@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Runtime.Versioning;
 
 namespace ASMED.EDM.Data;
 
@@ -21,6 +22,7 @@ public static class DataLayerServiceExtensions
     /// <summary>
     /// Rejestruje DbContext z MySQL i failover connection management
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public static IServiceCollection AddAsmedDatabase(
         this IServiceCollection services,
         IConfiguration configuration,
@@ -103,8 +105,15 @@ public static class DataLayerServiceExtensions
         // Rejestracja serwisu fakturowania
         services.AddScoped<IFakturaService, FakturaService>();
 
+        // Rejestracja serwisu uprawnie\u0144 do zak\u0142adek
+        services.AddScoped<IPermissionService, PermissionService>();
+
         // Rejestracja serwisu migracji
         services.AddSingleton<IMigrationService, MigrationService>();
+
+        // Rejestracja serwisu eksportu MySQL → Access
+        services.AddScoped<IAccessExportService, AccessExportService>();
+        services.AddSingleton<AccessAutoSyncService>();
 
         return services;
     }

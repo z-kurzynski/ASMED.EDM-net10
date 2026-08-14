@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 
 namespace ASMED.EDM.Core.Interfaces.Repositories;
@@ -12,6 +13,11 @@ public interface IBadanieRepository : IRepository<Badanie>
     /// Access: WHERE Bad_L_ID IS NULL OR Bad_L_ID = 0
     /// </summary>
     Task<IEnumerable<Badanie>> GetAvailableBadaniaAsync(int? firmaId = null, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Dapper — pełny JOIN Badanie + P_Pacjent + Firma → BadanieRowDto.
+    /// </summary>
+    Task<IEnumerable<BadanieRowDto>> GetAvailableBadaniaRowsAsync(int? firmaId = null, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Pobiera badania przypisane do wskazanej listy badań — Access: Bad_L_ID = ?

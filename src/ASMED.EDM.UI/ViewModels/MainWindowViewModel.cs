@@ -32,7 +32,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private string _currentDate = DateTime.Now.ToString("dd.MM.yyyy");
 
-    private string _consoleWrite;
+    private string _consoleWrite = string.Empty;
     private int _consoleProgress;
     private CancellationTokenSource? _consoleProgressCts;
 

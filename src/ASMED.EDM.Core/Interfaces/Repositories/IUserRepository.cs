@@ -15,7 +15,7 @@ public interface IUserRepository : IRepository<User>
     /// <summary>
     /// Pobiera użytkownika po email
     /// </summary>
-    Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<User?> GetByEmailAsync(string? email, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Pobiera użytkownika z powiązanym lekarzem (jeśli istnieje)

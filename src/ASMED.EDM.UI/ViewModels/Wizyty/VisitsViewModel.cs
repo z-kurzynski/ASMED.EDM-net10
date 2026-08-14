@@ -1,4 +1,5 @@
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -18,12 +19,14 @@ public partial class VisitsViewModel : ViewModelBase
 {
     private readonly ILogger<VisitsViewModel> _logger;
     private readonly DbConnectionFactory? _dbFactory;
+    private readonly INotificationService _notificationService;
     private bool _isLoadingDetails = false; // Flaga zapobiegająca rekurencji
 
-    public VisitsViewModel(ILogger<VisitsViewModel> logger, DbConnectionFactory? dbFactory = null)
+    public VisitsViewModel(ILogger<VisitsViewModel> logger, DbConnectionFactory? dbFactory = null, INotificationService? notificationService = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dbFactory = dbFactory;
+        _notificationService = notificationService ?? new NotificationService();
         _logger.LogInformation("VisitsViewModel initialized");
 
         // Zaladuj rejestracje (wizyty) z bazy MySQL
@@ -119,7 +122,7 @@ public partial class VisitsViewModel : ViewModelBase
 
     public VisitPatientItem? WybranyPacjent
     {
-        get => _selectedPacjent;
+        get => SelectedPacjent;
         set => SelectedPacjent = value;
     }
 
@@ -154,94 +157,75 @@ public partial class VisitsViewModel : ViewModelBase
 
     public bool BrakPESEL
     {
-        get => _brakPesel;
-        set
+        get => BrakPesel;
+        set => BrakPesel = value;
+    }
+
+    // IsGroupW nowe metody do grupowania wizyt w widoku kalendarza (Syncfusion SfScheduler)
+
+    // Typ badania W/O/K
+    private bool _isGroupW = true;
+    public bool IsGroupW { get => _isGroupW; set { SetProperty(ref _isGroupW, value); UpdateTestType(); } }
+
+    private bool _isGroupO;
+    public bool IsGroupO { get => _isGroupO; set { SetProperty(ref _isGroupO, value); UpdateTestType(); } }
+
+    private bool _isGroupK;
+    public bool IsGroupK { get => _isGroupK; set { SetProperty(ref _isGroupK, value); UpdateTestType(); } }
+
+    private bool _isGroupS;
+    public bool IsGroupS { get => _isGroupS; set { SetProperty(ref _isGroupS, value); UpdateTestType(); } }
+
+    private bool _isGroupU;
+    public bool IsGroupU { get => _isGroupU; set { SetProperty(ref _isGroupU, value); UpdateTestType(); } }
+
+    /// <summary>
+    /// Aktualizuje TestType oraz zapisuje wybrany typ badania bezpośrednio do SelectedPacjent.B_TypBadania
+    /// (pole tekstowe ToolTip="Wybrany typ badania" jest bindowane właśnie do tej właściwości modelu).
+    /// </summary>
+    private void UpdateTestType()
+    {
+        TestType = IsGroupW ? "W" : IsGroupO ? "O" : IsGroupS ? "S" : IsGroupK ? "K" : IsGroupU ? "U" : string.Empty;
+
+        if (SelectedPacjent != null && SelectedPacjent.B_TypBadania != TestType)
         {
-            if (_brakPesel == value) return;
-            _brakPesel = value;
-            OnPropertyChanged();
+            SelectedPacjent.B_TypBadania = TestType;
+            // VisitPatientItem nie implementuje INotifyPropertyChanged, więc wymuszamy odświeżenie
+            // powiązanego z nim bindowania (np. TextBox Text="{Binding SelectedPacjent.B_TypBadania}").
+            OnPropertyChanged(nameof(SelectedPacjent));
         }
     }
 
-    #region Pomocnicze właściwości dla RadioButton Typ Badania
-
-    /// <summary>
-    /// Czy wybrano "W" (Wstępne) dla Typ Badania
-    /// </summary>
-    public bool IsTypBadaniaWstepne
+    private string _testType = "W";
+    public string TestType
     {
-        get => SelectedPacjent?.B_TypBadania == "W";
-        set
-        {
-            if (value && SelectedPacjent != null)
-            {
-                SelectedPacjent.B_TypBadania = "W";
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsTypBadaniaPeriodyczne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolneOkresowe));
-            }
-        }
-    }
-
-    /// <summary>
-    /// Czy wybrano "O" (Okresowe/Badania Kontrolne) dla Typ Badania
-    /// </summary>
-    public bool IsTypBadaniaPeriodyczne
-    {
-        get => SelectedPacjent?.B_TypBadania == "O";
-        set
-        {
-            if (value && SelectedPacjent != null)
-            {
-                SelectedPacjent.B_TypBadania = "O";
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsTypBadaniaWstepne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolneOkresowe));
-            }
-        }
+        get => _testType;
+        set => SetProperty(ref _testType, value);
     }
 
     /// <summary>
-    /// Czy wybrano "K" (Kontrolne) dla Typ Badania
+    /// Synchronizuje stan radiobuttonów W/O/K/S/U z wartością SelectedPacjent.B_TypBadania.
+    /// Wywoływane po zmianie/wczytaniu wybranego pacjenta, aby radiobutton odzwierciedlał zapisane dane.
     /// </summary>
-    public bool IsTypBadaniaKontrolne
+    private void SyncTypBadaniaGroupsFromSelectedPacjent()
     {
-        get => SelectedPacjent?.B_TypBadania == "K";
-        set
-        {
-            if (value && SelectedPacjent != null)
-            {
-                SelectedPacjent.B_TypBadania = "K";
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsTypBadaniaWstepne));
-                OnPropertyChanged(nameof(IsTypBadaniaPeriodyczne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolneOkresowe));
-            }
-        }
-    }
+        var typ = SelectedPacjent?.B_TypBadania;
 
-    /// <summary>
-    /// Czy wybrano "K/O" (Kontrolne/Okresowe) dla Typ Badania
-    /// </summary>
-    public bool IsTypBadaniaKontrolneOkresowe
-    {
-        get => SelectedPacjent?.B_TypBadania == "K/O";
-        set
-        {
-            if (value && SelectedPacjent != null)
-            {
-                SelectedPacjent.B_TypBadania = "K/O";
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsTypBadaniaWstepne));
-                OnPropertyChanged(nameof(IsTypBadaniaPeriodyczne));
-                OnPropertyChanged(nameof(IsTypBadaniaKontrolne));
-            }
-        }
-    }
+        _isGroupW = typ == "W";
+        _isGroupO = typ == "O";
+        _isGroupK = typ == "K" || typ == "K/O";
+        _isGroupS = typ == "S";
+        _isGroupU = typ == "U";
 
-    #endregion
+        OnPropertyChanged(nameof(IsGroupW));
+        OnPropertyChanged(nameof(IsGroupO));
+        OnPropertyChanged(nameof(IsGroupK));
+        OnPropertyChanged(nameof(IsGroupS));
+        OnPropertyChanged(nameof(IsGroupU));
+
+        _testType = typ ?? string.Empty;
+        OnPropertyChanged(nameof(TestType));
+    }
 
     public string SelectedDateFormatted =>
         SelectedDate?.ToString("dddd, dd MMMM yyyy", new CultureInfo("pl-PL")) ?? "Wybierz datę w kalendarzu";
@@ -256,23 +240,97 @@ public partial class VisitsViewModel : ViewModelBase
     [ObservableProperty]
     private DateTime? _dataBadaniaDoWydruku = DateTime.Today;
 
-    [RelayCommand]
-    private void PrintAll() { /* TODO: implementacja wydruku kompletu */ }
+    private readonly ASMED.EDM.Printing.Services.PatientFormPrintService _printService = new();
 
-    [RelayCommand]
-    private void PrintKarta() { /* TODO: implementacja wydruku karty */ }
+        /// <summary>
+        /// Mapuje aktualnie wybranego pacjenta (VisitPatientItem) na wspólny DTO drukowania (PatientPrintData).
+        /// </summary>
+        private ASMED.EDM.Printing.Models.PatientPrintData? MapSelectedPacjentToPrintData()
+        {
+            if (SelectedPacjent == null)
+                return null;
 
-    [RelayCommand]
-    private void PrintOrzeczenie() { /* TODO: implementacja wydruku orzeczenia x2 */ }
+            return new ASMED.EDM.Printing.Models.PatientPrintData
+            {
+                B_ID = SelectedPacjent.B_ID,
+                P_ID = SelectedPacjent.P_ID,
+                P_Imie = SelectedPacjent.P_Imie,
+                P_Nazwisko = SelectedPacjent.P_Nazwisko,
+                P_Pesel = SelectedPacjent.P_Pesel,
+                P_Plec = SelectedPacjent.P_Plec,
+                P_DataUrodzenia = SelectedPacjent.P_Data_Urodzenia,
+                P_Zawod = SelectedPacjent.P_Zawod,
+                P_AdresUlica = SelectedPacjent.P_AdresUlica,
+                P_AdresKod = SelectedPacjent.P_AdresKod,
+                P_AdresMiasto = SelectedPacjent.P_AdresMiasto,
+                Firma_Nazwa = SelectedPacjent.Firma_Nazwa,
+                Firma_Ulica = SelectedPacjent.Firma_Ulica,
+                Firma_Kod = SelectedPacjent.Firma_Kod,
+                Firma_Miejscowosc = SelectedPacjent.Firma_Miejscowosc,
+                Firma_Email = SelectedPacjent.Firma_Email,
+                B_DataSkierowania = SelectedPacjent.B_DataSkierowania,
+                B_TypBadania = SelectedPacjent.B_TypBadania,
+                B_Stanowisko = SelectedPacjent.B_Stanowisko,
+                B_RegistrationDate = SelectedPacjent.B_RegistrationDate,
+                B_CzynnikFizyczny = SelectedPacjent.B_CzynnikFizyczny,
+                B_CzynnikFizycznyOpis = SelectedPacjent.B_CzynnikFizycznyOpis,
+                B_CzynnikPylowy = SelectedPacjent.B_CzynnikPylowy,
+                B_CzynnikPylowyOpis = SelectedPacjent.B_CzynnikPylowyOpis,
+                B_CzynnikChemiczny = SelectedPacjent.B_CzynnikChemiczny,
+                B_CzynnikChemicznyOpis = SelectedPacjent.B_CzynnikChemicznyOpis,
+                B_CzynnikBiologiczny = SelectedPacjent.B_CzynnikBiologiczny,
+                B_CzynnikBiologicznyOpis = SelectedPacjent.B_CzynnikBiologicznyOpis,
+                B_CzynnikInny = SelectedPacjent.B_CzynnikInny,
+                B_CzynnikInnyOpis = SelectedPacjent.B_CzynnikInnyOpis,
+                SkierowanieNumer = SelectedPacjent.SkierowanieNumer,
+                DataBadaniaDoWydruku = DodajDateBadaniaDoWydruku ? DataBadaniaDoWydruku : null
+            };
+        }
 
-    [RelayCommand]
-    private void PrintSanitarne() { /* TODO: implementacja wydruku sanitarnego */ }
+        /// <summary>
+        /// Wspólna logika wydruku formularza pacjenta - wypełnia szablon i pokazuje podgląd PDF.
+        /// </summary>
+        private void PrintPatientForm(string templateFileName, string successMessage)
+        {
+            if (SelectedPacjent == null || !SelectedPacjent.B_ID.HasValue)
+            {
+                _notificationService.ShowToast("Wybierz pacjenta z listy aby wydrukować formularz.", ToastType.Warning);
+                return;
+            }
 
-    [RelayCommand]
-    private void PrintUrlop() { /* TODO: implementacja wydruku urlopowego */ }
+            var data = MapSelectedPacjentToPrintData();
+            if (data == null)
+                return;
 
-    [RelayCommand]
-    private void PrintAnkieta() { /* TODO: implementacja wydruku ankiety */ }
+            var result = _printService.ShowPreview(data, templateFileName, System.Windows.Application.Current.MainWindow);
+
+            if (result.Success)
+            {
+                _notificationService.ShowToast(successMessage, ToastType.Success);
+            }
+            else
+            {
+                _notificationService.ShowToast($"Błąd wydruku: {result.ErrorMessage}", ToastType.Error);
+            }
+        }
+
+        [RelayCommand]
+        private void PrintAll() => PrintPatientForm("ASMED__Karta badania Orzeczenie.pdf", "Wygenerowano Komplet formularzy");
+
+        [RelayCommand]
+        private void PrintKarta() => PrintPatientForm(ASMED.EDM.Printing.Services.PatientFormTemplates.Karta, "Wygenerowano Kartę badania");
+
+        [RelayCommand]
+        private void PrintOrzeczenie() => PrintPatientForm(ASMED.EDM.Printing.Services.PatientFormTemplates.Orzeczenie, "Wygenerowano Orzeczenie");
+
+        [RelayCommand]
+        private void PrintSanitarne() => PrintPatientForm(ASMED.EDM.Printing.Services.PatientFormTemplates.Sanitarne, "Wygenerowano książeczkę sanitarną");
+
+        [RelayCommand]
+        private void PrintUrlop() { /* TODO: implementacja wydruku urlopowego */ }
+
+        [RelayCommand]
+        private void PrintAnkieta() => PrintPatientForm(ASMED.EDM.Printing.Services.PatientFormTemplates.Ankieta, "Wygenerowano Ankietę");
 
     #endregion
 
@@ -409,6 +467,7 @@ public partial class VisitsViewModel : ViewModelBase
         if (SelectedPacjent == null)
         {
             _logger.LogWarning("Save requested but no SelectedPacjent is set");
+            _notificationService.ShowToast("Brak wybranego pacjenta do zapisu.", ToastType.Warning);
             return;
         }
 
@@ -418,8 +477,12 @@ public partial class VisitsViewModel : ViewModelBase
             if (_dbFactory == null)
             {
                 _logger.LogWarning("Cannot save - DbConnectionFactory not available");
+                _notificationService.ShowToast("Nie można zapisać - brak połączenia z bazą danych.", ToastType.Error);
                 return;
             }
+
+            var imie = SelectedPacjent.P_Imie ?? string.Empty;
+            var nazwisko = SelectedPacjent.P_Nazwisko ?? string.Empty;
 
             using var conn = _dbFactory.CreateConnection();
             await conn.OpenAsync();
@@ -434,7 +497,7 @@ public partial class VisitsViewModel : ViewModelBase
                     P_telefon = @telefon,
                     P_email = @email,
                     P_plec = @plec,
-                    P_DataUrodzenia = @dataUrodzenia,
+                    P_Data_Urodzenia = @dataUrodzenia,
                     P_zawod = @zawod,
                     P_Adres_ulica_numer = @adresUlica,
                     P_Ades_kod = @adresKod,
@@ -457,7 +520,7 @@ public partial class VisitsViewModel : ViewModelBase
             cmd.Parameters.AddWithValue("@telefon", SelectedPacjent.P_Telefon ?? string.Empty);
             cmd.Parameters.AddWithValue("@email", SelectedPacjent.P_Email ?? string.Empty);
             cmd.Parameters.AddWithValue("@plec", SelectedPacjent.P_Plec ?? string.Empty);
-            cmd.Parameters.AddWithValue("@dataUrodzenia", SelectedPacjent.P_DataUrodzenia is null ? (object)DBNull.Value : SelectedPacjent.P_DataUrodzenia);
+            cmd.Parameters.AddWithValue("@dataUrodzenia", SelectedPacjent.P_Data_Urodzenia is null ? (object)DBNull.Value : SelectedPacjent.P_Data_Urodzenia);
             cmd.Parameters.AddWithValue("@zawod", SelectedPacjent.P_Zawod ?? string.Empty);
             cmd.Parameters.AddWithValue("@adresUlica", SelectedPacjent.P_AdresUlica ?? string.Empty);
             cmd.Parameters.AddWithValue("@adresKod", SelectedPacjent.P_AdresKod ?? string.Empty);
@@ -467,14 +530,46 @@ public partial class VisitsViewModel : ViewModelBase
             var rows = await cmd.ExecuteNonQueryAsync();
             _logger.LogInformation("SaveSelectedPacjent updated rows: {Rows}", rows);
 
+            // Zaktualizuj dane skierowania (B_Skierowania), jeśli pacjent je posiada
+            if (SelectedPacjent.B_ID.HasValue)
+            {
+                using var skierowanieCmd = (MySqlCommand)conn.CreateCommand();
+                skierowanieCmd.CommandText = @"
+                    UPDATE B_Skierowania
+                    SET B_DataSkierowania = @dataSkierowania,
+                        B_TypBadania = @typBadania,
+                        B_Stanowisko = @stanowisko,
+                        B_ksiazeczka = @ksiazeczka,
+                        B_Zaswiadczenie = @zaswiadczenie
+                    WHERE B_ID = @bId";
+
+                skierowanieCmd.Parameters.AddWithValue("@dataSkierowania", SelectedPacjent.B_DataSkierowania is null ? (object)DBNull.Value : SelectedPacjent.B_DataSkierowania);
+                skierowanieCmd.Parameters.AddWithValue("@typBadania", SelectedPacjent.B_TypBadania ?? string.Empty);
+                skierowanieCmd.Parameters.AddWithValue("@stanowisko", SelectedPacjent.B_Stanowisko ?? string.Empty);
+                skierowanieCmd.Parameters.AddWithValue("@ksiazeczka", SelectedPacjent.B_Ksiazeczka is null ? (object)DBNull.Value : SelectedPacjent.B_Ksiazeczka.Value);
+                skierowanieCmd.Parameters.AddWithValue("@zaswiadczenie", SelectedPacjent.B_Zaswiadczenie is null ? (object)DBNull.Value : SelectedPacjent.B_Zaswiadczenie.Value);
+                skierowanieCmd.Parameters.AddWithValue("@bId", SelectedPacjent.B_ID.Value);
+
+                var skierowanieRows = await skierowanieCmd.ExecuteNonQueryAsync();
+                _logger.LogInformation("SaveSelectedPacjent updated B_Skierowania rows: {Rows}", skierowanieRows);
+
+                if (skierowanieRows == 0)
+                {
+                    _logger.LogWarning("Nie zaktualizowano żadnego wiersza B_Skierowania dla B_ID={BId}", SelectedPacjent.B_ID);
+                    _notificationService.ShowToast("Dane pacjenta zapisano, ale nie udało się zaktualizować danych skierowania.", ToastType.Warning);
+                }
+            }
+
             // Refresh local collections to reflect saved changes
             LoadPacjenciNaDzien();
             OnPropertyChanged(nameof(FilteredPacjenciNaDzien));
             _logger.LogInformation("SaveSelectedPacjent completed");
+            _notificationService.ShowToast($"Dane pacjenta {imie} {nazwisko} zostały zapisane.", ToastType.Success);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error saving SelectedPacjent");
+            _notificationService.ShowToast($"Błąd zapisu: {ex.Message}", ToastType.Error);
         }
     }
 
@@ -535,6 +630,9 @@ public partial class VisitsViewModel : ViewModelBase
             ShowDetailsView = true;
             ShowStatsView = false;
             _logger.LogInformation("Selected patient: {Name}, switching to details view", value.FullName);
+
+            // Zsynchronizuj radiobuttony W/O/K/S/U z aktualnym B_TypBadania wybranego pacjenta
+            SyncTypBadaniaGroupsFromSelectedPacjent();
 
             // Załaduj pełne dane pacjenta i skierowania z DB po B_ID (jeśli dostępne)
             // Tylko jeśli nie jesteśmy już w trakcie ładowania (zapobiega rekurencji)
@@ -628,7 +726,7 @@ public partial class VisitsViewModel : ViewModelBase
                     P_Pesel = reader["P_pesel"]?.ToString(),
                     P_Brak = reader["P_brak"] != DBNull.Value && Convert.ToBoolean(reader["P_brak"]),
                     P_Plec = reader["P_plec"]?.ToString(),
-                    P_DataUrodzenia = reader["P_data_urodzenia"] != DBNull.Value ? Convert.ToDateTime(reader["P_data_urodzenia"]) : null,
+                    P_Data_Urodzenia = reader["P_data_urodzenia"] != DBNull.Value ? Convert.ToDateTime(reader["P_data_urodzenia"]) : null,
                     P_Zawod = reader["P_zawod"]?.ToString(),
                     P_Telefon = reader["P_telefon"]?.ToString(),
                     P_Email = reader["P_email"]?.ToString(),
@@ -679,7 +777,12 @@ public partial class VisitsViewModel : ViewModelBase
     /// Laduje wszystkie rejestracje (wizyty) z bazy MySQL i wypelnia scheduler.
     /// Legacy: AccessDbContext.GetRejestracje()
     /// </summary>
-    private void LoadAppointmentsFromDb()
+    /// <param name="silent">
+    /// Gdy true: dane s? scalane z istniej?c? kolekcj? FilteredPacjenciNaDzien (bez podmiany instancji),
+    /// dzi?ki czemu zachowywane s? zaznaczenie oraz pozycja przewijania listy w UI.
+    /// U?ywane przez cykliczne, ciche od?wie?anie (np. timer w wielostanowiskowym trybie pracy).
+    /// </param>
+    private void LoadAppointmentsFromDb(bool silent = false)
     {
         if (_dbFactory == null)
         {
@@ -808,13 +911,127 @@ public partial class VisitsViewModel : ViewModelBase
 
             Appointments = newAppointments;
             PacjenciNaDzien = newPacjenci;
-            FilterPacjenci();
+
+            if (silent)
+            {
+                MergeFilteredPacjenci();
+            }
+            else
+            {
+                FilterPacjenci();
+            }
 
             _logger.LogInformation("Loaded {Count} appointments from database", newAppointments.Count);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading appointments from database");
+        }
+    }
+
+    /// <summary>
+    /// Ciche od?wie?enie listy rejestracji (bez przeladowania calej zakladki).
+    /// Zachowuje zaznaczenie oraz pozycje przewijania w ListBox "lista_rejestracja".
+    /// Przeznaczone do wywolywania cyklicznie (np. z timera w code-behind), gdy widok ma fokus.
+    /// </summary>
+    public void RefreshSilent()
+    {
+        // Nie odswie?aj w trakcie edycji szczeg?l?w pacjenta ani gdy trwa juz inne ladowanie,
+        // aby nie przerywac u?ytkownikowi pracy.
+        if (_isLoadingDetails || ShowDetailsView)
+        {
+            return;
+        }
+
+        try
+        {
+            LoadAppointmentsFromDb(silent: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Silent refresh failed (non-critical)");
+        }
+    }
+
+    /// <summary>
+    /// Filtruje i sortuje PacjenciNaDzien tak samo jak FilterPacjenci, ale scala wynik
+    /// z istniej?c? kolekcj? FilteredPacjenciNaDzien "w miejscu" (bez podmiany instancji ObservableCollection),
+    /// dzi?ki czemu ListBox nie traci zaznaczenia ani pozycji scrolla.
+    /// </summary>
+    private void MergeFilteredPacjenci()
+    {
+        var previousSelectedId = SelectedPacjent?.R_ID;
+
+        var filtered = PacjenciNaDzien.AsEnumerable();
+
+        if (SelectedDate.HasValue)
+        {
+            filtered = filtered.Where(p => p.AppointmentDate.Date == SelectedDate.Value.Date);
+        }
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var fraza = SearchText.Trim();
+            filtered = filtered.Where(p =>
+                (p.FullName?.Contains(fraza, StringComparison.OrdinalIgnoreCase) ?? false)
+                || (p.P_Pesel != null && p.P_Pesel.Contains(fraza)));
+        }
+
+        var ordered = filtered
+            .OrderBy(p => GetStatusRank(p.R_Status))
+            .ThenBy(p => p.R_GG_MM.HasValue ? p.R_GG_MM.Value.TimeOfDay : TimeSpan.MaxValue)
+            .ToList();
+
+        // Usu? z widocznej kolekcji rekordy, kt?rych ju? nie ma w nowych danych
+        for (int i = FilteredPacjenciNaDzien.Count - 1; i >= 0; i--)
+        {
+            var existing = FilteredPacjenciNaDzien[i];
+            if (!ordered.Any(p => p.R_ID == existing.R_ID))
+            {
+                FilteredPacjenciNaDzien.RemoveAt(i);
+            }
+        }
+
+        // Zaktualizuj/dodaj rekordy zachowuj?c kolejno?? z "ordered"
+        for (int targetIndex = 0; targetIndex < ordered.Count; targetIndex++)
+        {
+            var newItem = ordered[targetIndex];
+            var currentIndex = -1;
+            for (int i = 0; i < FilteredPacjenciNaDzien.Count; i++)
+            {
+                if (FilteredPacjenciNaDzien[i].R_ID == newItem.R_ID)
+                {
+                    currentIndex = i;
+                    break;
+                }
+            }
+
+            if (currentIndex == -1)
+            {
+                // Nowy rekord - wstaw na wla?ciw? pozycj?
+                FilteredPacjenciNaDzien.Insert(Math.Min(targetIndex, FilteredPacjenciNaDzien.Count), newItem);
+            }
+            else
+            {
+                // Zaktualizuj dane rekordu (podmiana obiektu) i przenie? na wla?ciw? pozycje, je?li trzeba
+                if (currentIndex != targetIndex)
+                {
+                    FilteredPacjenciNaDzien.Move(currentIndex, Math.Min(targetIndex, FilteredPacjenciNaDzien.Count - 1));
+                }
+                FilteredPacjenciNaDzien[targetIndex] = newItem;
+            }
+        }
+
+        UpdateStatistics();
+
+        // Przywr??/zachowaj zaznaczenie po scaleniu danych
+        if (previousSelectedId.HasValue)
+        {
+            var match = FilteredPacjenciNaDzien.FirstOrDefault(p => p.R_ID == previousSelectedId);
+            if (match != null && !ReferenceEquals(SelectedPacjent, match))
+            {
+                SelectedPacjent = match;
+            }
         }
     }
 
@@ -864,12 +1081,15 @@ public partial class VisitsViewModel : ViewModelBase
         // wśród wszystkich rejestracji o statusie "rejestracja" i zaproponować przeniesienie do wybranej daty
         if (FilteredPacjenciNaDzien.Count == 0 && !string.IsNullOrWhiteSpace(SearchText) && SelectedDate.HasValue)
         {
-            TryOfferAddPatientToSelectedDate(SearchText.Trim());
+            // TryOfferAddPatientToSelectedDate(SearchText.Trim());
         }
     }
 
     private void TryOfferAddPatientToSelectedDate(string fraza)
     {
+        if (!SelectedDate.HasValue)
+            return;
+
         try
         {
             // Szukaj w pełnej liście rejestracji status == "rejestracja"
@@ -986,7 +1206,7 @@ public class VisitPatientItem
     public string? P_Email { get; set; }
     public string? P_Uwagi { get; set; }
     public string? P_Plec { get; set; }
-    public DateTime? P_DataUrodzenia { get; set; }
+    public DateTime? P_Data_Urodzenia { get; set; }
     public string? P_Zawod { get; set; }
     public string? P_AdresUlica { get; set; }
     public string? P_AdresKod { get; set; }
@@ -1068,11 +1288,14 @@ public class VisitPatientItem
     {
         get
         {
-            if (P_DataUrodzenia == null) return 0;
+            if (P_Data_Urodzenia == null) return 0;
             var today = DateTime.Today;
-            var age = today.Year - P_DataUrodzenia.Value.Year;
-            if (P_DataUrodzenia.Value.Date > today.AddYears(-age)) age--;
+            var age = today.Year - P_Data_Urodzenia.Value.Year;
+            if (P_Data_Urodzenia.Value.Date > today.AddYears(-age)) age--;
             return age;
         }
     }
+
+    public string? B_urlop { get; internal set; }
+
 }

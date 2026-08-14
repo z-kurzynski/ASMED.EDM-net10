@@ -2,39 +2,64 @@
 
 
   <ItemGroup>
+    <Compile Remove="Views\skierowanialistapacjentow\**" />
+    <Compile Remove="Views\skierowaniepacjentdodajview\**" />
+    <Compile Remove="Views\ustawienia\**" />
+    <EmbeddedResource Remove="Views\skierowanialistapacjentow\**" />
+    <EmbeddedResource Remove="Views\skierowaniepacjentdodajview\**" />
+    <EmbeddedResource Remove="Views\ustawienia\**" />
+    <None Remove="Views\skierowanialistapacjentow\**" />
+    <None Remove="Views\skierowaniepacjentdodajview\**" />
+    <None Remove="Views\ustawienia\**" />
+    <Page Remove="Views\skierowanialistapacjentow\**" />
+    <Page Remove="Views\skierowaniepacjentdodajview\**" />
+    <Page Remove="Views\ustawienia\**" />
+  </ItemGroup>
+
+
+  <ItemGroup>
     <Compile Remove="Views\badania\BadaniaListaView.xaml.cs" />
     <Compile Remove="Views\badania\badania_Edit_View.xaml.cs" />
+    <Compile Remove="Views\Orzeczenie\OrzeczenieView2.xaml.cs" />
   </ItemGroup>
 
 
   <ItemGroup>
     <Page Remove="Views\badania\BadaniaListaView.xaml" />
     <Page Remove="Views\badania\badania_Edit_View.xaml" />
+    <Page Remove="Views\Orzeczenie\OrzeczenieView2.xaml" />
   </ItemGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="..\ASMED.EDM.Data\ASMED.EDM.Data.csproj" />
     <ProjectReference Include="..\ASMED.EDM.Core\ASMED.EDM.Core.csproj" />
+    <ProjectReference Include="..\ASMED.EDM.Printing\ASMED.EDM.Printing.csproj" />
     <ProjectReference Include="..\ASMED.EDM.P1\ASMED.EDM.P1.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
+    <!-- Jawne zadeklarowanie pakietu, aby wykluczyć natywne assety iOS/macOS/Linux (zbyt długie ścieżki w ClickOnce) -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" ExcludeAssets="native" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2526" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
-    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.2.3" />
-    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.2.3" />
-    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.2.3" />
-    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.2.3" />
-    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.2.3" />
+    <PackageReference Include="Syncfusion.DocumentSDK.AI.AgentTools" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.Pdf.Wpf" Version="34.2.8" Aliases="PdfWpf" />
+    <PackageReference Include="Syncfusion.XlsIO.Wpf" Version="34.2.8" Aliases="XlsWpf" />
+    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.SfChart.WPF" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.2.8" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.2.8" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -46,7 +71,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyTitle>Asmed EDM</AssemblyTitle>
     <ApplicationIcon>Assets\ikona.ico</ApplicationIcon>
-    <PackageIcon></PackageIcon>
+    <PackageIcon>Assets\GalleryViewImages\</PackageIcon>
     <IsPublishable>true</IsPublishable>
   </PropertyGroup>
 
@@ -68,12 +93,8 @@
     <!-- Empty placeholder folders (only those that are truly empty) -->
     <Folder Include="Views\firma\" />
     <Folder Include="Views\Import-Export\" />
-    <Folder Include="Views\skierowanialistapacjentow\" />
-    <Folder Include="Views\skierowaniepacjentdodajview\" />
-    <Folder Include="Views\ustawienia\" />
     <Folder Include="Views\wz_template\" />
     <Folder Include="ViewModels\Dialogs\" />
-    <Folder Include="ViewModels\faktura\" />
     <Folder Include="ViewModels\firma\" />
     <Folder Include="ViewModels\Import-Export\" />
     <Folder Include="ViewModels\lista_do_faktur\" />
@@ -81,11 +102,36 @@
     <Folder Include="ViewModels\raporty\" />
   </ItemGroup>
 
+
   <ItemGroup>
     <None Update="Assets\ikona.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+  <!-- Wyklucz natywne pliki iOS/macOS/Linux z publikacji ClickOnce (ścieżki przekraczają 260 znaków) -->
+  <Target Name="RemoveNonWindowsOnnxRuntimes" BeforeTargets="_DeploymentComputeNativeManifestInfo;GenerateDeploymentManifest">
+    <ItemGroup>
+      <_DeploymentFilesWithTargetPath Remove="@(_DeploymentFilesWithTargetPath)" Condition="$([System.String]::Copy('%(_DeploymentFilesWithTargetPath.Identity)').Contains('\ios\'))" />
+      <_DeploymentFilesWithTargetPath Remove="@(_DeploymentFilesWithTargetPath)" Condition="$([System.String]::Copy('%(_DeploymentFilesWithTargetPath.Identity)').Contains('\android\'))" />
+      <_DeploymentFilesWithTargetPath Remove="@(_DeploymentFilesWithTargetPath)" Condition="$([System.String]::Copy('%(_DeploymentFilesWithTargetPath.Identity)').Contains('\osx\'))" />
+      <_DeploymentFilesWithTargetPath Remove="@(_DeploymentFilesWithTargetPath)" Condition="$([System.String]::Copy('%(_DeploymentFilesWithTargetPath.Identity)').Contains('\linux\'))" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="$([System.String]::Copy('%(ContentWithTargetPath.Identity)').Contains('\ios\'))" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="$([System.String]::Copy('%(ContentWithTargetPath.Identity)').Contains('\android\'))" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="$([System.String]::Copy('%(ContentWithTargetPath.Identity)').Contains('\osx\'))" />
+      <ContentWithTargetPath Remove="@(ContentWithTargetPath)" Condition="$([System.String]::Copy('%(ContentWithTargetPath.Identity)').Contains('\linux\'))" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Wyklucz natywne pliki iOS/macOS/Linux z kopiowania do katalogu wyjściowego -->
+  <Target Name="RemoveNonWindowsOnnxRuntimesFromCopy" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.DestinationSubDirectory)').Contains('ios\'))" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.DestinationSubDirectory)').Contains('android\'))" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.DestinationSubDirectory)').Contains('osx\'))" />
+      <ReferenceCopyLocalPaths Remove="@(ReferenceCopyLocalPaths)" Condition="$([System.String]::Copy('%(ReferenceCopyLocalPaths.DestinationSubDirectory)').Contains('linux\'))" />
+    </ItemGroup>
+  </Target>
 
 </Project>

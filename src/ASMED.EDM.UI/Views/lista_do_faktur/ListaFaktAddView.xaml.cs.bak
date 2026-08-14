@@ -1,0 +1,135 @@
+﻿using ASMED.EDM.Core.DTOs;
+using ASMED.EDM.UI.Models.ListaDoFaktur;
+using ASMED.EDM.UI.ViewModels.ListaDoFaktur;
+using ASMED.EDM.UI.ViewModels.Skierowania;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+
+namespace ASMED.EDM.UI.Views.lista_do_faktur
+{
+    public partial class ListaFaktAddView : UserControl
+    {
+        private readonly CultureInfo _pl = CultureInfo.GetCultureInfo("pl-PL");
+
+        private ListaFaktAddViewModel? Vm => DataContext as ListaFaktAddViewModel;
+
+        public ListaFaktAddView()
+        {
+            InitializeComponent();
+
+            if (DataContext is not ListaFaktAddViewModel
+                && !System.ComponentModel.DesignerProperties.GetIsInDesignMode(this)
+                && Application.Current is App app && app.Host != null)
+            {
+                DataContext = app.Host.Services.GetService(typeof(ListaFaktAddViewModel))
+                              as ListaFaktAddViewModel;
+            }
+
+            Loaded += ListaFaktAddView_Loaded;
+        }
+
+                private async void ListaFaktAddView_Loaded(object? sender, RoutedEventArgs e)
+        {
+            if (Vm == null) return;
+            Vm.RequestResetSelectionState += ResetSelectionState;
+            await Vm.LoadAvailableBadaniaAsync();
+        }
+            System.Windows.MessageBox.Show("Loaded — 2: Vm OK, podpinam event");
+            Vm.RequestResetSelectionState += ResetSelectionState;
+            System.Windows.MessageBox.Show("Loaded — 3: wywołuję LoadAvailableBadaniaAsync");
+            await Vm.LoadAvailableBadaniaAsync();
+            System.Windows.MessageBox.Show($"Loaded — 4: DONE, FilteredAvailableBadania.Count={Vm.FilteredAvailableBadania.Count}");
+         */
+        }
+
+        // ===== WYBÓR FIRMY =====
+        private void OpenFirmaDialog_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new FirmaSelectDialog { Owner = Window.GetWindow(this) };
+            if (dlg.ShowDialog() == true && dlg.SelectedFirma != null)
+                Vm?.SetSelectedFirma(dlg.SelectedFirma);
+        }
+
+        // ===== POWRÓT =====
+        private void OpenListaDoFaktur_Click(object sender, RoutedEventArgs e)
+        {
+            Vm?.NavigateBack?.Invoke();
+        }
+
+        // ===== TOGGLE AKTYWNA/NIEAKTYWNA =====
+        private void ToggleExamination_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button btn) return;
+            var tag = btn.Tag?.ToString() ?? string.Empty;
+            TextBox? target = tag switch
+            {
+                "Basic"           => txtBasicPrice,
+                "Laryngologist"   => txtLaryngologistPrice,
+                "Ophthalmologist" => txtOphthalmologistPrice,
+                "Sanitary"        => txtSanitaryPrice,
+                "Lipidogram"      => txtLipidogramPrice,
+                "EKG"             => txtEKGPrice,
+                "HealthClinic"    => txtHealthClinicPrice,
+                "Other"           => txtOtherPrice,
+                _                 => null
+            };
+            if (target == null) return;
+
+            var isActive = btn.Content?.ToString()?.Contains("\u2713") == true;
+            if (isActive)
+            {
+                btn.Content      = "\u2717 NIEAKTYWNA";
+                btn.Background   = new SolidColorBrush(Color.FromRgb(0xD0, 0xD3, 0xD6));
+                target.IsEnabled = false;
+                target.Text      = string.Empty;
+            }
+            else
+            {
+                btn.Content      = "\u2713 AKTYWNA";
+                btn.Background   = new SolidColorBrush(Color.FromRgb(0x4C, 0xAF, 0x50));
+                target.IsEnabled = true;
+                target.Focus();
+            }
+        }
+
+        // ===== PRZELICZ SUMĘ (lokalnie w row) =====
+        private void PriceTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            try
+            {
+                decimal Parse(TextBox? tb) =>
+                    tb != null && decimal.TryParse(tb.Text, NumberStyles.Any, _pl, out var v) ? v : 0;
+
+                decimal total = Parse(txtBasicPrice)
+                              + Parse(txtLaryngologistPrice)
+                              + Parse(txtOphthalmologistPrice)
+                              + Parse(txtSanitaryPrice)
+                              + Parse(txtLipidogramPrice)
+                              + Parse(txtEKGPrice)
+                              + Parse(txtHealthClinicPrice)
+                              + Parse(txtOtherPrice);
+
+                if (lblTotalPrice != null)
+                    lblTotalPrice.Text = total.ToString("N2", _pl) + " z\u0142";
+            }
+            catch { }
+        }
+
+        // ===== DWUKLIK → EDYCJA WIERSZA =====
+        private void dgAssignedBadania_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is DataGrid dg && dg.SelectedItem is BadanieRowDto dto && Vm != null)
+                Vm.SelectedAssignedBadanie = dto;
+        }
+
+        // ===== RESET UI =====
+        private void ResetSelectionState()
+        {
+            if (dgAssignedBadania != null)
+                dgAssignedBadania.SelectedItem = null;
+        }
+    }
+}
+

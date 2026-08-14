@@ -1,0 +1,61 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:Syncfusion="http://schemas.syncfusion.com/wpf"
+             mc:Ignorable="d"
+             x:Class="ASMED.EDM.UI.Views.Orzeczenie.Tabs.UrlopTabView"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Urlop dla poratowania zdrowia" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <GroupBox Header="Okres urlopu" Margin="0,0,0,8" Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Column="0" Text="Od:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <DatePicker x:Name="bad_Urlop_dataOd" Grid.Column="1" Margin="0,0,16,0" SelectedDate="{Binding UrlopDataOd, Mode=TwoWay}"/>
+                        <TextBlock Grid.Column="2" Text="Do:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <DatePicker x:Name="bad_Urlop_dataDo" Grid.Column="3" SelectedDate="{Binding UrlopDataDo, Mode=TwoWay}"/>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Uzasadnienie" Padding="8">
+                    <TextBox x:Name="tbUrlopUzasadnienie" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
+                             VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2" Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Syncfusion:ButtonAdv Grid.Column="0" Content="" Label="&#x2190; Wróć" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+                Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
+                    Command="{Binding AnulujUrlopCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+                <Syncfusion:ButtonAdv Label="Drukuj"
+                    Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+                <Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+                    Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

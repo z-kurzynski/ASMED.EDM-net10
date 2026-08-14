@@ -44,6 +44,7 @@ public interface IUserService
     // Authentication & Security
     Task<User?> AuthenticateAsync(string username, string password, CancellationToken cancellationToken = default);
     Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword, CancellationToken cancellationToken = default);
+    Task<bool> AdminSetPasswordAsync(int userId, string newPassword, CancellationToken cancellationToken = default);
     Task<string> GeneratePasswordResetTokenAsync(int userId, CancellationToken cancellationToken = default);
     Task<bool> ResetPasswordAsync(string token, string newPassword, CancellationToken cancellationToken = default);
     Task LockAccountAsync(int userId, string reason, CancellationToken cancellationToken = default);

@@ -82,11 +82,18 @@ public partial class App : Application
         // Rejestracja Data Layer (DbContext + Connection Management + Repositories + Services)
         services.AddAsmedDatabase(configuration);
 
-        // Rejestracja integracji P1 (e-zdrowie): ZM, weryfikacja PESEL, repozytorium EDM
+        // Rejestracja integracji P1 / Middleware (test podstawowy — pobranie danych pacjenta)
         services.AddP1Integration(configuration);
+        services.AddMiddlewareIntegration();
 
         // Rejestracja UI Services
         services.AddSingleton<Services.IDialogService, Services.DialogService>();
+        services.AddSingleton<Services.INotificationService, Services.NotificationService>();
+        services.AddSingleton<ASMED.EDM.Core.Interfaces.Services.ICurrentUserService, Services.CurrentUserService>();
+
+        // Rejestracja logowania
+        services.AddTransient<LoginWindow>();
+        services.AddTransient<ViewModels.LoginViewModel>();
 
         // Rejestracja Views
         services.AddSingleton<MainWindow>();
@@ -96,18 +103,30 @@ public partial class App : Application
         services.AddTransient<Views.Settings.PriceListsView>();
         services.AddTransient<Views.Settings.FacilityDataView>();
         services.AddTransient<ViewModels.ustawienia.FacilityDataViewModel>();
-        services.AddTransient<Views.Settings.EdmP1TestView>();
-        services.AddTransient<ViewModels.P1.EdmP1TestViewModel>();
         services.AddTransient<Views.Settings.UsersView>();
+        services.AddTransient<ViewModels.Settings.UsersViewModel>();
+        services.AddTransient<Views.Settings.RolesPermissionsView>();
+        services.AddTransient<ViewModels.Settings.RolesPermissionsViewModel>();
         services.AddTransient<Views.Migration.MigrationView>();
         services.AddTransient<Views.cenniki.CennikiView>();
         services.AddSingleton<CennikiViewModel>();
+        services.AddTransient<Views.Firma.FirmaView>();
+        services.AddTransient<ViewModels.Firmy.FirmaViewModel>();
+        services.AddTransient<Views.Firma.FirmaEditWindow>();
+        services.AddTransient<ViewModels.Firmy.FirmaEditWindowViewModel>();
+        services.AddTransient<Views.faktura.FakturaView>();
+        services.AddTransient<ViewModels.faktura.FakturaViewModel>();
         services.AddTransient<Views.Skierowania.SkierListaPacjentowView>();
         services.AddTransient<Views.Skierowania.SkierPacjentaEditView>();
+        services.AddTransient<ViewModels.Orzeczenie.HistoriaViewModel>();
 
         // Fakturowanie
         services.AddTransient<Views.Faktura.FakturaAddView>();
         services.AddTransient<ViewModels.Faktura.FakturaAddViewModel>();
+
+        // Lista do faktur
+        services.AddTransient<Views.lista_do_faktur.ListaFaktAddView>();
+        services.AddTransient<ViewModels.ListaDoFaktur.ListaFaktAddViewModel>();
 
         // Rejestracja ViewModels
         services.AddSingleton<ViewModels.MainWindowViewModel>();
@@ -116,25 +135,72 @@ public partial class App : Application
         services.AddTransient<ViewModels.ConfigurationViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<ViewModels.VisitsViewModel>();
+        services.AddTransient<ViewModels.BadanieView.BadanieViewModel>();
+        services.AddTransient<ViewModels.Orzeczenie.OrzeczenieViewModel>();
         services.AddTransient<ViewModels.MigrationViewModel>();
         services.AddTransient<ViewModels.Skierowania.SkierListaPacjentowViewModel>();
         services.AddTransient<ViewModels.Skierowania.SkierPacjentaEditViewModel>();
         services.AddTransient<ViewModels.Skierowania.SkierNewPacjentaViewModel>();
         services.AddTransient<ViewModels.Skierowania.SkierowaniaViewModel>();
         services.AddTransient<ViewModels.Skierowania.SkierPacjentaViewModel>();
-        services.AddTransient<ViewModels.P1.P1IntegrationViewModel>();
-    }
+        services.AddTransient<ViewModels.Raporty.WizytyViewModel>();
+        }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        // Zapobiega przedwczesnemu zamknięciu aplikacji po zamknięciu okna logowania
+        // (domyślnie WPF zamyka appkę gdy zamknie się "ostatnie" okno).
+        ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+
         try
         {
             await _host.StartAsync();
 
+            // Pokaż okno logowania przed głównym oknem aplikacji
+            var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
+            var loginResult = loginWindow.ShowDialog();
+
+            if (loginResult != true)
+            {
+                Shutdown(0);
+                return;
+            }
+
+            // Upewnij się, że schemat bazy danych (w tym AppTab/RolePermission) istnieje
+            // na aktywnym połączeniu, zanim załadują się jakiekolwiek dane/uprawnienia.
+            try
+            {
+                var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
+                var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
+                var activeConnectionString = await connectionService.GetActiveConnectionStringAsync();
+                var initResult = await ASMED.EDM.Data.Helpers.DatabaseInitializerMySQL.RunAsync(activeConnectionString);
+
+                if (initResult.HasErrors)
+                {
+                    initLogger.LogWarning(
+                        "⚠️ Inicjalizacja schematu bazy danych zawiera błędy: {Errors}",
+                        string.Join(", ", initResult.Errors));
+                }
+                else
+                {
+                    initLogger.LogInformation(
+                        "✅ Schemat bazy danych zweryfikowany. Utworzono: {Created}, już istniały: {Existed}",
+                        initResult.Created.Count,
+                        initResult.AlreadyExisted.Count);
+                }
+            }
+            catch (Exception ex)
+            {
+                var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
+                initLogger.LogWarning(ex, "⚠️ Nie udało się zweryfikować/utworzyć schematu bazy danych przy starcie");
+            }
+
             // Pokazanie głównego okna (tryb offline-first dla development)
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+            MainWindow = mainWindow;
+            ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
             mainWindow.Show();
 
             // Test połączenia z bazą danych W TLE (bez blokowania UI thread)

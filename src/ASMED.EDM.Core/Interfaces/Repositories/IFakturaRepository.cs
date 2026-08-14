@@ -26,4 +26,9 @@ public interface IFakturaRepository : IRepository<Faktura>
     /// Pobiera faktury w zakresie dat wystawienia
     /// </summary>
     Task<IEnumerable<Faktura>> GetByDataRangeAsync(DateTime from, DateTime to, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Pobiera wszystkie faktury wraz z firmą (do widoku listy faktur)
+    /// </summary>
+    Task<IEnumerable<Faktura>> GetAllWithFirmaAsync(CancellationToken cancellationToken = default);
 }

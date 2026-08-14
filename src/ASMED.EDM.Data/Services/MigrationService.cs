@@ -6,6 +6,7 @@ using ASMED.EDM.Data.Helpers;
 using ASMED.EDM.Data.Models;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
+using System.Runtime.Versioning;
 
 namespace ASMED.EDM.Data.Services;
 
@@ -13,6 +14,7 @@ namespace ASMED.EDM.Data.Services;
 /// Serwis migracji danych z bazy Access do MySQL.
 /// Obsługuje testowanie połączeń, tworzenie kopii zapasowych i migrację tabel.
 /// </summary>
+[SupportedOSPlatform("windows")]
 public class MigrationService : IMigrationService
 {
     private const int BatchSize = 500;

@@ -2,6 +2,7 @@ using ASMED.EDM.Core.Entities;
 using ASMED.EDM.Core.Interfaces.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.ObjectModel;
 
@@ -11,14 +12,13 @@ namespace ASMED.EDM.UI.ViewModels.Faktura;
 /// ViewModel okna "Dodaj listę badań do faktury".
 /// Migracja: ListaFaktAddViewModel (Access/OLE DB) → EF Core / MySQL, WPF MVVM.
 ///
-/// Odpowiada za:
-///  – załadowanie firm, cenników, dostępnych badań (GetAvailableBadaniaAsync)
-///  – zaznaczenie badań przez użytkownika + przeliczenie sumy
-///  – transakcyjny zapis: SaveListaBadanAsync (Faktura + ListaBadan + Badanie)
+/// Używa IServiceScopeFactory — każda operacja asynchroniczna tworzy własny
+/// krótkotrwały scope, dzięki czemu Scoped DbContext/repozytoria działają
+/// poprawnie w WPF (brak kontekstu HTTP).
 /// </summary>
 public partial class FakturaAddViewModel : ViewModelBase
 {
-    private readonly IFakturaService _fakturaService;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<FakturaAddViewModel> _logger;
 
     // ── Firmy ─────────────────────────────────────────────────────────────────
@@ -75,14 +75,14 @@ public partial class FakturaAddViewModel : ViewModelBase
     // ── Konstruktor ───────────────────────────────────────────────────────────
 
     public FakturaAddViewModel(
-        IFakturaService fakturaService,
+        IServiceScopeFactory scopeFactory,
         ILogger<FakturaAddViewModel> logger)
     {
-        _fakturaService = fakturaService ?? throw new ArgumentNullException(nameof(fakturaService));
-        _logger         = logger         ?? throw new ArgumentNullException(nameof(logger));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _logger       = logger       ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    // ── Inicjalizacja (NavigatedTo) ───────────────────────────────────────────
+    // ── Inicjalizacja (wywoływana z Loaded event widoku) ──────────────────────
 
     public override async Task OnNavigatedToAsync()
         => await LoadInitialDataAsync();
@@ -95,10 +95,13 @@ public partial class FakturaAddViewModel : ViewModelBase
         Komunikat   = null;
         try
         {
-            var firmy = await _fakturaService.GetActiveFirmyAsync(ct: ct);
+            await using var scope   = _scopeFactory.CreateAsyncScope();
+            var svc = scope.ServiceProvider.GetRequiredService<IFakturaService>();
+
+            var firmy = await svc.GetActiveFirmyAsync(ct: ct);
             Firmy = new ObservableCollection<Firma>(firmy);
 
-            var nazwy = await _fakturaService.GetActiveCennikNazwyAsync(ct);
+            var nazwy = await svc.GetActiveCennikNazwyAsync(ct);
             CennikNazwy = new ObservableCollection<string>(nazwy);
         }
         catch (Exception ex)
@@ -136,7 +139,10 @@ public partial class FakturaAddViewModel : ViewModelBase
         SumaWybranych = 0;
         try
         {
-            var badania = await _fakturaService.GetAvailableBadaniaAsync(firmaId, ct);
+            await using var scope = _scopeFactory.CreateAsyncScope();
+            var svc = scope.ServiceProvider.GetRequiredService<IFakturaService>();
+
+            var badania = await svc.GetAvailableBadaniaAsync(firmaId, ct);
             foreach (var b in badania)
             {
                 var item = new BadanieListItemViewModel(b);
@@ -203,12 +209,10 @@ public partial class FakturaAddViewModel : ViewModelBase
 
     private void SynchronizujWybrane()
     {
-        // Usuń odznaczone
         var doUsuniecia = WybraneBadania.Where(b => !b.IsSelected).ToList();
         foreach (var b in doUsuniecia)
             WybraneBadania.Remove(b);
 
-        // Dodaj nowo zaznaczone
         foreach (var b in DostepneBadania.Where(b => b.IsSelected && !WybraneBadania.Contains(b)))
             WybraneBadania.Add(b);
 
@@ -218,7 +222,6 @@ public partial class FakturaAddViewModel : ViewModelBase
     private void PrzeliczSume()
     {
         SumaWybranych = WybraneBadania.Sum(b => b.Cena);
-        // Ustaw KwotaBrutto na sumę jeśli użytkownik jeszcze nie wpisał ręcznie
         if (KwotaBrutto is null or 0)
             KwotaBrutto = SumaWybranych;
     }
@@ -236,23 +239,26 @@ public partial class FakturaAddViewModel : ViewModelBase
         Komunikat   = null;
         try
         {
+            await using var scope = _scopeFactory.CreateAsyncScope();
+            var svc = scope.ServiceProvider.GetRequiredService<IFakturaService>();
+
             var request = new SaveListaBadanRequest(
-                FirmaId:           SelectedFirma.Id,
-                NumerFaktury:      NumerFaktury,
-                DataWystawienia:   DataWystawienia,
-                KwotaBrutto:       KwotaBrutto,
-                Uwagi:             Uwagi,
-                NazwaCennika:      SelectedCennikNazwa,
-                BadanieIds:        WybraneBadania.Select(b => b.Id)
+                FirmaId:         SelectedFirma.Id,
+                NumerFaktury:    NumerFaktury,
+                DataWystawienia: DataWystawienia,
+                KwotaBrutto:     KwotaBrutto,
+                Uwagi:           Uwagi,
+                NazwaCennika:    SelectedCennikNazwa,
+                BadanieIds:      WybraneBadania.Select(b => b.Id)
             );
 
-            var result = await _fakturaService.SaveListaBadanAsync(request, ct);
+            var result = await svc.SaveListaBadanAsync(request, ct: ct);
 
             IsSuccess = result.Success;
             Komunikat = result.Success
-                ? $"Zapisano listę badań (Id={result.ListaBadanId})" +
+                ? $"✅ Zapisano listę badań (Id={result.ListaBadanId})" +
                   (result.FakturaId.HasValue ? $", faktura Id={result.FakturaId}" : string.Empty)
-                : $"Błąd zapisu: {result.ErrorMessage}";
+                : $"❌ Błąd zapisu: {result.ErrorMessage}";
 
             if (result.Success)
                 _logger.LogInformation("Zapis listy badań OK — ListaBadanId={Id}", result.ListaBadanId);
@@ -260,7 +266,7 @@ public partial class FakturaAddViewModel : ViewModelBase
         catch (Exception ex)
         {
             IsSuccess = false;
-            Komunikat = $"Błąd: {ex.Message}";
+            Komunikat = $"❌ Błąd: {ex.Message}";
             _logger.LogError(ex, "Wyjątek SaveAsync FakturaAddViewModel");
         }
         finally

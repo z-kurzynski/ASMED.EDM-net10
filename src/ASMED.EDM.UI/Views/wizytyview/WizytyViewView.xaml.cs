@@ -12,6 +12,12 @@ public partial class WizytyViewView : UserControl
 {
     private bool _isUpdatingSelectedDate = false;
 
+    // ✅ Cykliczne, ciche odświeżanie listy "lista_rejestracja" (bez przeładowania całej zakładki).
+    // Program jest wielostanowiskowy — inne stanowiska mogą w tym samym czasie rejestrować/zmieniać wizyty,
+    // dlatego lista jest odświeżana co określony czas, ale tylko gdy ten widok ma fokus.
+    private readonly System.Windows.Threading.DispatcherTimer _autoRefreshTimer;
+    private static readonly TimeSpan AutoRefreshInterval = TimeSpan.FromSeconds(7);
+
     public WizytyViewView()
     {
         InitializeComponent();
@@ -29,6 +35,29 @@ public partial class WizytyViewView : UserControl
 
         this.Loaded += WizytyViewView_Loaded;
         this.IsVisibleChanged += WizytyViewView_IsVisibleChanged;
+
+        _autoRefreshTimer = new System.Windows.Threading.DispatcherTimer
+        {
+            Interval = AutoRefreshInterval
+        };
+        _autoRefreshTimer.Tick += AutoRefreshTimer_Tick;
+        this.Unloaded += (_, _) => _autoRefreshTimer.Stop();
+    }
+
+    private void AutoRefreshTimer_Tick(object? sender, EventArgs e)
+    {
+        // Odświeżaj gdy zakładka "Wizyty" jest aktualnie wyświetlana (aktywna).
+        // Uwaga: nie wymagamy dosłownego fokusu klawiatury (IsKeyboardFocusWithin) — użytkownik
+        // często tylko obserwuje listę bez klikania w nią, a mimo to dane mają się aktualizować.
+        if (!IsVisible)
+        {
+            return;
+        }
+
+        if (DataContext is VisitsViewModel vm)
+        {
+            vm.RefreshSilent();
+        }
     }
 
     private void OnNavigateToZakonczBadanie()
@@ -69,6 +98,15 @@ public partial class WizytyViewView : UserControl
 
     private void WizytyViewView_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
+        if (IsVisible)
+        {
+            _autoRefreshTimer.Start();
+        }
+        else
+        {
+            _autoRefreshTimer.Stop();
+        }
+
         try
         {
             if (IsVisible && DataContext is VisitsViewModel vm)

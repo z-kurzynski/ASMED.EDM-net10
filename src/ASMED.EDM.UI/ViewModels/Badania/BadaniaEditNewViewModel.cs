@@ -661,6 +661,8 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
         public RelayCommand(Action execute) => _execute = execute;
         public bool CanExecute(object? parameter) => true;
         public void Execute(object? parameter) => _execute();
+#pragma warning disable CS0067 // wymagane przez ICommand, CanExecute zawsze zwraca true więc nigdy nie jest wywoływane
         public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067
     }
 }

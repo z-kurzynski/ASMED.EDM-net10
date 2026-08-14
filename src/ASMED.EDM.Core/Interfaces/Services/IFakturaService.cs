@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 
 namespace ASMED.EDM.Core.Interfaces.Services;
@@ -28,6 +29,9 @@ public interface IFakturaService
     /// </summary>
     Task<IEnumerable<Badanie>> GetAvailableBadaniaAsync(int? firmaId = null, CancellationToken ct = default);
 
+    /// <summary>Dapper — pełny JOIN, gotowe BadanieRowDto do UI</summary>
+    Task<IEnumerable<BadanieRowDto>> GetAvailableBadaniaRowsAsync(CancellationToken ct = default);
+
     // ── Listy badań ───────────────────────────────────────────────────────────
 
     /// <summary>Pobiera listę badań z pełnymi danymi</summary>
@@ -45,6 +49,7 @@ public interface IFakturaService
     /// </summary>
     Task<SaveListaBadanResult> SaveListaBadanAsync(
         SaveListaBadanRequest request,
+        IProgress<string>? progress = null,
         CancellationToken ct = default);
 
     /// <summary>

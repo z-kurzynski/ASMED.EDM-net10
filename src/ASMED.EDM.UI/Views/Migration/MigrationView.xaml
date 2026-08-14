@@ -6,7 +6,7 @@
              xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance Type=vm:MigrationViewModel}"
-             Background="#FFF5F5F5">
+             Background="#FFF5F5F5" d:DesignHeight="850" d:DesignWidth="547.178">
 
     <UserControl.Resources>
         <Style x:Key="SectionBorder" TargetType="Border">
@@ -60,7 +60,7 @@
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
+                  HorizontalScrollBarVisibility="Disabled" VerticalContentAlignment="Stretch">
     <Grid Margin="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>   <!-- Konfiguracja -->
@@ -69,6 +69,7 @@
             <RowDefinition Height="Auto"/>   <!-- Postęp -->
             <RowDefinition Height="Auto"/>   <!-- Weryfikacja -->
             <RowDefinition Height="Auto"/>   <!-- Log -->
+            <RowDefinition Height="*"/>   <!-- Eksport MySQL→Access -->
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -476,6 +477,160 @@
                     </ItemsControl>
                 </ScrollViewer>
             </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- SEKCJA 7: EKSPORT MySQL → Access                               -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="6" Style="{StaticResource SectionBorder}">
+            <StackPanel>
+                <TextBlock Text="🔄 Eksport MySQL → Access (synchronizacja)"
+                           Style="{StaticResource SectionTitle}"/>
+
+                <!-- Wiersz: ścieżka + przyciski -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Plik Access:"
+                               FontSize="11" Foreground="Gray"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBox  Grid.Column="1"
+                              Text="{Binding ExportAccessPath, UpdateSourceTrigger=PropertyChanged}"
+                              Padding="6,5" FontSize="12"
+                              VerticalContentAlignment="Center"
+                              ToolTip="Ścieżka do pliku Access (np. A:\MedPracyView.accdb)"/>
+                    <Button   Grid.Column="2"
+                              Content="📂 Przeglądaj"
+                              Command="{Binding BrowseExportAccessCommand}"
+                              Style="{StaticResource ActionButton}"
+                              Background="#FF607D8B"
+                              Margin="6,0,0,0"/>
+                    <Button   Grid.Column="3"
+                              Content="🔌 Test"
+                              Command="{Binding TestExportAccessCommand}"
+                              Style="{StaticResource ActionButton}"
+                              Background="#FF607D8B"
+                              Margin="4,0,0,0"
+                              ToolTip="Sprawdź połączenie z plikiem Access"/>
+                </Grid>
+
+                <!-- Wiersz: info + auto-sync -->
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="Ostatni eksport: "
+                                   FontSize="11" Foreground="Gray"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding LastExportTimestamp}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#FF37474F"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <CheckBox Grid.Column="1"
+                              Content="🔁 Synchronizuj na bieżąco przy każdej zmianie"
+                              IsChecked="{Binding IsAutoSyncEnabled}"
+                              FontSize="11"
+                              VerticalAlignment="Center"
+                              ToolTip="Po każdym zapisie do MySQL zmiany zostaną automatycznie przesłane do Access (debounce 1 s)"/>
+                </Grid>
+
+                <!-- Przycisk główny + status -->
+                <Grid Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="⬆ Eksportuj teraz (wszystkie tabele)"
+                            Command="{Binding ExportNowCommand}"
+                            Style="{StaticResource ActionButton}"
+                            Background="#FF1976D2"
+                            FontSize="13"
+                            Padding="18,8"
+                            Margin="0,0,12,0"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ExportStatusMessage}"
+                               FontSize="11"
+                               Foreground="#FF37474F"
+                               VerticalAlignment="Center"
+                               TextWrapping="Wrap"/>
+                </Grid>
+
+                <!-- Wyniki per tabela -->
+                <ItemsControl ItemsSource="{Binding ExportResults}"
+                              Visibility="{Binding ExportResults.Count,
+                                           Converter={StaticResource CountToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding StatusIcon}"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding Summary}"
+                                           FontSize="11"
+                                           Foreground="#FF37474F"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding Inserted, StringFormat='▲{0}'}"
+                                           FontSize="10" Foreground="#FF388E3C"
+                                           Margin="8,0,0,0" VerticalAlignment="Center"
+                                           ToolTip="Wstawione (INSERT)"/>
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding Updated, StringFormat='✎{0}'}"
+                                           FontSize="10" Foreground="#FF1565C0"
+                                           Margin="6,0,0,0" VerticalAlignment="Center"
+                                           ToolTip="Zaktualizowane (UPDATE)"/>
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding Deleted, StringFormat='✖{0}'}"
+                                           FontSize="10" Foreground="#FFC62828"
+                                           Margin="6,0,0,0" VerticalAlignment="Center"
+                                           ToolTip="Usunięte (DELETE)"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- Log eksportu -->
+                <Expander Header="📋 Log eksportu"
+                          IsExpanded="False"
+                          Margin="0,8,0,0">
+                    <ScrollViewer MaxHeight="160"
+                                  VerticalScrollBarVisibility="Auto"
+                                  Background="#FF1E1E1E">
+                        <ItemsControl ItemsSource="{Binding ExportLog}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                                               FontFamily="Consolas"
+                                               FontSize="10"
+                                               Foreground="#FF90CAF9"
+                                               Margin="8,1"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Expander>
+            </StackPanel>
         </Border>
     </Grid>
     </ScrollViewer>

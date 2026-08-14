@@ -9,18 +9,21 @@
              xmlns:cenniki="clr-namespace:ASMED.EDM.UI.Views.cenniki"
              Background="#FFB9D1EA">
     <Grid Margin="10">
-        <syncfusion:TabControlExt Margin="1" Background="{x:Null}">
-            <syncfusion:TabItemExt Header="Konfiguracja" Background="#FF29EDF1">
+        <syncfusion:TabControlExt x:Name="settingsTabControl" Margin="1" Background="{x:Null}">
+            <syncfusion:TabItemExt x:Name="tabKonfiguracja" Header="Konfiguracja" Background="#FF29EDF1">
                 <local:ConfigurationView />
             </syncfusion:TabItemExt>
-            <syncfusion:TabItemExt Header="Cenniki" Background="#FFF9F127">
+            <syncfusion:TabItemExt x:Name="tabCenniki" Header="Cenniki" Background="#FFF9F127">
                 <cenniki:CennikiView />
             </syncfusion:TabItemExt>
-            <syncfusion:TabItemExt Header="Dane Placówki" Background="#FFDA11E6">
+            <syncfusion:TabItemExt x:Name="tabDanePlacowki" Header="Dane Placówki" Background="#FFDA11E6">
                 <local:FacilityDataView />
             </syncfusion:TabItemExt>
-            <syncfusion:TabItemExt Header="Użytkownicy" Background="#FF09F34E">
+            <syncfusion:TabItemExt x:Name="tabUzytkownicy" Header="Użytkownicy" Background="#FF09F34E">
                 <local:UsersView />
+            </syncfusion:TabItemExt>
+            <syncfusion:TabItemExt x:Name="tabRoleUprawnienia" Header="Role i uprawnienia" Background="#FFAAAAFF">
+                <local:RolesPermissionsView />
             </syncfusion:TabItemExt>
         </syncfusion:TabControlExt>
     </Grid>

@@ -28,9 +28,9 @@ public class User : BaseEntity
     public string LastName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Email
+    /// Email (opcjonalny)
     /// </summary>
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
 
     /// <summary>
     /// Numer telefonu

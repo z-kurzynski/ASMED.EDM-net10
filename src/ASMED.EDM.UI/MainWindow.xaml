@@ -1,4 +1,4 @@
-    <Window
+<Window
         x:Class="ASMED.EDM.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,6 +13,9 @@
         xmlns:viewsmigration="clr-namespace:ASMED.EDM.UI.Views.Migration"
         xmlns:viewsbadaniemod="clr-namespace:ASMED.EDM.UI.Views.Badanie"
         xmlns:viewsorzeczenie="clr-namespace:ASMED.EDM.UI.Views.Orzeczenie"
+        xmlns:viewsraporty="clr-namespace:ASMED.EDM.UI.Views.raporty"
+        xmlns:viewsfirma="clr-namespace:ASMED.EDM.UI.Views.Firma"
+        xmlns:viewsfaktura="clr-namespace:ASMED.EDM.UI.Views.faktura"
         xmlns:viewmodels="clr-namespace:ASMED.EDM.UI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
 
         mc:Ignorable="d"
@@ -51,162 +54,84 @@
         <Grid Grid.Row="1" Margin="0,-44,0,0">
             <TabControl x:Name="MainTabControl" PreviewMouseDoubleClick="TabControl_PreviewMouseDoubleClick">
                 <!-- Zakładka 1: Rejestracja -->
-                <TabItem x:Name="tabRejestracja" Header="📝 Rejestracja" FontSize="14" Padding="15,10" Background="#FFD367FF">
+                <TabItem x:Name="tabRejestracja" Header="📝 Rejestracja" FontSize="14" Padding="15,10" Background="#FF4DA3FF">
                     <ContentControl x:Name="RejestracjaContent" />
                 </TabItem>
 
                 <!-- Zakładka 2: Nowa Karta -->
-                <TabItem x:Name="tabNowaKarta" Header="📄 Nowa Karta" FontSize="14" Padding="15,10" Background="#FF90EE90">
+                <TabItem x:Name="tabNowaKarta" Header="📄 Pacjenci" FontSize="14" Padding="15,10" Background="#FF7ED957">
                     <ContentControl x:Name="NowaKartaContent" />
                 </TabItem>
 
                 <!-- Zakładka 3: Karty Badań -->
-                <TabItem x:Name="tabKartyBadan" Header="📋 Karty Badań" FontSize="14" Padding="15,10" Background="#FF90C6FD">
+                <TabItem x:Name="tabKartyBadan" Header="📋 Bad. Karty" FontSize="14" Padding="15,10" Background="#FFB38CFF">
                     <ContentControl x:Name="KartyBadanContent" />
                 </TabItem>
 
                 <!-- Zakładka 4: Badanie -->
-                <TabItem x:Name="tabBadanie" Header="🔬 Badanie" FontSize="14" Padding="15,10" Background="#FF42A5F5" Visibility="Collapsed">
+                <TabItem x:Name="tabBadanie" Header="🔬 Bad. Wywiad" FontSize="14" Padding="15,10" Background="#FFFFB366">
                     <ContentControl x:Name="BadanieContent" />
                 </TabItem>
 
                 <!-- Zakładka 5: Orzeczenie -->
-                <TabItem x:Name="tabOrzeczenie" Header="📋 Orzeczenie" FontSize="14" Padding="15,10" Background="#FF66BB6A" Visibility="Collapsed">
+                <TabItem x:Name="tabOrzeczenie" Header="📋 Bad. Orzeczenie" FontSize="14" Padding="15,10" Background="#FF6EDC8C">
                     <ContentControl x:Name="OrzeczenieContent" />
                 </TabItem>
-                <TabItem x:Name="tabZakonczBadanie" Header="✅ Zakończ Badanie" FontSize="14" Padding="15,10" Background="#FF06F537">
+                <TabItem x:Name="tabZakonczBadanie" Header="✅ Bad. Zakończenie" FontSize="14" Padding="15,10" Background="#FFFFCF66">
                     <ContentControl x:Name="ZakonczBadanieContent" />
                 </TabItem>
 
                 <!-- Zakładka 6: Edycja Badań -->
-                <TabItem x:Name="tabEdycjaBadan" Header="✏️ Edycja Badań" FontSize="14" Padding="15,10" Background="#FFFFA07A">
+                <TabItem x:Name="tabEdycjaBadan" Header="✏️ Bad. Edycja" FontSize="14" Padding="15,10" Background="#FF66B2FF">
                     <ContentControl x:Name="EdycjaBadanContent" />
                 </TabItem>
 
                 <!-- Zakładka 7: Zakończ Badanie -->
 
                 <!-- Zakładka 8: Lista Do Faktur -->
-                <TabItem x:Name="tabListaDoFaktur" Header="💰 Lista Do Faktur" FontSize="14" Padding="15,10" Background="#FFFFB347">
+                <TabItem x:Name="tabListaDoFaktur" Header="💰 Lista Do Faktur" FontSize="14" Padding="15,10" Background="#FFCC8800">
                     <ContentControl x:Name="ListaDoFakturContent" />
                 </TabItem>
 
                 <!-- Zakładka: Baza Danych / Raporty / Settings -->
-                <TabItem Header="🗄️ Baza Danych" FontSize="14" Padding="15,10" Background="#FFFF6F61" Margin="-2,-2,-8,0">
+                <TabItem x:Name="tabUstawieniaRoot" Header="🗄️ Baza / Ustawienia" FontSize="14" Padding="15,10" Margin="-2,-2,-8,0">
+                    <TabItem.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FFB4B6B9" Offset="0.397"/>
+                            <GradientStop Color="#FF1BBECA" Offset="0.883"/>
+                        </LinearGradientBrush>
+                    </TabItem.Background>
                     <Grid Background="White">
                         <!-- Zagnieżdżone zakładki dla Baza Danych -->
                         <TabControl Margin="10" TabStripPlacement="Left">
 
                             <!-- Podzakładka 1: Ustawienia -->
-                            <TabItem Header="⚙️ Ustawienia" FontSize="13" Padding="12,8">
+                            <TabItem x:Name="tabUstawieniaKonfiguracja" Header="⚙️ Ustawienia" FontSize="13" Padding="12,8">
                                 <viewssettings:SettingsView />
                             </TabItem>
 
                             <!-- Podzakładka 2: Faktura -->
-                            <TabItem Header="🧾 Faktura" FontSize="13" Padding="12,8">
-                                <Grid Background="#FFF5F5F5">
-                                    <Border BorderBrush="#FF4CAF50" 
-                                            BorderThickness="2" 
-                                            CornerRadius="8" 
-                                            Padding="20" 
-                                            Margin="20"
-                                            Background="White">
-                                        <StackPanel>
-                                            <TextBlock Text="🧾 Zarządzanie Fakturami" 
-                                                       FontSize="20" 
-                                                       FontWeight="Bold" 
-                                                       Foreground="#FF4CAF50"
-                                                       Margin="0,0,0,15"/>
-
-                                            <TextBlock Text="Konfiguracja faktur, szablony, numery, serie dokumentów" 
-                                                       FontSize="14" 
-                                                       Foreground="Gray"
-                                                       TextWrapping="Wrap"
-                                                       Margin="0,0,0,20"/>
-
-                                            <!-- Placeholder dla faktura view -->
-                                            <TextBlock Text="🔧 Widok faktur będzie zaimplementowany po połączeniu z bazą danych" 
-                                                       FontSize="12" 
-                                                       Foreground="#FF666666"
-                                                       FontStyle="Italic"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
+                            <TabItem x:Name="tabUstawieniaFaktura" Header="🧾 Faktura" FontSize="13" Padding="12,8">
+                                <viewsfaktura:FakturaView/>
                             </TabItem>
 
                             <!-- Podzakładka 3: Firma -->
-                            <TabItem Header="🏢 Firma" FontSize="13" Padding="12,8">
-                                <Grid Background="#FFF5F5F5">
-                                    <Border BorderBrush="#FFFF9800" 
-                                            BorderThickness="2" 
-                                            CornerRadius="8" 
-                                            Padding="20" 
-                                            Margin="20"
-                                            Background="White">
-                                        <StackPanel>
-                                            <TextBlock Text="🏢 Dane Firm" 
-                                                       FontSize="20" 
-                                                       FontWeight="Bold" 
-                                                       Foreground="#FFFF9800"
-                                                       Margin="0,0,0,15"/>
-
-                                            <TextBlock Text="Zarządzanie danymi firm, kontrahenci, umowy" 
-                                                       FontSize="14" 
-                                                       Foreground="Gray"
-                                                       TextWrapping="Wrap"
-                                                       Margin="0,0,0,20"/>
-
-                                            <!-- Placeholder dla firma view -->
-                                            <TextBlock Text="🔧 Widok firm będzie zaimplementowany po połączeniu z bazą danych" 
-                                                       FontSize="12" 
-                                                       Foreground="#FF666666"
-                                                       FontStyle="Italic"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
+                            <TabItem x:Name="tabUstawieniaFirma" Header="🏢 Firma" FontSize="13" Padding="12,8">
+                                <viewsfirma:FirmaView/>
                             </TabItem>
 
                             <!-- Podzakładka 4: Raporty -->
-                            <TabItem Header="📊 Raporty" FontSize="13" Padding="12,8">
-                                <Grid Background="#FFF5F5F5">
-                                    <Border BorderBrush="#FF9C27B0" 
-                                            BorderThickness="2" 
-                                            CornerRadius="8" 
-                                            Padding="20" 
-                                            Margin="20"
-                                            Background="White">
-                                        <StackPanel>
-                                            <TextBlock Text="📊 Raporty i Statystyki" 
-                                                       FontSize="20" 
-                                                       FontWeight="Bold" 
-                                                       Foreground="#FF9C27B0"
-                                                       Margin="0,0,0,15"/>
-
-                                            <TextBlock Text="Generowanie raportów, zestawienia, analizy danych" 
-                                                       FontSize="14" 
-                                                       Foreground="Gray"
-                                                       TextWrapping="Wrap"
-                                                       Margin="0,0,0,20"/>
-
-                                            <!-- Placeholder dla raporty view -->
-                                            <TextBlock Text="🔧 Widok raportów będzie zaimplementowany po połączeniu z bazą danych" 
-                                                       FontSize="12" 
-                                                       Foreground="#FF666666"
-                                                       FontStyle="Italic"
-                                                       HorizontalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                </Grid>
+                            <TabItem x:Name="tabUstawieniaRaporty" Header="📊 Raporty" FontSize="13" Padding="12,8">
+                                <viewsraporty:RaportyView/>
                             </TabItem>
 
                             <!-- Podzakładka 5: Migracja -->
-                            <TabItem Header="📦 Migracja" FontSize="13" Padding="12,8">
+                            <TabItem x:Name="tabUstawieniaMigracja" Header="📦 Migracja" FontSize="13" Padding="12,8">
                                 <viewsmigration:MigrationView />
                             </TabItem>
 
                             <!-- Podzakładka 6: EDM / P1 -->
-                            <TabItem FontSize="13" Padding="12,8">
+                            <TabItem x:Name="tabUstawieniaEdm" FontSize="13" Padding="12,8">
                                 <TabItem.Header>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="🏥" FontSize="14" VerticalAlignment="Center" Margin="0,0,4,0"/>
@@ -258,15 +183,13 @@
                         CornerRadius="3"
                         Padding="12,5" Height="30" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20,0,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🗄️ " 
-                                FontSize="12"
-                                Foreground="White"
-                                VerticalAlignment="Center"/>
+                            <TextBlock Text="🗄️- "
+                                Foreground="{DynamicResource {x:Static SystemColors.ActiveCaptionBrushKey}}"
+                                VerticalAlignment="Center" FontSize="14"/>
                             <TextBlock Text="{Binding ConsoleWrite}" 
-                                FontSize="12"
-                                FontWeight="Bold"
-                                Foreground="White"
-                                VerticalAlignment="Center"/>
+                                FontSize="11"
+                                Foreground="{DynamicResource {x:Static SystemColors.AccentColorLight3BrushKey}}"
+                                VerticalAlignment="Center" FontStyle="Italic"/>
                         </StackPanel>
                     </Border>
 

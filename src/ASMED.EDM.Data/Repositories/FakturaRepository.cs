@@ -45,4 +45,12 @@ public class FakturaRepository : Repository<Faktura>, IFakturaRepository
             .OrderByDescending(f => f.DataWystawienia)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IEnumerable<Faktura>> GetAllWithFirmaAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(f => f.Firma)
+            .OrderByDescending(f => f.DataWystawienia)
+            .ToListAsync(cancellationToken);
+    }
 }

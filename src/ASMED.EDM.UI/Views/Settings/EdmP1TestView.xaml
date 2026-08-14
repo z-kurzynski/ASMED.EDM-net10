@@ -3,468 +3,180 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:vm="clr-namespace:ASMED.EDM.UI.ViewModels.P1"
-             xmlns:converters="clr-namespace:ASMED.EDM.UI.Converters"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:EdmP1TestViewModel, IsDesignTimeCreatable=False}"
              Background="#F0F4FA">
 
-    <UserControl.Resources>
-        <!-- konwertery -->
-        <converters:BoolToBrushConverter x:Key="OkBrush"   TrueColor="#2E7D32" FalseColor="#C62828"/>
-        <converters:BoolToBrushConverter x:Key="OkFg"      TrueColor="#1B5E20" FalseColor="#B71C1C"/>
-        <converters:BoolToTextConverter  x:Key="OkIcon"    TrueText="Ă˘Ĺ›â€¦" FalseText="Ă˘ĹĄĹš"/>
-        <converters:BoolToTextConverter  x:Key="AbilityTxt" TrueText="ZDOLNY do pracy" FalseText="NIEZDOLNY do pracy"/>
-        <converters:BoolToBrushConverter x:Key="AbilityBrush" TrueColor="#2E7D32" FalseColor="#C62828"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="16">
+    <StackPanel Width="360" Margin="0,0,16,0">
+        <TextBlock Text="🏥" FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+        <TextBlock Text="Test Middleware — odczyt danych pacjenta"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,4"/>
+        <TextBlock Text="Uwaga: to lokalny rejestr pacjentów podmiotu w P1 (nie CWUB). Sukces tu nie gwarantuje zgodności z CWUB przy orzeczeniach."
+                   FontSize="11" Foreground="#555" TextWrapping="Wrap"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"/>
 
-        <!-- Karta panelu -->
-        <Style x:Key="PanelCard" TargetType="Border">
-            <Setter Property="Background"    Value="White"/>
-            <Setter Property="CornerRadius"  Value="10"/>
-            <Setter Property="Margin"        Value="0,0,0,12"/>
-            <Setter Property="Padding"       Value="0"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="8" ShadowDepth="2" Color="#BBBBBB" Opacity="0.3" Direction="270"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <TextBlock Text="PESEL pacjenta:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PeselTextBox" Text="70032816894" Margin="0,0,0,8"/>
 
-        <!-- NagÄąâ€šÄ‚Ĺ‚wek karty -->
-        <Style x:Key="PanelHeader" TargetType="Border">
-            <Setter Property="CornerRadius" Value="10,10,0,0"/>
-            <Setter Property="Padding"      Value="16,11"/>
-        </Style>
+        <TextBlock Text="Imię:" Margin="0,0,0,4"/>
+        <TextBox x:Name="ImieTextBox" Text="Anna" Margin="0,0,0,8"/>
 
-        <!-- Etykieta pola -->
-        <Style x:Key="Lbl" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#546E7A"/>
-            <Setter Property="Margin"     Value="0,8,0,2"/>
-        </Style>
+        <TextBlock Text="Nazwisko:" Margin="0,0,0,4"/>
+        <TextBox x:Name="NazwiskoTextBox" Text="Kasina" Margin="0,0,0,8"/>
 
-        <!-- Input box -->
-        <Style x:Key="InputBox" TargetType="TextBox">
-            <Setter Property="Height"                   Value="30"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="6,4"/>
-            <Setter Property="BorderBrush"              Value="#B0BEC5"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="Background"               Value="#FAFAFA"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+        <Button x:Name="SearchButton" Content="Wyszukaj pacjenta w P1 (Middleware)"
+                Click="SearchButton_Click" Margin="0,0,0,8" Padding="8,4"/>
 
-        <!-- Przycisk akcji -->
-        <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Foreground"      Value="White"/>
-            <Setter Property="FontWeight"      Value="SemiBold"/>
-            <Setter Property="FontSize"        Value="13"/>
-            <Setter Property="Height"          Value="34"/>
-            <Setter Property="Padding"         Value="18,0"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="7" Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <TextBlock Text="ID pacjenta (z wyszukiwania):" Margin="0,0,0,4"/>
+        <TextBox x:Name="PacjentIdTextBox" IsReadOnly="True" Margin="0,0,0,8"/>
 
-        <!-- Badge statusu -->
-        <Style x:Key="StatusBadge" TargetType="Border">
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding"      Value="12,6"/>
-            <Setter Property="Margin"       Value="0,6,0,0"/>
-        </Style>
+        <Button x:Name="ReadButton" Content="Odczytaj pacjenta po ID (Middleware)"
+                Click="ReadButton_Click" Margin="0,0,0,8" Padding="8,4"/>
 
-    </UserControl.Resources>
+        <TextBlock Text="Wynik:" Margin="0,8,0,4" FontWeight="Bold"/>
+        <TextBox x:Name="ResultTextBox" IsReadOnly="True" TextWrapping="Wrap"
+                 AcceptsReturn="True" MinHeight="120" VerticalScrollBarVisibility="Auto"/>
+    </StackPanel>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- nagÄąâ€šÄ‚Ĺ‚wek strony -->
-            <RowDefinition Height="Auto"/>   <!-- pasek statusu operacji -->
-            <RowDefinition Height="*"/>       <!-- treÄąâ€şĂ„â€ˇ -->
-        </Grid.RowDefinitions>
+    <StackPanel Width="360" Margin="0,0,16,0">
+        <TextBlock Text="Test Middleware — wysyłka orzeczenia medycyny pracy do P1"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,4"/>
+        <TextBlock Text="Uwaga: dokument CDA jest walidowany względem CWUB (kraj.), a nie lokalnego rejestru pacjentów P1. Zgodne dane w wyszukiwaniu/odczycie nie gwarantują zgodności z CWUB."
+                   FontSize="11" Foreground="#555" TextWrapping="Wrap"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"/>
 
-        <!-- Ă˘â€˘ÂĂ˘â€˘Â NagÄąâ€šÄ‚Ĺ‚wek strony Ă˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘Â -->
-        <Border Grid.Row="0" Background="#1A237E" Padding="20,14" Margin="0,0,0,16">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="6" ShadowDepth="2" Color="#1A237E" Opacity="0.4" Direction="270"/>
-            </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Ä‘ĹşĹąÄ„" FontSize="26" Foreground="White"
-                               VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <StackPanel>
-                        <TextBlock Text="EDM Ă˘â‚¬â€ť Elektroniczna Dokumentacja Medyczna Ă‚Â· P1"
-                                   FontSize="18" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Testy integracji: weryfikacja PESEL Ă‚Â· dokumentacja EDM Ă‚Â· orzeczenie HL7 CDA"
-                                   FontSize="11" Foreground="#9FA8DA" Margin="0,2,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <!-- wskaÄąĹźnik trybu -->
-                    <!-- wskaĹşnik trybu -->
-                    <Border Background="#283593" CornerRadius="6" Padding="12,6" Margin="0,0,10,0">
-                        <TextBlock FontSize="11" Foreground="White" FontWeight="SemiBold"
-                                   VerticalAlignment="Center"
-                                   Text="{Binding P1ClientMode}"/>
-                    </Border>
-                    <Button Style="{StaticResource ActionBtn}" Background="#283593"
-                            Command="{Binding ClearAllCommand}"
-                            ToolTip="WyczyÄąâ€şĂ„â€ˇ wszystkie pola i wyniki">
-                        Ä‘Ĺşâ€ťâ€ž  Resetuj
-                    </Button>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <TextBlock Text="Numer dokumentu:" Margin="0,0,0,4"/>
+        <TextBox x:Name="NumerDokumentuTextBox" Text="14/2026" Margin="0,0,0,8"/>
 
-        <!-- Ă˘â€˘ÂĂ˘â€˘Â TreÄąâ€şĂ„â€ˇ: trzy karty pionowo Ă˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘Â -->
-        <!-- Pasek statusu operacji -->
-        <Border Grid.Row="1" Background="#E8EAF6" Padding="20,6" Margin="0,0,0,4">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Status: " FontSize="11" FontWeight="Bold" Foreground="#3949AB" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding PeselVerifyStatus}" FontSize="11" Foreground="#1A237E" VerticalAlignment="Center" TextWrapping="NoWrap"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <ProgressBar IsIndeterminate="True" Width="120" Height="6" Foreground="#1A237E" Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding BusyMessage}" FontSize="11" Foreground="#1A237E" FontWeight="SemiBold"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <TextBlock Text="Numer skierowania:" Margin="0,0,0,4"/>
+        <TextBox x:Name="NumerSkierowaniaTextBox" Text="2345678" Margin="0,0,0,8"/>
 
-        <!-- â•â• TreĹ›Ä‡: trzy karty pionowo â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="20,0,20,16">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <TextBlock Text="Data skierowania (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="DataSkierowaniaTextBox" Text="2026-01-10" Margin="0,0,0,8"/>
 
-                <!-- Ă˘â€˘â€ťĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘â€”
-                     Ă˘â€˘â€  PANEL 1 Ă˘â‚¬â€ť Weryfikacja PESEL w P1               Ă˘â€˘â€
-                     Ă˘â€˘ĹˇĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ĹĄ -->
-                <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource PanelCard}">
-                    <StackPanel>
-                        <Border Style="{StaticResource PanelHeader}" Background="#1565C0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Ä‘Ĺşâ€ťĹ¤" FontSize="18" Foreground="White"
-                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="Weryfikacja PESEL w systemie P1"
-                                               FontSize="13" FontWeight="Bold" Foreground="White"/>
-                                    <TextBlock Text="Pobiera dane pacjenta z rejestru e-zdrowie"
-                                               FontSize="10" Foreground="#90CAF9"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
+        <TextBlock Text="Rodzaj badania (WSTEPNE / OKRESOWE / KONTROLNE):" Margin="0,0,0,4"/>
+        <TextBox x:Name="RodzajBadaniaTextBox" Text="WSTEPNE" Margin="0,0,0,8"/>
 
-                        <StackPanel Margin="16,12,16,16">
+        <TextBlock Text="Rodzaj zatrudnienia (PRZYJMOWANY / ZATRUDNIONY):" Margin="0,0,0,4"/>
+        <TextBox x:Name="RodzajZatrudnieniaTextBox" Text="PRZYJMOWANY" Margin="0,0,0,8"/>
 
-                            <TextBlock Style="{StaticResource Lbl}" Text="Numer PESEL (11 cyfr)"/>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="10"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Style="{StaticResource InputBox}"
-                                         Text="{Binding Pesel, UpdateSourceTrigger=PropertyChanged}"
-                                         MaxLength="11" FontFamily="Consolas" FontSize="16"
-                                         ToolTip="WprowadÄąĹź 11-cyfrowy numer PESEL pacjenta"/>
-                                <Button Grid.Column="2" Style="{StaticResource ActionBtn}"
-                                        Background="#1565C0" Width="120"
-                                        Command="{Binding VerifyPeselCommand}"
-                                        IsEnabled="{Binding IsBusy,
-                                            Converter={StaticResource InverseBooleanConverter}}">
-                                    Ä‘Ĺşâ€ťĹ¤  Weryfikuj
-                                </Button>
-                            </Grid>
+        <TextBlock Text="Zawód:" Margin="0,0,0,4"/>
+        <TextBox x:Name="ZawodTextBox" Text="Specjalista ds. sprzedaży" Margin="0,0,0,8"/>
 
-                            <!-- Wynik weryfikacji -->
-                            <Border Style="{StaticResource StatusBadge}"
-                                    Background="{Binding PeselVerifyOk, Converter={StaticResource OkBrush}}">
-                                <TextBlock Text="{Binding PeselVerifyStatus}"
-                                           Foreground="White" FontSize="12" TextWrapping="Wrap"/>
-                            </Border>
+        <TextBlock Text="Płeć pacjenta (K / M):" Margin="0,0,0,4"/>
+        <TextBox x:Name="PlecTextBox" Text="K" Margin="0,0,0,8"/>
 
-                            <!-- Info o pacjencie -->
-                            <Border Margin="0,6,0,0" CornerRadius="6" Padding="12,10"
-                                    Background="#E3F2FD"
-                                    Visibility="{Binding PeselFound,
-                                        Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <StackPanel>
-                                    <TextBlock Text="Ä‘Ĺşâ€Â¤ Dane pacjenta z P1"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#1565C0" Margin="0,0,0,6"/>
-                                    <TextBlock Text="{Binding PeselPatientInfo}"
-                                               FontSize="12" Foreground="#1565C0"
-                                               FontFamily="Consolas"
-                                               TextWrapping="Wrap" LineHeight="20"/>
-                                </StackPanel>
-                            </Border>
+        <TextBlock Text="Data urodzenia pacjenta (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="DataUrodzeniaTextBox" Text="1981-10-26" Margin="0,0,0,8"/>
 
-                            <!-- Info o staÄąâ€šych OID -->
-                            <Border Margin="0,10,0,0" CornerRadius="6" Padding="10,8"
-                                    Background="#F9FBE7">
-                                <StackPanel>
-                                    <TextBlock Text="Identyfikatory P1 (OID)"
-                                               FontSize="10" FontWeight="Bold" Foreground="#827717"
-                                               Margin="0,0,0,4"/>
-                                    <TextBlock FontSize="10" Foreground="#558B2F" FontFamily="Consolas"
-                                               Text="PESEL: 2.16.840.1.113883.3.4424.1.1.616"/>
-                                    <TextBlock FontSize="10" Foreground="#558B2F" FontFamily="Consolas"
-                                               Text="NPWZ:  2.16.840.1.113883.3.4424.1.6.2"/>
-                                </StackPanel>
-                            </Border>
+        <TextBlock Text="Pracodawca — NIP:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaNipTextBox" Text="1382222234" Margin="0,0,0,8"/>
 
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+        <TextBlock Text="Pracodawca — REGON9:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaRegon9TextBox" Text="190190190" Margin="0,0,0,8"/>
 
-                <!-- Ă˘â€˘â€ťĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘â€”
-                     Ă˘â€˘â€  PANEL 2 Ă˘â‚¬â€ť Dokumenty EDM pacjenta               Ă˘â€˘â€
-                     Ă˘â€˘ĹˇĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ĹĄ -->
-                <Border Grid.Column="2" Grid.Row="0" Style="{StaticResource PanelCard}">
-                    <StackPanel>
-                        <Border Style="{StaticResource PanelHeader}" Background="#00695C">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Ä‘Ĺşâ€śâ€ž" FontSize="18" Foreground="White"
-                                               VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                    <StackPanel>
-                                        <TextBlock Text="Dokumentacja EDM pacjenta"
-                                                   FontSize="13" FontWeight="Bold" Foreground="White"/>
-                                        <TextBlock Text="Lokalne repozytorium plikÄ‚Ĺ‚w CDA"
-                                                   FontSize="10" Foreground="#80CBC4"/>
-                                    </StackPanel>
-                                </StackPanel>
-                                <Button Grid.Column="1" Style="{StaticResource ActionBtn}"
-                                        Background="#00796B" Height="28" Padding="10,0" FontSize="11"
-                                        Command="{Binding LoadEdmDocumentsCommand}"
-                                        IsEnabled="{Binding IsBusy,
-                                            Converter={StaticResource InverseBooleanConverter}}">
-                                    Ä‘Ĺşâ€ťâ€ž OdÄąâ€şwieÄąÄ˝
-                                </Button>
-                            </Grid>
-                        </Border>
+        <TextBlock Text="Pracodawca — nazwa:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaNazwaTextBox" Text="ABC Sp. z o.o." Margin="0,0,0,8"/>
 
-                        <StackPanel Margin="16,10,16,14">
+        <TextBlock Text="Pracodawca — miejscowość:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaMiejscowoscTextBox" Text="Warszawa" Margin="0,0,0,8"/>
 
-                            <!-- Status -->
-                            <Border Style="{StaticResource StatusBadge}"
-                                    Background="{Binding PeselFound, Converter={StaticResource OkBrush}}"
-                                    Margin="0,0,0,8">
-                                <TextBlock Text="{Binding EdmStatus}"
-                                           Foreground="White" FontSize="11" TextWrapping="Wrap"/>
-                            </Border>
+        <TextBlock Text="Pracodawca — kod pocztowy:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaKodPocztowyTextBox" Text="00-100" Margin="0,0,0,8"/>
 
-                            <!-- Lista dokumentÄ‚Ĺ‚w -->
-                            <DataGrid ItemsSource="{Binding EdmDocuments}"
-                                      AutoGenerateColumns="False"
-                                      IsReadOnly="True"
-                                      SelectionMode="Single"
-                                      CanUserSortColumns="True"
-                                      CanUserResizeColumns="True"
-                                      GridLinesVisibility="Horizontal"
-                                      AlternatingRowBackground="#F1F8E9"
-                                      RowBackground="White"
-                                      FontSize="11"
-                                      MaxHeight="280"
-                                      BorderBrush="#B2DFDB" BorderThickness="1">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="ID"     Binding="{Binding Id}"           Width="40"/>
-                                    <DataGridTextColumn Header="Typ"    Binding="{Binding DocumentType}"  Width="80"/>
-                                    <DataGridTextColumn Header="TytuÄąâ€š"  Binding="{Binding Title}"         Width="*"/>
-                                    <DataGridTextColumn Header="Status" Binding="{Binding SignatureStatus}" Width="80"/>
-                                    <DataGridTextColumn Header="P1"     Binding="{Binding P1IndexStatus}"  Width="60"/>
-                                    <DataGridTextColumn Header="Data"   Binding="{Binding CreatedAt, StringFormat=\{0:dd.MM.yy\}}" Width="70"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+        <TextBlock Text="Pracodawca — ulica:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaUlicaTextBox" Text="Długa" Margin="0,0,0,8"/>
 
-                            <!-- Przycisk otwarcia wybranego dokumentu -->
-                            <Button Margin="0,8,0,0" Style="{StaticResource ActionBtn}"
-                                    Background="#00796B" HorizontalAlignment="Left"
-                                    Command="{Binding OpenEdmDocumentCommand}">
-                                Ä‘Ĺşâ€”â€šÄŹÂ¸Ĺą  OtwÄ‚Ĺ‚rz wybrany dokument XML
-                            </Button>
+        <TextBlock Text="Pracodawca — nr domu:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaNrDomuTextBox" Text="8" Margin="0,0,0,8"/>
 
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+        <TextBlock Text="Pracodawca — telefon:" Margin="0,0,0,4"/>
+        <TextBox x:Name="PracodawcaTelefonTextBox" Text="221234567" Margin="0,0,0,8"/>
 
-                <!-- Ă˘â€˘â€ťĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘â€”
-                     Ă˘â€˘â€  PANEL 3 Ă˘â‚¬â€ť Testowe orzeczenie CDA               Ă˘â€˘â€
-                     Ă˘â€˘ĹˇĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ÂĂ˘â€˘ĹĄ -->
-                <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
-                        Style="{StaticResource PanelCard}">
-                    <StackPanel>
-                        <Border Style="{StaticResource PanelHeader}" Background="#6A1B9A">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Ä‘Ĺşâ€śâ€ą" FontSize="18" Foreground="White"
-                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <StackPanel>
-                                    <TextBlock Text="Testowe orzeczenie o zdolnoÄąâ€şci do pracy  Ă˘â‚¬â€ť  HL7 CDA"
-                                               FontSize="13" FontWeight="Bold" Foreground="White"/>
-                                    <TextBlock Text="Generuje dokument XML zgodny z PIK Ă‚Â· opcjonalnie podpisuje pieczĂ„â„˘ciĂ„â€¦ placÄ‚Ĺ‚wki (WSS)"
-                                               FontSize="10" Foreground="#CE93D8"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
+        <TextBlock Text="Symbol werdyktu (np. SYMBOL_21):" Margin="0,0,0,4"/>
+        <TextBox x:Name="WerdyktSymbolTextBox" Text="SYMBOL_21" Margin="0,0,0,8"/>
 
-                        <Grid Margin="16,12,16,16">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="220"/>
-                            </Grid.ColumnDefinitions>
+        <TextBlock Text="Data następnego badania (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="DataNastepnegoBadaniaTextBox" Text="2028-01-10" Margin="0,0,0,8"/>
 
-                            <!-- Kolumna 1: Dane orzeczenia -->
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="DANE ORZECZENIA"
-                                           FontSize="10" FontWeight="Bold" Foreground="#6A1B9A"
-                                           Margin="0,0,0,6"/>
+        <TextBlock Text="Miejsce wystawienia:" Margin="0,0,0,4"/>
+        <TextBox x:Name="MiejsceWystawieniaTextBox" Text="Bydgoszcz" Margin="0,0,0,8"/>
 
-                                <!-- ZdolnoÄąâ€şĂ„â€ˇ do pracy Ă˘â‚¬â€ť toggle -->
-                                <Border CornerRadius="8" Padding="12,8" Margin="0,0,0,10"
-                                        Background="{Binding IsAbleToWork, Converter={StaticResource AbilityBrush}}">
-                                    <StackPanel>
-                                        <CheckBox IsChecked="{Binding IsAbleToWork}"
-                                                  Foreground="White" FontSize="14" FontWeight="Bold">
-                                            <TextBlock Text="{Binding IsAbleToWork, Converter={StaticResource AbilityTxt}}"
-                                                       Foreground="White" FontWeight="Bold" FontSize="14"/>
-                                        </CheckBox>
-                                    </StackPanel>
-                                </Border>
+        <Button x:Name="WeryfikujOrzeczenieButton" Content="Zweryfikuj orzeczenie (bez zapisu, Middleware)"
+                Click="WeryfikujOrzeczenieButton_Click" Margin="0,0,0,8" Padding="8,4"/>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="Stanowisko pracy"/>
-                                <TextBox Style="{StaticResource InputBox}"
-                                         Text="{Binding WorkPosition, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="np. Operator wÄ‚Ĺ‚zka widÄąâ€šowego"/>
+        <Button x:Name="WystawOrzeczenieButton" Content="Wystaw orzeczenie w P1 (Middleware)"
+                Click="WystawOrzeczenieButton_Click" Margin="0,0,0,8" Padding="8,4"/>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="Pracodawca"/>
-                                <TextBox Style="{StaticResource InputBox}"
-                                         Text="{Binding EmployerName, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="PeÄąâ€šna nazwa firmy"/>
+        <TextBlock Text="Wynik orzeczenia:" Margin="0,8,0,4" FontWeight="Bold"/>
+        <TextBox x:Name="OrzeczenieResultTextBox" IsReadOnly="True" TextWrapping="Wrap"
+                 AcceptsReturn="True" MinHeight="120" VerticalScrollBarVisibility="Auto"/>
+    </StackPanel>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="Data nastĂ„â„˘pnego badania"/>
-                                <DatePicker SelectedDate="{Binding NextExaminationDate}"
-                                            Height="30" FontSize="13"/>
-                            </StackPanel>
+    <StackPanel Width="360">
+        <TextBlock Text="Test Middleware — rejestracja / aktualizacja pacjenta"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,4"/>
+        <TextBlock Text="Uwaga: aktualizacja odrzuca żądanie, jeśli nie zmienia się żadna dana tożsamościowa (imię/nazwisko/płeć/data urodzenia); sama zmiana adresu może nie wystarczyć."
+                   FontSize="11" Foreground="#555" TextWrapping="Wrap"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"/>
 
-                            <!-- Kolumna 2: Uzasadnienie + ID -->
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="UZASADNIENIE I PARAMETRY"
-                                           FontSize="10" FontWeight="Bold" Foreground="#6A1B9A"
-                                           Margin="0,0,0,6"/>
+        <TextBlock Text="PESEL pacjenta:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegPeselTextBox" Text="70032816894" Margin="0,0,0,8"/>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="TreÄąâ€şĂ„â€ˇ orzeczenia / uzasadnienie"/>
-                                <TextBox Height="80" TextWrapping="Wrap"
-                                         AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
-                                         FontSize="12" Padding="6,4"
-                                         BorderBrush="#B0BEC5" BorderThickness="1" Background="#FAFAFA"
-                                         Text="{Binding Statement, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="TreÄąâ€şĂ„â€ˇ uzasadnienia orzeczenia"/>
+        <TextBlock Text="Imię:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegImieTextBox" Text="Anna" Margin="0,0,0,8"/>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="ID lekarza wystawiajĂ„â€¦cego"/>
-                                <TextBox Style="{StaticResource InputBox}" Width="120" HorizontalAlignment="Left"
-                                         Text="{Binding DoctorId, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Identyfikator lekarza w lokalnej bazie"/>
+        <TextBlock Text="Nazwisko:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegNazwiskoTextBox" Text="Kasina" Margin="0,0,0,8"/>
 
-                                <TextBlock Style="{StaticResource Lbl}" Text="ID bieÄąÄ˝Ă„â€¦cego uÄąÄ˝ytkownika (audyt)"/>
-                                <TextBox Style="{StaticResource InputBox}" Width="120" HorizontalAlignment="Left"
-                                         Text="{Binding CurrentUserId, UpdateSourceTrigger=PropertyChanged}"/>
-                            </StackPanel>
+        <TextBlock Text="Płeć (K / M):" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegPlecTextBox" Text="K" Margin="0,0,0,8"/>
 
-                            <!-- Kolumna 3: Akcja + wynik -->
-                            <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="AKCJA"
-                                           FontSize="10" FontWeight="Bold" Foreground="#6A1B9A"
-                                           Margin="0,0,0,10"/>
+        <TextBlock Text="Data urodzenia (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegDataUrodzeniaTextBox" Text="1981-10-26" Margin="0,0,0,8"/>
 
-                                <!-- Informacja o wymaganym pacjencie -->
-                                <Border CornerRadius="6" Padding="10,8" Margin="0,0,0,10"
-                                        Background="{Binding PeselFound, Converter={StaticResource OkBrush}}">
-                                    <TextBlock FontSize="11" Foreground="White" TextWrapping="Wrap">
-                                        <Run Text="{Binding PeselFound, Converter={StaticResource OkIcon}}"/>
-                                        <Run Text="  Pacjent: "/>
-                                        <Run Text="{Binding PeselPatientInfo}"/>
-                                    </TextBlock>
-                                </Border>
+        <TextBlock Text="Miejscowość:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegMiejscowoscTextBox" Text="Szczecin" Margin="0,0,0,8"/>
 
-                                <Button Style="{StaticResource ActionBtn}"
-                                        Background="#6A1B9A" HorizontalAlignment="Stretch"
-                                        Margin="0,0,0,8"
-                                        Command="{Binding IssueCertificateCommand}"
-                                        IsEnabled="{Binding IsBusy,
-                                            Converter={StaticResource InverseBooleanConverter}}">
-                                    Ä‘Ĺşâ€śâ€ą  Wystaw orzeczenie
-                                </Button>
+        <TextBlock Text="Kod pocztowy:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegKodPocztowyTextBox" Text="70-570" Margin="0,0,0,8"/>
 
-                                <!-- Status wystawienia -->
-                                <Border Style="{StaticResource StatusBadge}"
-                                        Background="{Binding CertificateOk, Converter={StaticResource OkBrush}}"
-                                        Margin="0,0,0,0">
-                                    <TextBlock Text="{Binding CertificateStatus}"
-                                               Foreground="White" FontSize="11"
-                                               TextWrapping="Wrap"/>
-                                </Border>
+        <TextBlock Text="Ulica:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegUlicaTextBox" Text="Misjonarska" Margin="0,0,0,8"/>
 
-                                <!-- OtwÄ‚Ĺ‚rz plik XML -->
-                                <Button Margin="0,8,0,0" Style="{StaticResource ActionBtn}"
-                                        Background="#4A148C" HorizontalAlignment="Stretch"
-                                        FontSize="11"
-                                        Command="{Binding OpenCertificateFileCommand}"
-                                        Visibility="{Binding CertificateOk,
-                                            Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    Ä‘Ĺşâ€”â€šÄŹÂ¸Ĺą  OtwÄ‚Ĺ‚rz plik XML
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
+        <TextBlock Text="Nr domu:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegNrDomuTextBox" Text="116" Margin="0,0,0,8"/>
 
-                <!-- Busy overlay -->
-                <Border Grid.ColumnSpan="3" Grid.RowSpan="2"
-                        Background="#88FFFFFF" CornerRadius="10"
-                        Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <ProgressBar IsIndeterminate="True" Width="200" Height="8"
-                                     Foreground="#1A237E" Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding BusyMessage}"
-                                   FontSize="14" FontWeight="SemiBold"
-                                   Foreground="#1A237E" HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
+        <TextBlock Text="Nr lokalu:" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegNrLokaluTextBox" Margin="0,0,0,8"/>
 
-            </Grid>
-        </ScrollViewer>
-    </Grid>
+        <Button x:Name="RegisterPatientButton" Content="Zarejestruj pacjenta w P1 (Middleware)"
+                Click="RegisterPatientButton_Click" Margin="0,0,0,8" Padding="8,4"/>
+
+        <TextBlock Text="ID pacjenta do aktualizacji (z rejestracji lub wyszukania):" Margin="0,0,0,4"/>
+        <TextBox x:Name="RegPacjentIdTextBox" Margin="0,0,0,8"/>
+
+        <Button x:Name="UpdatePatientButton" Content="Aktualizuj pacjenta w P1 (Middleware)"
+                Click="UpdatePatientButton_Click" Margin="0,0,0,8" Padding="8,4"/>
+
+        <TextBlock Text="Wynik:" Margin="0,8,0,4" FontWeight="Bold"/>
+        <TextBox x:Name="RegResultTextBox" IsReadOnly="True" TextWrapping="Wrap"
+                 AcceptsReturn="True" MinHeight="120" VerticalScrollBarVisibility="Auto"/>
+    </StackPanel>
+    </StackPanel>
+    </ScrollViewer>
 </UserControl>
 

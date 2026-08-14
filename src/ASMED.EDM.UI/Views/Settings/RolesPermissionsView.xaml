@@ -1,0 +1,40 @@
+<UserControl x:Class="ASMED.EDM.UI.Views.Settings.RolesPermissionsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodels="clr-namespace:ASMED.EDM.UI.ViewModels.Settings"
+             d:DataContext="{d:DesignInstance Type=viewmodels:RolesPermissionsViewModel}"
+             mc:Ignorable="d">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Text="Rola:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="Bold"/>
+            <ComboBox Width="200" ItemsSource="{Binding Roles}" SelectedItem="{Binding SelectedRole}"/>
+        </StackPanel>
+
+        <DataGrid Grid.Row="2"
+                  ItemsSource="{Binding Tabs}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  RowHeaderWidth="0">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Dostęp" Binding="{Binding IsGranted, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                <DataGridTextColumn Header="Zakładka" Binding="{Binding DisplayName}" Width="*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Klucz" Binding="{Binding Key}" Width="200" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
+            <Button Content="Zapisz" Padding="16,6" Command="{Binding SaveCommand}"/>
+            <TextBlock Text="{Binding StatusMessage}" VerticalAlignment="Center" Margin="16,0,0,0" Foreground="Green"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

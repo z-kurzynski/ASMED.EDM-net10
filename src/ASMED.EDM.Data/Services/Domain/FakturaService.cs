@@ -1,13 +1,15 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 using ASMED.EDM.Core.Enums;
 using ASMED.EDM.Core.Interfaces.Repositories;
 using ASMED.EDM.Core.Interfaces.Services;
 using Microsoft.Extensions.Logging;
+using System.Windows;
 
 namespace ASMED.EDM.Data.Services.Domain;
 
 /// <summary>
-/// Serwis fakturowania — transakcyjny zapis list badań i faktur.
+/// Serwis fakturowania â€” transakcyjny zapis list badaĹ„ i faktur.
 /// Migracja z Access SQL (AccessDbContext.AddFaktura / SaveListOfInvoiceAsync).
 /// </summary>
 public class FakturaService : IFakturaService
@@ -21,14 +23,14 @@ public class FakturaService : IFakturaService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    // ── Firmy ──────────────────────────────────────────────────────────────────
+    // â”€â”€ Firmy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public async Task<IEnumerable<Firma>> GetActiveFirmyAsync(string? searchQuery = null, CancellationToken ct = default)
     {
         return await _unitOfWork.Firmy.GetActiveFirmyAsync(searchQuery, ct);
     }
 
-    // ── Cenniki ────────────────────────────────────────────────────────────────
+    // â”€â”€ Cenniki â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public async Task<IEnumerable<string>> GetActiveCennikNazwyAsync(CancellationToken ct = default)
     {
@@ -41,147 +43,177 @@ public class FakturaService : IFakturaService
         return await _unitOfWork.Cenniki.GetByNazwaAsync(nazwa, ct);
     }
 
-    // ── Badania ────────────────────────────────────────────────────────────────
+    // â”€â”€ Badania â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public async Task<IEnumerable<Badanie>> GetAvailableBadaniaAsync(int? firmaId = null, CancellationToken ct = default)
     {
         return await _unitOfWork.Badania.GetAvailableBadaniaAsync(firmaId, ct);
     }
 
-    // ── Listy badań ───────────────────────────────────────────────────────────
+    public async Task<IEnumerable<BadanieRowDto>> GetAvailableBadaniaRowsAsync(CancellationToken ct = default)
+    {
+        return await _unitOfWork.Badania.GetAvailableBadaniaRowsAsync(null, ct);
+    }
+
+    // â”€â”€ Listy badaĹ„ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public async Task<ListaBadan?> GetListaBadanAsync(int id, CancellationToken ct = default)
     {
         return await _unitOfWork.ListyBadan.GetWithBadaniaAsync(id, ct);
     }
 
-    // ── Zapis transakcyjny ────────────────────────────────────────────────────
+    // â”€â”€ Zapis transakcyjny â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
-    /// Transakcyjny zapis listy badań + faktury.
+    /// Transakcyjny zapis listy badaĹ„ + faktury.
     /// Odpowiednik: SaveListOfInvoiceAsync z legacy ListaFaktAddViewModel.
     ///
     /// Algorytm (zgodny z legacy Access SQL):
-    ///  1. Walidacja danych wejściowych
-    ///  2. Znajdź lub utwórz Faktura (po NumerFaktury — jak w Access: SELECT FK_ID WHERE TRIM(FK_Numer) = ?)
-    ///  3. Utwórz lub zaktualizuj ListaBadan (powiąż z firmą i fakturą)
-    ///  4. Zaktualizuj Bad_L_ID i Bad_F_ID dla badań (AssignToLista + SetFakturaId)
-    ///  5. Zapisz — jeśli błąd → rollback
+    ///  1. Walidacja danych wejĹ›ciowych
+    ///  2. ZnajdĹş lub utwĂłrz Faktura (po NumerFaktury â€” jak w Access: SELECT FK_ID WHERE TRIM(FK_Numer) = ?)
+    ///  3. UtwĂłrz lub zaktualizuj ListaBadan (powiÄ…ĹĽ z firmÄ… i fakturÄ…)
+    ///  4. Zaktualizuj Bad_L_ID i Bad_F_ID dla badaĹ„ (AssignToLista + SetFakturaId)
+    ///  5. Zapisz â€” jeĹ›li bĹ‚Ä…d â†’ rollback
     /// </summary>
-    public async Task<SaveListaBadanResult> SaveListaBadanAsync(SaveListaBadanRequest request, CancellationToken ct = default)
+    public async Task<SaveListaBadanResult> SaveListaBadanAsync(SaveListaBadanRequest request, IProgress<string>? progress = null, CancellationToken ct = default)
     {
-        _logger.LogInformation("Zapis listy badań — FirmaId={FirmaId}, NumerFaktury={Numer}, Badania={Count}",
+        _logger.LogInformation("Zapis listy badaĹ„ â€” FirmaId={FirmaId}, NumerFaktury={Numer}, Badania={Count}",
             request.FirmaId, request.NumerFaktury, request.BadanieIds.Count());
 
-        // ── Walidacja ──────────────────────────────────────────────────────────
+        // â”€â”€ Walidacja â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         if (!request.BadanieIds.Any())
         {
-            return new SaveListaBadanResult(false, null, 0, "Brak pozycji na liście — nic do zapisania.");
+            return new SaveListaBadanResult(false, null, 0, "Brak pozycji na liĹ›cie â€” nic do zapisania.");
         }
 
-        await _unitOfWork.BeginTransactionAsync(ct);
+        SaveListaBadanResult? result = null;
+
         try
         {
-            // ── 1. Utwórz lub znajdź Faktura ───────────────────────────────────
-            int? fakturaId = null;
-
-            if (!string.IsNullOrWhiteSpace(request.NumerFaktury))
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                var existingFaktura = await _unitOfWork.Faktury.GetByNumerAsync(request.NumerFaktury, ct);
+                // krok 1/4 weryfikacja faktury
 
-                if (existingFaktura != null)
+                progress?.Report("Krok 1/4  weryfikacja faktury...");
+                int? fakturaId = null;
+
+                if (!string.IsNullOrWhiteSpace(request.NumerFaktury))
                 {
-                    fakturaId = existingFaktura.Id;
-                    _logger.LogDebug("Znaleziono istniejącą fakturę: Id={FakturaId}, Numer={Numer}", fakturaId, request.NumerFaktury);
+                    var existingFaktura = await _unitOfWork.Faktury.GetByNumerAsync(request.NumerFaktury, ct);
+
+                    if (existingFaktura != null)
+                    {
+                        fakturaId = existingFaktura.Id;
+                        _logger.LogDebug("Znaleziono istniejÄ…cÄ… fakturÄ™: Id={FakturaId}, Numer={Numer}", fakturaId, request.NumerFaktury);
+                        progress?.Report($"Krok 1/4 â€” znaleziono fakturÄ™ nr {request.NumerFaktury} (Id={fakturaId}).");
+                    }
+                    else
+                    {
+                        var nowaFaktura = new Faktura
+                        {
+                            FirmaId = request.FirmaId,
+                            NumerFaktury = request.NumerFaktury.Trim(),
+                            DataWystawienia = request.DataWystawienia,
+                            KwotaBrutto = request.KwotaBrutto,
+                            Uwagi = request.Uwagi,
+                            NazwaCennika = request.NazwaCennika,
+                            Status = FakturaStatus.Wystawiona.ToString(),
+                            SumaBadan = request.KwotaBrutto,
+                            Saldo = request.KwotaBrutto
+                        };
+
+                     //   await _unitOfWork.Faktury.AddAsync(nowaFaktura, ct);
+                     //   await _unitOfWork.SaveChangesAsync(ct);
+
+                        fakturaId = nowaFaktura.Id;
+                        _logger.LogInformation("Utworzono nową fakturę: Id={FakturaId}, Numer={Numer}", fakturaId, request.NumerFaktury);
+                        progress?.Report($"Krok 1/4 — utworzono nową fakturę nr {request.NumerFaktury} (Id={fakturaId}).");
+                    }
                 }
                 else
                 {
-                    var nowaFaktura = new Faktura
+                    progress?.Report("Krok 1/4 â€” brak numeru faktury, pominiÄ™to.");
+                }
+
+                // krok 2/4 zapis listy badań (ListaBadan)
+
+                progress?.Report("Krok 2/4 — zapis listy badań...");
+                ListaBadan listaBadan;
+
+                if (request.IstniejacaListaBadanId.HasValue)
+                {
+                    var existing = await _unitOfWork.ListyBadan.GetByIdAsync(request.IstniejacaListaBadanId.Value, ct);
+                    if (existing == null)
+                        throw new InvalidOperationException($"ListaBadan Id={request.IstniejacaListaBadanId} nie istnieje.");
+
+                    // Odepnij stare badania przed przypisaniem nowych
+                    var stareBadania = await _unitOfWork.Badania.GetByListaBadanAsync(existing.Id, ct);
+                    var stareBadanieIds = stareBadania.Select(b => b.Id).ToList();
+                    if (stareBadanieIds.Any())
+                        await _unitOfWork.Badania.UnassignFromListaAsync(stareBadanieIds, ct);
+
+                    existing.FirmaId = request.FirmaId;
+                    existing.FakturaId = fakturaId;
+                    existing.SumaRazem = request.KwotaBrutto;
+                    existing.Uwagi = request.Uwagi;
+                    existing.ModifiedAt = DateTime.UtcNow;
+
+                    _unitOfWork.ListyBadan.Update(existing);
+                    listaBadan = existing;
+                    _logger.LogDebug("Zaktualizowano ListaBadan Id={Id}", existing.Id);
+                    progress?.Report($"Krok 2/4 â€” zaktualizowano listÄ™ badaĹ„ (Id={existing.Id}).");
+                }
+                else
+                {
+                    listaBadan = new ListaBadan
                     {
                         FirmaId = request.FirmaId,
-                        NumerFaktury = request.NumerFaktury.Trim(),
-                        DataWystawienia = request.DataWystawienia,
-                        KwotaBrutto = request.KwotaBrutto,
-                        Uwagi = request.Uwagi,
-                        NazwaCennika = request.NazwaCennika,
-                        Status = FakturaStatus.Wystawiona,
-                        SumaBadan = request.KwotaBrutto,
-                        Saldo = request.KwotaBrutto
+                        FakturaId = fakturaId,
+                        DataUtworzenia = request.DataWystawienia,
+                        SumaRazem = request.KwotaBrutto,
+                        Uwagi = request.Uwagi
                     };
 
-                    await _unitOfWork.Faktury.AddAsync(nowaFaktura, ct);
+                    await _unitOfWork.ListyBadan.AddAsync(listaBadan, ct);
                     await _unitOfWork.SaveChangesAsync(ct);
-
-                    fakturaId = nowaFaktura.Id;
-                    _logger.LogInformation("Utworzono nową fakturę: Id={FakturaId}, Numer={Numer}", fakturaId, request.NumerFaktury);
+                    _logger.LogInformation("Utworzono nowÄ… ListaBadan Id={Id}", listaBadan.Id);
+                    progress?.Report($"Krok 2/4 â€” utworzono nowÄ… listÄ™ badaĹ„ (Id={listaBadan.Id}).");
                 }
-            }
 
-            // ── 2. Utwórz lub zaktualizuj ListaBadan ───────────────────────────
-            ListaBadan listaBadan;
+                // krok 3/4 przypisywanie badań do listy
 
-            if (request.IstniejacaListaBadanId.HasValue)
-            {
-                var existing = await _unitOfWork.ListyBadan.GetByIdAsync(request.IstniejacaListaBadanId.Value, ct);
-                if (existing == null)
-                    throw new InvalidOperationException($"ListaBadan Id={request.IstniejacaListaBadanId} nie istnieje.");
+                progress?.Report($"Krok 3/4 — przypisywanie {request.BadanieIds.Count()} badań do listy...");
+                var badanieIds = request.BadanieIds.ToList();
+                await _unitOfWork.Badania.AssignToListaAsync(badanieIds, listaBadan.Id, ct);
+                progress?.Report($"Krok 3/4 — przypisano {badanieIds.Count} badań do listy (Id={listaBadan.Id}).");
 
-                // Odepnij stare badania przed przypisaniem nowych
-                var stareBadania = await _unitOfWork.Badania.GetByListaBadanAsync(existing.Id, ct);
-                var stareBadanieIds = stareBadania.Select(b => b.Id).ToList();
-                if (stareBadanieIds.Any())
-                    await _unitOfWork.Badania.UnassignFromListaAsync(stareBadanieIds, ct);
-
-                existing.FirmaId = request.FirmaId;
-                existing.FakturaId = fakturaId;
-                existing.SumaRazem = request.KwotaBrutto;
-                existing.Uwagi = request.Uwagi;
-                existing.ModifiedAt = DateTime.UtcNow;
-
-                _unitOfWork.ListyBadan.Update(existing);
-                listaBadan = existing;
-                _logger.LogDebug("Zaktualizowano ListaBadan Id={Id}", existing.Id);
-            }
-            else
-            {
-                listaBadan = new ListaBadan
+                // krok 4/4 ustawienie Bad_F_ID jeśli faktura istnieje
+                if (fakturaId.HasValue)
                 {
-                    FirmaId = request.FirmaId,
-                    FakturaId = fakturaId,
-                    DataUtworzenia = request.DataWystawienia,
-                    SumaRazem = request.KwotaBrutto,
-                    Uwagi = request.Uwagi
-                };
+                    progress?.Report("Krok 4/4 — aktualizacja powiązania z fakturą...");
+                    await _unitOfWork.Badania.SetFakturaIdAsync(listaBadan.Id, fakturaId.Value, ct);
+                    progress?.Report($"Krok 4/4 — powiązano badania z fakturą (Id={fakturaId}).");
+                }
+                else
+                {
+                    progress?.Report("Krok 4/4 — brak faktury, pominięto powiązanie.");
+                }
 
-                await _unitOfWork.ListyBadan.AddAsync(listaBadan, ct);
-                await _unitOfWork.SaveChangesAsync(ct);
-                _logger.LogInformation("Utworzono nową ListaBadan Id={Id}", listaBadan.Id);
-            }
+                _logger.LogInformation("Zapis listy badań zakończony sukcesem — ListaBadanId={Id}, FakturaId={FId}",
+                    listaBadan.Id, fakturaId);
 
-            // ── 3. Przypisz badania do listy (Bad_L_ID) ────────────────────────
-            var badanieIds = request.BadanieIds.ToList();
-            await _unitOfWork.Badania.AssignToListaAsync(badanieIds, listaBadan.Id, ct);
-
-            // ── 4. Ustaw Bad_F_ID jeśli faktura istnieje ───────────────────────
-            if (fakturaId.HasValue)
-                await _unitOfWork.Badania.SetFakturaIdAsync(listaBadan.Id, fakturaId.Value, ct);
-
-            // ── 5. Zapisz i zatwierdź transakcję ──────────────────────────────
-            await _unitOfWork.CommitTransactionAsync(ct);
-
-            _logger.LogInformation("Zapis listy badań zakończony sukcesem — ListaBadanId={Id}, FakturaId={FId}",
-                listaBadan.Id, fakturaId);
-
-            return new SaveListaBadanResult(true, fakturaId, listaBadan.Id);
+                result = new SaveListaBadanResult(true, fakturaId, listaBadan.Id);
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Błąd zapisu listy badań — rollback transakcji");
-            await _unitOfWork.RollbackTransactionAsync(ct);
-            return new SaveListaBadanResult(false, null, 0, ex.Message);
+            progress?.Report($"Błąd: {ex.Message}");
+            result = new SaveListaBadanResult(false, null, 0, ex.Message);
         }
-    }
 
+        return result ?? new SaveListaBadanResult(false, null, 0, "Nieznany błąd.");
+    }
     public async Task UnassignBadaniaAsync(IEnumerable<int> badanieIds, CancellationToken ct = default)
     {
         var ids = badanieIds.ToList();

@@ -3,21 +3,23 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:conv="clr-namespace:ASMED.EDM.UI.Converters"
+    xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
     mc:Ignorable="d"
     Width="Auto" 
     VerticalAlignment="Top" 
     HorizontalAlignment="Stretch"
-    Height="720" 
-    Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
+    Height="720">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:StringTruncateConverter x:Key="StringTruncateConverter"/>
         <Style x:Key="CenterAlignedCell" TargetType="TextBlock">
             <Setter Property="TextAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid VerticalAlignment="Top" Margin="0,0,-3,0">
+    <Grid VerticalAlignment="Top">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="Auto" MaxHeight="60" />
@@ -25,21 +27,23 @@
         </Grid.RowDefinitions>
 
         <!-- Wiersz 1: Wyszukiwarka i przyciski -->
-        <Grid VerticalAlignment="Top" 
-              MaxWidth="1500" MinWidth="1100" Grid.RowSpan="2">
+        <Grid x:Name="top" VerticalAlignment="Top" MinWidth="1100" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="16"/>
-                <ColumnDefinition Width="590"/>
-                <ColumnDefinition/>
-                <ColumnDefinition Width="112"/>
-                <ColumnDefinition Width="230"/>
-                <ColumnDefinition Width="230"/>
-                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center" Height="50">
                 <TextBlock Text="Wyszukaj skierowanie:" FontSize="12" FontWeight="Bold" Margin="0,0,0,2" HorizontalAlignment="Left"/>
-                <DockPanel Width="551" HorizontalAlignment="Left">
+                <DockPanel HorizontalAlignment="Left">
                     <TextBox x:Name="txtSearchPacjent" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Height="28" Width="247" FontSize="14">
                         <TextBox.ToolTip>
                             <ToolTip>
@@ -71,9 +75,46 @@
                 </DockPanel>
             </StackPanel>
 
+            <!-- Licznik rekordów: widoczne (po filtrach SfDataGrid) / wszystkie -->
+            <StackPanel Grid.Column="2" VerticalAlignment="Top" Margin="15,2,0,0">
+                <TextBlock Text="Liczba rekordów" FontSize="12" FontWeight="Bold"
+                           Margin="0,0,0,2" HorizontalAlignment="Left"/>
+                <TextBlock x:Name="txtRecordCount" FontSize="18" Height="28" Foreground="{DynamicResource UI.Text.Selected}" VerticalAlignment="Center" Padding="0,4,0,2"/>
+            </StackPanel>
+
+            <Button x:Name="drukuj"
+                Grid.Column="7"
+                Height="46" Width="46"
+                Content="🖨️"
+                Background="{DynamicResource UI.Background.Header}"
+                Foreground="#FFFBFBFB"
+                Click="prinlist_Click"
+                FontSize="22"
+                VerticalAlignment="Top" Margin="5,5.5,0,0" HorizontalAlignment="Right"/>
+
+            <Button x:Name="exportExcel"
+                Grid.Column="6"
+                Height="46" Width="46"
+                Content="📊"
+                Background="#FF1D6F42"
+                Foreground="#FFFBFBFB"
+                Click="exportExcel_Click"
+                ToolTip="Eksport do Excela"
+                FontSize="20"
+                VerticalAlignment="Top" Margin="5,5.5,0,0" HorizontalAlignment="Right"/>
+
+            <Button x:Name="odśwież"
+                Grid.Column="5"
+                Height="46" Width="46"
+                Content="🔃"
+                Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}"
+                Foreground="#FFFBFBFB"
+                Click="RefreshList_Click"
+                FontSize="22"
+                VerticalAlignment="Top" Margin="5,5.5,0,0"/>
+
             <!-- Przycisk Rejestracja -->
-            <Button Grid.Column="5"
-                HorizontalAlignment="Center"
+            <Button Grid.Column="8"
                 Height="46"
                 Content="📅 Rejestracja"
                 VerticalAlignment="Top"
@@ -82,11 +123,10 @@
                 Foreground="#FFFBFBFB"
                 FontSize="16"
                 Click="Rejestracja_Click"
-                Margin="0,5,0,0"/>
+                Margin="5,5,0,0"/>
 
             <!-- Przycisk Dodaj Kartę Badań -->
-            <Button Grid.Column="6"
-                HorizontalAlignment="Center"
+            <Button Grid.Column="9"
                 Height="45"
                 Content="📄  Dodaj Kartę Badań"
                 VerticalAlignment="Top"
@@ -95,7 +135,7 @@
                 Background="#FF009688"
                 Foreground="#FFFBFBFB"
                 FontSize="16" 
-                Margin="0,5,0,0"/>
+                Margin="5,5,10,4"/>
         </Grid>
 
         <!-- Wiersz 2: DatePickers dla "Wybrany okres" -->
@@ -118,81 +158,216 @@
         </StackPanel>
 
         <!-- Wiersz 3: Lista skierowań (uproszczona) -->
-        <DataGrid x:Name="Lista_kart_Badan"
-            Grid.Row="2"
-            AutoGenerateColumns="False"
-            ItemsSource="{Binding SkierowaniaFiltered}"
-            AlternationCount="2"
-            MinRowHeight="40"
-            FontSize="17"
-            SelectionMode="Single"
-            FontFamily="Arial Narrow"
-            Padding="2,2,2,2"
-            Margin="10,0,10,0" 
-            HorizontalAlignment="Stretch"
-            Height="596" 
-            VerticalAlignment="Top" 
-            Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
-            IsReadOnly="True">
+        <syncfusion:SfDataGrid x:Name="Lista_kart_Badan"
+          Grid.Row="2"
+          AutoGenerateColumns="False"
+          ItemsSource="{Binding SkierowaniaFiltered}"
+          AllowFiltering="True"
+          AllowSorting="True"
+          ColumnSizer="Star"
+          RowHeight="40"
+          FontSize="15"
+          SelectionMode="Single"
+          SelectionUnit="Row"
+          FontFamily="Arial Narrow"
+          Padding="2,2,2,2"
+          Margin="8,8,8,8"
+          AllowEditing="False"
+          Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" CurrentCellBorderBrush="{DynamicResource UI.Background.Hover}">
 
-            <DataGrid.Columns>
+            <syncfusion:SfDataGrid.Columns>
 
-                <DataGridTextColumn Binding="{Binding Id}" 
-                                           Header="ID" Width="50" 
-                                           ElementStyle="{StaticResource CenterAlignedCell}"/>
+                <syncfusion:GridTextColumn MappingName="Id"
+                                           HeaderText="ID" Width="50"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True"/>
 
 
-                <DataGridTextColumn Binding="{Binding Typ}" 
-                                           Header="Typ" Width="40"/>
-                <DataGridTextColumn Binding="{Binding Imie}" 
-                                           Header="Imię" Width="120"/>
-                <DataGridTextColumn Binding="{Binding Nazwisko}" 
-                                           Header="Nazwisko" 
-                                           Width="180"/>
-                <DataGridTextColumn Binding="{Binding Pesel}" 
-                                           Header="PESEL" Width="120"/>
-                <DataGridTextColumn Binding="{Binding Firma}" 
-                                           Header="Firma" Width="*">
-                    <DataGridTextColumn.ElementStyle>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="TextWrapping" Value="Wrap"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
+                <syncfusion:GridTextColumn MappingName="Typ"
+                                           HeaderText="Typ" Width="40"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True"/>
+                <syncfusion:GridTextColumn MappingName="Imie"
+                                           HeaderText="Imię" Width="110"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True"/>
+                <syncfusion:GridTextColumn MappingName="Nazwisko"
+                                           HeaderText="Nazwisko"
+                                           Width="170"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True"/>
+                <syncfusion:GridTextColumn MappingName="Pesel"
+                                           HeaderText="PESEL" Width="110"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True"/>
+                <syncfusion:GridTextColumn MappingName="Firma"
+                                           HeaderText="Firma" MinimumWidth="120"
+                                           TextAlignment="Left" VerticalAlignment="Center"
+                                           Padding="8,0,5,0" AllowFiltering="True" TextWrapping="Wrap">
+                    <syncfusion:GridTextColumn.CellStyle>
+                        <Style TargetType="syncfusion:GridCell">
+                            <Setter Property="FontSize" Value="12"/>
                         </Style>
-                    </DataGridTextColumn.ElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Binding="{Binding Data, StringFormat='dd-MM-yyyy'}" 
-                    Header="Data Skier." 
-                    Width="100"/>
-                <DataGridTextColumn Binding="{Binding DataRej, StringFormat='dd-MM-yyyy'}" 
-                    Header="Data Rej." 
-                    Width="100"/>
-                <DataGridTextColumn Binding="{Binding DataBad, StringFormat='dd-MM-yyyy'}" 
-                    Header="Data Bad." 
-                    Width="100"/>
+                    </syncfusion:GridTextColumn.CellStyle>
+                </syncfusion:GridTextColumn>
 
-                <DataGridTextColumn Binding="{Binding NumerFaktury}" 
-                    Header="Faktura" 
-                    Width="100"/>
+                <syncfusion:GridTextColumn MappingName="Data"
+                    HeaderText="Data Skier."
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="100">
+                    <syncfusion:GridTextColumn.ValueBinding>
+                        <Binding Path="Data" StringFormat="dd-MM-yyyy"/>
+                    </syncfusion:GridTextColumn.ValueBinding>
+                </syncfusion:GridTextColumn>
 
-                <DataGridTemplateColumn Header="Edycja" Width="60">
-                    <DataGridTemplateColumn.CellTemplate>
+                <syncfusion:GridTextColumn MappingName="StatusBad"
+                    HeaderText="Status"
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="65">
+                    <syncfusion:GridTextColumn.ValueBinding>
+                        <Binding Path="StatusBad" Converter="{StaticResource StringTruncateConverter}" ConverterParameter="6"/>
+                    </syncfusion:GridTextColumn.ValueBinding>
+                    <syncfusion:GridTextColumn.CellStyle>
+                        <Style TargetType="syncfusion:GridCell">
+                            <Setter Property="FontSize" Value="13"/>
+                        </Style>
+                    </syncfusion:GridTextColumn.CellStyle>
+                </syncfusion:GridTextColumn>
+
+                <syncfusion:GridTextColumn MappingName="DataRej"
+                    HeaderText="Data Rej."
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="100">
+                    <syncfusion:GridTextColumn.ValueBinding>
+                        <Binding Path="DataRej" StringFormat="dd-MM-yyyy"/>
+                    </syncfusion:GridTextColumn.ValueBinding>
+                </syncfusion:GridTextColumn>
+
+                <syncfusion:GridTextColumn MappingName="DataBad"
+                    HeaderText="Data Bad."
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="100">
+                    <syncfusion:GridTextColumn.ValueBinding>
+                        <Binding Path="DataBad" StringFormat="dd-MM-yyyy"/>
+                    </syncfusion:GridTextColumn.ValueBinding>
+                </syncfusion:GridTextColumn>
+
+                <syncfusion:GridTextColumn MappingName="DataDo"
+                    HeaderText="Data Do"
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="90">
+                    <syncfusion:GridTextColumn.ValueBinding>
+                        <Binding Path="DataDo" StringFormat="dd-MM-yyyy"/>
+                    </syncfusion:GridTextColumn.ValueBinding>
+                    <syncfusion:GridTextColumn.CellStyle>
+                        <Style TargetType="syncfusion:GridCell">
+                            <Setter Property="FontStyle" Value="Normal"/>
+                            <Setter Property="FontSize" Value="13"/>
+                        </Style>
+                    </syncfusion:GridTextColumn.CellStyle>
+                </syncfusion:GridTextColumn>
+
+                <!-- Faktura: mniejsza czcionka 13px -->
+                <syncfusion:GridTextColumn MappingName="NumerFaktury"
+                    HeaderText="Faktura"
+                    TextAlignment="Left" VerticalAlignment="Center"
+                    Padding="8,0,5,0" AllowFiltering="True"
+                    Width="90">
+                    <syncfusion:GridTextColumn.CellStyle>
+                        <Style TargetType="syncfusion:GridCell">
+                            <Setter Property="FontStyle" Value="Normal"/>
+                            <Setter Property="FontSize" Value="13"/>
+                        </Style>
+                    </syncfusion:GridTextColumn.CellStyle>
+                </syncfusion:GridTextColumn>
+
+                <syncfusion:GridTemplateColumn HeaderText="Dziś." Width="50" AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Height="35" Width="57" Background="#1976D2" Foreground="White" ToolTip="Edytuj Skierowanie"
-                                        Command="{Binding DataContext.EditSkierowanieCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                            <Button x:Name="wizyta_na_Dzis" Height="38" Width="50" ToolTip="Wizyta Dziś Rejestracja"
+                                   Command="{Binding DataContext.ToggleRejestracjaCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
+                                   CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Rejestracja}" Value="True">
+                                                <Setter Property="Background" Value="#388E3C"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <TextBlock Text="⚕ " FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+
+
+                <syncfusion:GridTemplateColumn HeaderText="Orzecz." Width="45" AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Height="38" Width="45" ToolTip="Orzecz."
+                                    Command="{Binding DataContext.ToggleOrzeczenieCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Orzeczenie}" Value="True">
+                                                <Setter Property="Background" Value="#388E3C"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <TextBlock Text="📋" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+
+                <syncfusion:GridTemplateColumn HeaderText="P1" Width="45" AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Height="38" Width="45" ToolTip="EDM P1"
+                                    Command="{Binding DataContext.ToggleP1Command, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#9E9E9E"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding EDM_P1}" Value="True">
+                                                <Setter Property="Background" Value="#1976D2"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <TextBlock Text="🔗" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+
+                <syncfusion:GridTemplateColumn HeaderText="Edycja" Width="60" AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Height="38" Width="60" Background="#1976D2" Foreground="White" ToolTip="Edytuj Skierowanie"
+                                        Command="{Binding DataContext.EditSkierowanieCommand, RelativeSource={RelativeSource AncestorType={x:Type syncfusion:SfDataGrid}}}"
                                         CommandParameter="{Binding}">
                                 <TextBlock Text="✏️" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Button>
                         </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-
-            <DataGrid.Resources>
-                <Style x:Key="CenterAlignedCell" TargetType="TextBlock">
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                    <Setter Property="VerticalAlignment" Value="Center"/>
-                </Style>
-            </DataGrid.Resources>
-        </DataGrid>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+            </syncfusion:SfDataGrid.Columns>
+        </syncfusion:SfDataGrid>
     </Grid>
 </UserControl>

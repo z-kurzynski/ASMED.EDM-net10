@@ -149,6 +149,13 @@
                                 <TextBox Text="{Binding PacjentId, Mode=OneWay}"
                                      Width="70" Height="28" FontSize="13"
                                      IsReadOnly="True" IsEnabled="False"/>
+                                <Button Height="28" Margin="10,0,0,0"
+                                        Background="#FF1976D2" Foreground="White"
+                                        Command="{Binding CopyPacjentIdCommand}"
+                                        ToolTip="Kopiuj ID pacjenta do schowka"
+                                        Cursor="Hand" Padding="5,1,5,1" ScrollViewer.CanContentScroll="True">
+                                    <TextBlock Text="📋 Kopiuj Dane Do Nowej Firmy" FontSize="14"/>
+                                </Button>
                             </StackPanel>
 
                             <!-- Imię + Nazwisko -->
@@ -255,7 +262,7 @@
                                         Background="#FF455A64" Foreground="White"
                                         Cursor="Hand"
                                         ToolTip="Sprawdź czy PESEL występuje w bazie"
-                                        Click="SprawdzPesel_Click" Margin="10,0,0,0">
+                                        Click="SprawdzPesel_Click" Margin="10,0,0,0" Visibility="Collapsed">
                                         <TextBlock Text="Sprawdź PESEL w Bazie" FontSize="12" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     </Button>
                                 </StackPanel>

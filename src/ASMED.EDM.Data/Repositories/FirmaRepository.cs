@@ -12,7 +12,8 @@ public class FirmaRepository : Repository<Firma>, IFirmaRepository
 
     public async Task<IEnumerable<Firma>> GetActiveFirmyAsync(string? searchQuery = null, CancellationToken cancellationToken = default)
     {
-        var query = _dbSet.Where(f => f.Activ);
+        // Activ != false obsługuje NULL (migrowane z Access rekordy mogą mieć NULL w kolumnie Activ)
+        var query = _dbSet.Where(f => f.Activ != false);
 
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {

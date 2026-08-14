@@ -55,7 +55,15 @@ public partial class MainWindow : Window
         Console.WriteLine("📝 MainWindow: Creating BadaniaEditNewView...");
         EdycjaBadanContent.Content    = new BadaniaEditNewView();
 
-        // ListaDoFakturContent ładowany lazy z DI
+        // ListaDoFakturContent — nowy widok fakturowania z DI
+        try
+        {
+            ListaDoFakturContent.Content = CreateListaFaktAddView();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ MainWindow: błąd tworzenia FakturaAddView: " + ex.Message);
+        }
         BadanieContent.Content        = new BadanieView();
         OrzeczenieContent.Content     = new OrzeczenieView();
         Console.WriteLine("✅ MainWindow: All tab views created");
@@ -69,7 +77,7 @@ public partial class MainWindow : Window
             { ZakonczBadanieContent,  () => new BadaniaNewView() },
             { EdycjaBadanContent,     () => new BadaniaEditNewView() },
             // ListaDoFakturContent — odświeżenie przez double-click tworzy nową instancję przez DI
-            { ListaDoFakturContent,   () => CreateFakturaAddView() },
+            { ListaDoFakturContent,   () => CreateListaFaktAddView() },
             { BadanieContent,         () => new BadanieView() },
             { OrzeczenieContent,      () => new OrzeczenieView() },
         };
@@ -79,59 +87,94 @@ public partial class MainWindow : Window
 
         // Lazy-load widoku EDM/P1 — tworzy się dopiero gdy ContentControl jest widoczny
         EdmP1TestContent.Loaded    += EdmP1TestContent_Loaded;
-        // Lazy-load nowego widoku fakturowania — z DI
-        ListaDoFakturContent.Loaded += ListaDoFakturContent_Loaded;
+
+        Loaded += MainWindow_Loaded;
         Console.WriteLine("✅ MainWindow: Constructor completed");
     }
 
-    private void EdmP1TestContent_Loaded(object sender, RoutedEventArgs e)
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
-        if (EdmP1TestContent.Content is not null) return;
+        await ApplyTabPermissionsAsync();
+    }
+
+    /// <summary>
+    /// Ukrywa zakładki (główne i podzakładki Ustawień) niedostępne dla roli aktualnie zalogowanego użytkownika.
+    /// </summary>
+    private async Task ApplyTabPermissionsAsync()
+    {
         try
         {
             var app = System.Windows.Application.Current as App
                       ?? throw new InvalidOperationException("App nie jest dostępna.");
 
-            var vm   = app.Host.Services.GetRequiredService<ViewModels.P1.EdmP1TestViewModel>();
-            var view = new Views.Settings.EdmP1TestView { DataContext = vm };
+            // ICurrentUserService jest Singleton - można pobrać bezpośrednio z roota.
+            var currentUserService = app.Host.Services.GetRequiredService<ASMED.EDM.Core.Interfaces.Services.ICurrentUserService>();
 
-            EdmP1TestContent.DataContext = vm;
-            EdmP1TestContent.Content     = view;
+            var currentUser = currentUserService.CurrentUser;
+            if (currentUser is null) return;
+
+            // IPermissionService jest Scoped (korzysta z DbContext) - musi być rozwiązywany
+            // we własnym, krótkotrwałym scope, aby uniknąć współdzielenia jednego DbContext
+            // między wątkami/operacjami (InvalidOperationException: "A second operation
+            // was started on this context instance...").
+            using var scope = app.Host.Services.CreateScope();
+            var permissionService = scope.ServiceProvider.GetRequiredService<ASMED.EDM.Core.Interfaces.Services.IPermissionService>();
+
+            var allowedKeys = await permissionService.GetAllowedTabKeysAsync(currentUser.Role);
+
+            var tabKeyMap = new Dictionary<string, TabItem?>
+            {
+                ["Rejestracja"] = tabRejestracja,
+                ["Pacjenci"] = tabNowaKarta,
+                ["BadKarty"] = tabKartyBadan,
+                ["BadWywiad"] = tabBadanie,
+                ["BadOrzeczenie"] = tabOrzeczenie,
+                ["BadZakonczenie"] = tabZakonczBadanie,
+                ["BadEdycja"] = tabEdycjaBadan,
+                ["ListaDoFaktur"] = tabListaDoFaktur,
+                ["Ustawienia"] = tabUstawieniaRoot,
+                ["Ustawienia.Faktura"] = tabUstawieniaFaktura,
+                ["Ustawienia.Firma"] = tabUstawieniaFirma,
+                ["Ustawienia.Raporty"] = tabUstawieniaRaporty,
+                ["Ustawienia.Migracja"] = tabUstawieniaMigracja,
+                ["Ustawienia.EDM"] = tabUstawieniaEdm,
+            };
+
+            foreach (var (key, tab) in tabKeyMap)
+            {
+                if (tab == null) continue;
+                tab.Visibility = allowedKeys.Contains(key) ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            // "Ustawienia" (SettingsView) hostuje kilka podzakładek (Konfiguracja, Cenniki,
+            // Dane Placówki, Użytkownicy, Role i uprawnienia). Nagłówek tej zakładki musi
+            // pozostać widoczny, jeśli użytkownik ma dostęp do choćby jednej z nich.
+            var settingsSubTabKeys = new[]
+            {
+                "Ustawienia.Konfiguracja",
+                "Ustawienia.Cenniki",
+                "Ustawienia.DanePlacowki",
+                "Ustawienia.Uzytkownicy",
+                "Ustawienia.RoleUprawnienia",
+            };
+
+            if (tabUstawieniaKonfiguracja != null)
+            {
+                tabUstawieniaKonfiguracja.Visibility = settingsSubTabKeys.Any(allowedKeys.Contains)
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+            }
         }
         catch (Exception ex)
         {
-            // Zbierz pełny łańcuch błędów do wyświetlenia
-            var msg = new System.Text.StringBuilder();
-            var e2  = ex;
-            while (e2 is not null)
-            {
-                msg.AppendLine(e2.GetType().Name + ": " + e2.Message);
-                e2 = e2.InnerException;
-                if (e2 is not null) msg.AppendLine("  ↳ ");
-            }
-
-            // Zapisz do pliku — żeby móc odczytać pełny błąd
-            try
-            {
-                var logDir = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    "ASMED.EDM.UI");
-                System.IO.Directory.CreateDirectory(logDir);
-                System.IO.File.WriteAllText(
-                    System.IO.Path.Combine(logDir, "edm_load_error.log"),
-                    "[" + DateTime.Now + "]\n" + ex.ToString());
-            }
-            catch { /* ignoruj błędy logowania */ }
-
-            EdmP1TestContent.Content = new TextBlock
-            {
-                Text         = "❌ Błąd ładowania widoku EDM:\n\n" + msg,
-                Foreground   = System.Windows.Media.Brushes.Red,
-                Margin       = new Thickness(20),
-                TextWrapping = TextWrapping.Wrap,
-                FontSize     = 12
-            };
+            Console.WriteLine("❌ MainWindow: błąd stosowania uprawnień do zakładek: " + ex.Message);
         }
+    }
+
+    private void EdmP1TestContent_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (EdmP1TestContent.Content is not null) return;
+        EdmP1TestContent.Content = new Views.Settings.EdmP1TestView();
     }
 
     // ── Fakturowanie: lazy-load z DI ──────────────────────────────────────────
@@ -161,12 +204,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private FakturaAddView CreateFakturaAddView()
+    private Views.lista_do_faktur.ListaFaktAddView CreateListaFaktAddView()
     {
-        var app = System.Windows.Application.Current as App
-                  ?? throw new InvalidOperationException("App nie jest dostępna.");
-        var vm   = app.Host.Services.GetRequiredService<ViewModels.Faktura.FakturaAddViewModel>();
-        return new FakturaAddView { DataContext = vm };
+        return new Views.lista_do_faktur.ListaFaktAddView();
     }
 
     private void MainWindow_SourceInitialized(object? sender, EventArgs e)
@@ -297,6 +337,35 @@ public partial class MainWindow : Window
     /// <summary>Przełącza aktywną zakładkę na "Rejestracja".</summary>
     public void SelectRejestracjaTab() => MainTabControl.SelectedItem = tabRejestracja;
 
+    /// <summary>
+    /// Przełącza na zakładkę Rejestracja i ustawia filtr nazwiska w VisitsViewModel.
+    /// </summary>
+    public void OpenRejestracjaWithFilter(string nazwisko)
+    {
+        SelectRejestracjaTab();
+
+        if (RejestracjaContent.Content is WizytyViewView wizytyView &&
+            wizytyView.DataContext is ASMED.EDM.UI.ViewModels.VisitsViewModel vm)
+        {
+            vm.RefreshCommand.Execute(null);
+            vm.SearchText = nazwisko;
+        }
+    }
+
+    /// <summary>
+    /// Przełącza na zakładkę Nowa Karta i ustawia filtr wyszukiwania w SkierListaPacjentowViewModel.
+    /// </summary>
+    public void OpenNowaKartaWithFilter(string searchText)
+    {
+        SelectNowaKartaTab();
+
+        if (NowaKartaContent.Content is SkierListaPacjentowView listaView &&
+            listaView.DataContext is ViewModels.Skierowania.SkierListaPacjentowViewModel vm)
+        {
+            vm.SearchText = searchText;
+        }
+    }
+
     /// <summary>Przełącza aktywną zakładkę na "Nowa Karta".</summary>
     public void SelectNowaKartaTab() => MainTabControl.SelectedItem = tabNowaKarta;
 
@@ -346,19 +415,34 @@ internal class ProgressConsoleWriter : TextWriter
     public override void Write(char value)
     {
         try { _inner.Write(value); } catch { }
-        try { _vm.StartConsoleProgressCycle(); } catch { }
     }
 
     public override void Write(string? value)
     {
         try { _inner.Write(value); } catch { }
-        try { _vm.StartConsoleProgressCycle(); } catch { }
+        if (!string.IsNullOrEmpty(value))
+        {
+            try
+            {
+                Application.Current?.Dispatcher.Invoke(() => _vm.ConsoleWrite = value);
+                _vm.StartConsoleProgressCycle();
+            }
+            catch { }
+        }
     }
 
     public override void WriteLine(string? value)
     {
         try { _inner.WriteLine(value); } catch { }
-        try { _vm.StartConsoleProgressCycle(); } catch { }
+        if (!string.IsNullOrEmpty(value))
+        {
+            try
+            {
+                Application.Current?.Dispatcher.Invoke(() => _vm.ConsoleWrite = value);
+                _vm.StartConsoleProgressCycle();
+            }
+            catch { }
+        }
     }
 
     public override void Flush()

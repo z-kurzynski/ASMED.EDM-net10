@@ -50,6 +50,33 @@ public class Doctor : BaseEntity
     /// </summary>
     public decimal? ConsultationFee { get; set; }
 
+    // ── Autoryzacja podpisu lekarza (P1 / orzeczenia medycyny pracy) ──────────
+
+    /// <summary>
+    /// Zaszyfrowany sekret TOTP (RFC 6238) używany do autoryzacji podpisu lekarza
+    /// (np. przy wystawianiu/weryfikacji orzeczenia w module P1/Medycyna Pracy).
+    /// Weryfikowany niezależnie od hasła logowania do aplikacji, przy użyciu
+    /// zewnętrznej aplikacji authenticator (np. Google Authenticator, Microsoft Authenticator).
+    /// </summary>
+    public string? TotpSecretKeyEncrypted { get; set; }
+
+    /// <summary>
+    /// Czy autoryzacja podpisu TOTP została skonfigurowana i jest aktywna dla tego lekarza.
+    /// </summary>
+    public bool TotpEnabled { get; set; }
+
+    /// <summary>
+    /// Data i czas potwierdzenia (parowania) urządzenia authenticatora.
+    /// </summary>
+    public DateTime? TotpEnrolledAt { get; set; }
+
+    /// <summary>
+    /// Hasło do certyfikatu podpisu lekarza używanego przy wystawianiu/weryfikacji
+    /// orzeczeń w Middleware P1 (pole "doctor_pass"). Docelowo przechowywane per-lekarz
+    /// zamiast jednego globalnego hasła w ustawieniach placówki.
+    /// </summary>
+    public string? DoctorCertificatePassword { get; set; }
+
     // Navigation properties
     /// <summary>
     /// Wizyty prowadzone przez tego lekarza

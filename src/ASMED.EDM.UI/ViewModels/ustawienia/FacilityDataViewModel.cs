@@ -7,7 +7,6 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Win32;
-using ASMED.EDM.P1.Configuration;
 
 namespace ASMED.EDM.UI.ViewModels.ustawienia;
 
@@ -22,7 +21,6 @@ public partial class FacilityDataViewModel : ViewModelBase
     private const string RegistryP1   = @"Software\ASMED\EDM\P1";
 
     private readonly ILogger<FacilityDataViewModel> _logger;
-    private readonly P1Settings _p1Settings;
 
     // ── Kolumna 1: Dane placówki ────────────────────────────────────────────
 
@@ -54,6 +52,13 @@ public partial class FacilityDataViewModel : ViewModelBase
     [ObservableProperty] private bool   _tlsCertOk         = false;
     [ObservableProperty] private bool   _wssCertOk         = false;
 
+    // ── Middleware (API Medycyny Pracy) ─────────────────────────────────
+
+    [ObservableProperty] private string _middlewareBaseUrl  = string.Empty;
+    [ObservableProperty] private string _middlewareUsername = string.Empty;
+    [ObservableProperty] private string _middlewarePassword = string.Empty;
+    [ObservableProperty] private string _doctorPwz          = string.Empty;
+
     // ── Kolumna 3: Repozytorium EDM ────────────────────────────────────────
 
     [ObservableProperty] private string _edmRepositoryPath = "EdmRepository";
@@ -67,10 +72,8 @@ public partial class FacilityDataViewModel : ViewModelBase
     [ObservableProperty] private bool   _isBusyLocal   = false;
 
     public FacilityDataViewModel(
-        IOptions<P1Settings> p1Options,
         ILogger<FacilityDataViewModel> logger)
     {
-        _p1Settings = p1Options.Value;
         _logger = logger;
         LoadFromRegistry();
     }
@@ -86,7 +89,7 @@ public partial class FacilityDataViewModel : ViewModelBase
             {
                 if (key != null)
                 {
-                    OrganizationName  = key.GetValue("OrganizationName")  as string ?? _p1Settings.OrganizationName;
+                    OrganizationName  = key.GetValue("OrganizationName")  as string ?? string.Empty;
                     FacilityType      = key.GetValue("FacilityType")      as string ?? "NZOZ";
                     Nip               = key.GetValue("NIP")               as string ?? string.Empty;
                     Street            = key.GetValue("Street")            as string ?? string.Empty;
@@ -97,22 +100,26 @@ public partial class FacilityDataViewModel : ViewModelBase
                 }
                 else
                 {
-                    OrganizationName = _p1Settings.OrganizationName;
+                    OrganizationName = string.Empty;
                 }
             }
 
-            // P1 — z Registry lub fallback do appsettings
+            // P1 — z Registry (integracja P1 wyłączona, brak wartości domyślnych z appsettings)
             using (var key = Registry.CurrentUser.OpenSubKey(RegistryP1))
             {
-                UseStub                 = key?.GetValue("UseStub") is string s ? s == "1" : _p1Settings.UseStub;
-                BaseUrl                 = key?.GetValue("BaseUrl")                 as string ?? _p1Settings.BaseUrl;
-                SubjectOid              = key?.GetValue("SubjectOid")              as string ?? _p1Settings.SubjectOid;
-                Regon14                 = key?.GetValue("Regon14")                 as string ?? _p1Settings.Regon14;
-                RpwdlBookNumber         = key?.GetValue("RpwdlBookNumber")         as string ?? _p1Settings.RpwdlBookNumber;
-                OrganizationalUnitCode  = key?.GetValue("OrganizationalUnitCode")  as string ?? _p1Settings.OrganizationalUnitCode;
-                TlsCertificatePath          = key?.GetValue("TlsCertificatePath")          as string ?? _p1Settings.TlsCertificatePath;
-                WssCertificatePath          = key?.GetValue("WssCertificatePath")          as string ?? _p1Settings.WssCertificatePath;
-                EdmRepositoryPath           = key?.GetValue("EdmRepositoryPath")           as string ?? _p1Settings.EdmRepositoryPath;
+                UseStub                 = key?.GetValue("UseStub") is string s ? s == "1" : true;
+                BaseUrl                 = key?.GetValue("BaseUrl")                 as string ?? string.Empty;
+                SubjectOid              = key?.GetValue("SubjectOid")              as string ?? string.Empty;
+                Regon14                 = key?.GetValue("Regon14")                 as string ?? string.Empty;
+                RpwdlBookNumber         = key?.GetValue("RpwdlBookNumber")         as string ?? string.Empty;
+                OrganizationalUnitCode  = key?.GetValue("OrganizationalUnitCode")  as string ?? string.Empty;
+                TlsCertificatePath          = key?.GetValue("TlsCertificatePath")          as string ?? string.Empty;
+                WssCertificatePath          = key?.GetValue("WssCertificatePath")          as string ?? string.Empty;
+                EdmRepositoryPath           = key?.GetValue("EdmRepositoryPath")           as string ?? "EdmRepository";
+                MiddlewareBaseUrl           = key?.GetValue("MiddlewareBaseUrl")           as string ?? string.Empty;
+                MiddlewareUsername          = key?.GetValue("MiddlewareUsername")          as string ?? string.Empty;
+                MiddlewarePassword          = key?.GetValue("MiddlewarePassword")          as string ?? string.Empty;
+                DoctorPwz                   = key?.GetValue("DoctorPwz")                   as string ?? string.Empty;
             }
 
             RefreshCertStatus();
@@ -160,6 +167,10 @@ public partial class FacilityDataViewModel : ViewModelBase
                 key.SetValue("TlsCertificatePath",         TlsCertificatePath);
                 key.SetValue("WssCertificatePath",         WssCertificatePath);
                 key.SetValue("EdmRepositoryPath",          EdmRepositoryPath);
+                key.SetValue("MiddlewareBaseUrl",          MiddlewareBaseUrl);
+                key.SetValue("MiddlewareUsername",         MiddlewareUsername);
+                key.SetValue("MiddlewarePassword",         MiddlewarePassword);
+                key.SetValue("DoctorPwz",                  DoctorPwz);
             }
 
             RefreshCertStatus();

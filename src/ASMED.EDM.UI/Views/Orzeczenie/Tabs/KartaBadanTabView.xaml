@@ -1,0 +1,429 @@
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             x:Class="ASMED.EDM.UI.Views.Orzeczenie.Tabs.KartaBadanTabView"
+             d:DesignHeight="1900" d:DesignWidth="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- === NAGŁÓWEK URZĘDOWY === -->
+        <Border Grid.Row="0" BorderBrush="#BDBDBD" BorderThickness="0,0,0,1"
+                Padding="8,6,8,8" Margin="4,4,4,0"
+                Background="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}">
+            <StackPanel>
+                <TextBlock Text="KARTA BADANIA PROFILAKTYCZNEGO" FontSize="15" FontWeight="Bold"
+                           HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                <TextBlock Text="Medycyna pracy  ·  (Dz.U. 2026 poz. 456)" FontSize="11"
+                           HorizontalAlignment="Center" Foreground="#616161"/>
+                <TextBlock Text="z dnia 20 marca 2026 r." FontSize="11"
+                           HorizontalAlignment="Center" Foreground="#616161"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="4,6,4,4" Margin="0,32,0,10" Grid.RowSpan="2">
+            <StackPanel>
+
+                <!-- 1. Dane podmiotu przeprowadzającego badanie -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="1. Dane podmiotu przeprowadzającego badanie" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Nazwa jednostki:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,3,0,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Adres:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="1" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Nr wpisu do rejestru:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="1" Grid.Column="3" Margin="0,3,0,3"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- 2. Dane osobowe pracownika -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="2. Dane osobowe pracownika" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Nazwisko i imię:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="0" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="PESEL:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="0" Grid.Column="3" Margin="0,3,0,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Data urodzenia:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <DatePicker Grid.Row="1" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Płeć:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <ComboBox  Grid.Row="1" Grid.Column="3" Margin="0,3,0,3">
+                            <ComboBoxItem>Kobieta</ComboBoxItem>
+                            <ComboBoxItem>Mężczyzna</ComboBoxItem>
+                        </ComboBox>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Adres zamieszkania:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,3,0,3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Pracodawca / zakład:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="3" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="Stanowisko pracy:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="3" Grid.Column="3" Margin="0,3,0,3"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- 3. Rodzaj i cel badania -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="3. Rodzaj i cel badania" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Rodzaj badania:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <ComboBox  Grid.Row="0" Grid.Column="1" Margin="0,3,16,3">
+                            <ComboBoxItem>Wstępne</ComboBoxItem>
+                            <ComboBoxItem>Okresowe</ComboBoxItem>
+                            <ComboBoxItem>Kontrolne</ComboBoxItem>
+                        </ComboBox>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Data badania:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <DatePicker Grid.Row="0" Grid.Column="3" Margin="0,3,0,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Nr skierowania:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="1" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Nr karty:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="1" Grid.Column="3" Margin="0,3,0,3"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- 4. Czynniki szkodliwe i uciążliwe -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="4. Narażenie zawodowe – czynniki szkodliwe i uciążliwe" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50"
+                             VerticalScrollBarVisibility="Auto"
+                             ToolTip="Wpisz czynniki zgodnie ze skierowaniem pracodawcy"/>
+                </GroupBox>
+
+                <!-- 5. Wywiad lekarski -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="5. Wywiad lekarski" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Przebyte choroby / zabiegi:" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" VerticalScrollBarVisibility="Auto" Text="---"/>
+                        </Grid>
+                        <Grid Margin="0,4,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Leki stale przyjmowane:" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="36" VerticalScrollBarVisibility="Auto" Text="---"/>
+                        </Grid>
+                        <Grid Margin="0,4,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Uczulenia / alergie:" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="36" VerticalScrollBarVisibility="Auto" Text="---"/>
+                        </Grid>
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="210"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Nałogi (palenie / alkohol):" VerticalAlignment="Center" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" TextWrapping="Wrap" Text="---"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 6. Badanie przedmiotowe -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="6. Badanie przedmiotowe" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <StackPanel>
+
+                        <!-- Parametry ogólne -->
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Masa ciała (kg):" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="1" Margin="0,3,0,3"/>
+                            <TextBlock Grid.Column="3" Text="Wzrost (cm):" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="4" Margin="0,3,0,3"/>
+                            <TextBlock Grid.Column="6" Text="BMI:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="7" Margin="0,3,0,3" IsReadOnly="True" Background="#F5F5F5"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Ciśnienie tętnicze:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="1" Margin="0,3,0,3" ToolTip="np. 120/80 mmHg"/>
+                            <TextBlock Grid.Column="3" Text="Tętno (ud./min):" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="4" Margin="0,3,0,3"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Ostrość wzroku L:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="1" Margin="0,3,0,3"/>
+                            <TextBlock Grid.Column="3" Text="Ostrość wzroku P:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="4" Margin="0,3,0,3"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Słuch ucho L:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="1" Margin="0,3,0,3"/>
+                            <TextBlock Grid.Column="3" Text="Słuch ucho P:" VerticalAlignment="Center" Margin="0,3,6,3"/>
+                            <TextBox   Grid.Column="4" Margin="0,3,0,3"/>
+                        </Grid>
+
+                        <!-- Narządy i układy -->
+                        <TextBlock Text="Narządy i układy:" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Ocena" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,8,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="2" Text="Uwagi / odchylenia" FontWeight="SemiBold" Margin="0,0,0,2"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Układ krążenia:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="1" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowy</ComboBoxItem><ComboBoxItem>Nieprawidłowy</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="1" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Układ oddechowy:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="2" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowy</ComboBoxItem><ComboBoxItem>Nieprawidłowy</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="2" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Układ nerwowy:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="3" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowy</ComboBoxItem><ComboBoxItem>Nieprawidłowy</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="3" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Narząd ruchu:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="4" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowy</ComboBoxItem><ComboBoxItem>Nieprawidłowy</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="4" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Skóra i tkanka podskórna:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="5" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowa</ComboBoxItem><ComboBoxItem>Nieprawidłowa</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="5" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Jama brzuszna:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="6" Grid.Column="1" Margin="0,3,8,3" SelectedIndex="0"><ComboBoxItem>Prawidłowa</ComboBoxItem><ComboBoxItem>Nieprawidłowa</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="6" Grid.Column="2" Margin="0,3,0,3"/>
+
+                            <TextBlock Grid.Row="7" Grid.Column="0" Text="Inne narządy:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                            <ComboBox  Grid.Row="7" Grid.Column="1" Margin="0,3,8,3"><ComboBoxItem>Prawidłowe</ComboBoxItem><ComboBoxItem>Nieprawidłowe</ComboBoxItem></ComboBox>
+                            <TextBox   Grid.Row="7" Grid.Column="2" Margin="0,3,0,3"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 7. Badania pomocnicze i konsultacje specjalistyczne -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="7. Badania pomocnicze i konsultacje specjalistyczne" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <DataGrid AutoGenerateColumns="False" CanUserAddRows="True" MinHeight="80"
+                              GridLinesVisibility="All" HeadersVisibility="Column" RowHeight="28">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Rodzaj badania / konsultacji" Width="*"/>
+                            <DataGridTextColumn Header="Data wykonania" Width="130"/>
+                            <DataGridTextColumn Header="Wynik / opis" Width="*"/>
+                            <DataGridTextColumn Header="Zlecający" Width="140"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+
+                <!-- 8. Rozpoznanie ICD-10 -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="8. Rozpoznanie (ICD-10)" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <Grid Margin="0,0,0,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Kod ICD-10:" VerticalAlignment="Center" Margin="0,2,8,2"/>
+                            <TextBox   Grid.Column="1" TextWrapping="Wrap"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Opis rozpoznania:" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" VerticalScrollBarVisibility="Auto"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 9. Orzeczenie lekarskie -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="9. Orzeczenie lekarskie" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <StackPanel>
+                        <RadioButton Content="Brak przeciwwskazań zdrowotnych do wykonywania pracy na ww. stanowisku" Margin="0,3"/>
+                        <RadioButton Content="Istnieją przeciwwskazania zdrowotne do wykonywania pracy na ww. stanowisku" Margin="0,3"/>
+                        <RadioButton Content="Istnieją przeciwwskazania zdrowotne do wykonywania pracy na ww. stanowisku w warunkach opisanych w skierowaniu" Margin="0,3"/>
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Uzasadnienie:" VerticalAlignment="Top" Margin="0,2,8,0"/>
+                            <TextBox   Grid.Column="1" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" VerticalScrollBarVisibility="Auto"/>
+                        </Grid>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- 10. Zalecenia profilaktyczne -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="10. Zalecenia profilaktyczne" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+
+                <!-- 11. Termin następnego badania -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="11. Termin następnego badania profilaktycznego" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="220"/>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Termin następnego badania:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <DatePicker Grid.Column="1" Margin="0,3,0,3"/>
+                    </Grid>
+                </GroupBox>
+
+                <!-- 12. Dane lekarza -->
+                <GroupBox Margin="0,0,0,6" Padding="8">
+                    <GroupBox.Header>
+                        <TextBlock Text="12. Dane lekarza przeprowadzającego badanie" FontWeight="SemiBold"/>
+                    </GroupBox.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Imię i nazwisko:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="0" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="Nr prawa wyk. zawodu:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="0" Grid.Column="3" Margin="0,3,0,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Specjalizacja:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <TextBox   Grid.Row="1" Grid.Column="1" Margin="0,3,16,3"/>
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="Podpis i pieczęć:" VerticalAlignment="Center" Margin="0,3,8,3"/>
+                        <Border    Grid.Row="1" Grid.Column="3" BorderBrush="#BDBDBD" BorderThickness="1"
+                                   MinHeight="50" Margin="0,3,0,3" CornerRadius="2"/>
+                    </Grid>
+                </GroupBox>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Przyciski -->
+        <Grid Grid.Row="2" Margin="0,8,4,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="&#x2190; Wróć" Width="90" Height="30" HorizontalAlignment="Left"
+                    Command="{Binding WrocCommand}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Zapisz" Width="90" Height="30" Margin="0,0,8,0"/>
+                <Button Content="Drukuj" Width="90" Height="30"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

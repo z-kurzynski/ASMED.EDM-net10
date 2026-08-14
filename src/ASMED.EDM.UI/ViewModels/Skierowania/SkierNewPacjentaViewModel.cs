@@ -219,6 +219,17 @@ public class SkierNewPacjentaViewModel : ObservableObject
     private bool _isGroupK;
     public bool IsGroupK { get => _isGroupK; set { SetProperty(ref _isGroupK, value); UpdateTestType(); } }
 
+    private bool _isGroupS;
+    public bool IsGroupS { get => _isGroupS; set { SetProperty(ref _isGroupS, value); UpdateTestType(); } }
+
+    private bool _isGroupU;
+    public bool IsGroupU { get => _isGroupU; set { SetProperty(ref _isGroupU, value); UpdateTestType(); } }
+
+    private void UpdateTestType()
+    {
+        TestType = IsGroupW ? "W" : IsGroupO ? "O" : IsGroupS ? "S" : IsGroupK ? "K" : IsGroupU ? "U" : string.Empty;
+    }
+
     private string _testType = "W";
     public string TestType
     {
@@ -257,6 +268,9 @@ public class SkierNewPacjentaViewModel : ObservableObject
 
     private bool _isCertificate;
     public bool IsCertificate { get => _isCertificate; set => SetProperty(ref _isCertificate, value); }
+
+    private bool _isLeave;
+    public bool IsLeave { get => _isLeave; set => SetProperty(ref _isLeave, value); }
 
     // ─── Widoczność ──────────────────────────────────────────────────────────
     public System.Windows.Visibility WydrukiVisibility =>
@@ -363,7 +377,7 @@ public class SkierNewPacjentaViewModel : ObservableObject
                          B_czynnik_chemiczny, B_czynnik_chemiczny_opis,
                          B_czynnik_biologiczny, B_czynnik_biologiczny_opis,
                          B_czynnik_inny, B_czynnik_inny_opis,
-                         B_Zaswiadczenie, B_ksiazeczka, B_Ankieta, B_Activ)
+                         B_Zaswiadczenie, B_ksiazeczka, B_Ankieta, B_Urlop, B_Activ)
                     VALUES
                         (@pacjentId, @firmaId, @dataSkier, @typBadania,
                          @stanowisko, @rejData,
@@ -372,7 +386,7 @@ public class SkierNewPacjentaViewModel : ObservableObject
                          @czChem, @czChemOpis,
                          @czBio, @czBioOpis,
                          @czInny, @czInnyOpis,
-                         @zaswiadczenie, @ksiazeczka, @ankieta, @activ)";
+                         @zaswiadczenie, @ksiazeczka, @ankieta, @urlop, @activ)";
             }
             else
             {
@@ -396,7 +410,8 @@ public class SkierNewPacjentaViewModel : ObservableObject
                         B_czynnik_inny_opis = @czInnyOpis,
                         B_Zaswiadczenie = @zaswiadczenie,
                         B_ksiazeczka = @ksiazeczka,
-                        B_Ankieta = @ankieta
+                        B_Ankieta = @ankieta,
+                        B_Urlop = @urlop
                     WHERE B_ID = @id";
                 cmd.Parameters.AddWithValue("@id", PatientSkierowanieId);
             }
@@ -420,6 +435,7 @@ public class SkierNewPacjentaViewModel : ObservableObject
             cmd.Parameters.AddWithValue("@zaswiadczenie", IsCertificate);
             cmd.Parameters.AddWithValue("@ksiazeczka", IsbookletSanepid);
             cmd.Parameters.AddWithValue("@ankieta", false);
+            cmd.Parameters.AddWithValue("@urlop", IsLeave);
             if (PatientSkierowanieId <= 0)
             {
                 cmd.Parameters.AddWithValue("@activ", 1);
@@ -654,8 +670,4 @@ public class SkierNewPacjentaViewModel : ObservableObject
         RefreshAppointmentsFromDb();
     }
 
-    private void UpdateTestType()
-    {
-        TestType = IsGroupW ? "W" : IsGroupO ? "O" : IsGroupK ? "K" : string.Empty;
-    }
 }

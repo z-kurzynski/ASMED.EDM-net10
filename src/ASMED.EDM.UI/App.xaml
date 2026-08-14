@@ -11,5 +11,70 @@
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
         <converters:NullToVisibilityConverter  x:Key="NullToVisibilityConverter"/>
 
+        <!-- Brakujący zasób wymagany przez style/kontrolki (np. ButtonAdv) w ListaFaktAddView -->
+        <Color x:Key="BorderGradient.Color">#FFABADB3</Color>
+
+        <!-- ════════════════════════════════════════════════════════════ -->
+        <!-- UNIFIED COLOR PALETTE - Clean & Consistent Naming          -->
+        <!-- ════════════════════════════════════════════════════════════ -->
+
+        <!-- BACKGROUNDS - Tła aplikacji -->
+        <SolidColorBrush x:Key="UI.Background.App" Color="#F2F2F2"/>
+        <SolidColorBrush x:Key="UI.Background.Panel" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="UI.Background.Dark" Color="#171717"/>
+        <SolidColorBrush x:Key="UI.Background.Input" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="UI.Background.Hover" Color="#E3F2FD"/>
+        <SolidColorBrush x:Key="UI.Background.Header" Color="#FF0A87A7"/>
+        <SolidColorBrush x:Key="UI.Background.Selected" Color="#BBDEFB"/>
+        <SolidColorBrush x:Key="UI.Background.Input.Placeholder" Color="#FF0A87A7"/>
+        <SolidColorBrush x:Key="UI.Background.Button" Color="#1976D2"/>
+        <SolidColorBrush x:Key="UI.Background.ButtonHover" Color="#1E88E5"/>
+        <SolidColorBrush x:Key="UI.Background.ButtonSecondary" Color="#546E7A"/>
+        <SolidColorBrush x:Key="UI.Background.ButtonSuccess" Color="#43A047"/>
+        <SolidColorBrush x:Key="UI.Background.ButtonError" Color="#E53935"/>
+        <SolidColorBrush x:Key="UI.Background.ButtonDisabled" Color="#9E9E9E"/>
+        <SolidColorBrush x:Key="UI.Background.Column" Color="#616161"/>
+        <SolidColorBrush x:Key="UI.Background.AlternateRow" Color="#424242"/>
+        <SolidColorBrush x:Key="UI.Background.Row" Color="#FF88888A"/>
+
+        <!-- TEXT COLORS - Kolory tekstów -->
+        <SolidColorBrush x:Key="UI.Text.Primary" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="UI.Text.Secondary" Color="#424242"/>
+        <SolidColorBrush x:Key="UI.Text.Muted" Color="DarkGray"/>
+        <SolidColorBrush x:Key="UI.Text.Disabled" Color="#9E9E9E"/>
+        <SolidColorBrush x:Key="UI.Text.Accent" Color="#FFF3EA02"/>
+        <SolidColorBrush x:Key="UI.Text.Selected" Color="#FF1E51A4"/>
+        <SolidColorBrush x:Key="UI.Text.Error" Color="#E53935"/>
+        <SolidColorBrush x:Key="UI.Text.Warning" Color="#FB8C00"/>
+        <SolidColorBrush x:Key="UI.Text.Success" Color="#43A047"/>
+        <SolidColorBrush x:Key="UI.Text.Header" Color="#FF11C5F3"/>
+
+        <!-- BORDERS & SEPARATORS - Obramowania -->
+        <SolidColorBrush x:Key="UI.Border.Default" Color="#FFCBE8E2"/>
+        <SolidColorBrush x:Key="UI.Border.Separator" Color="#9E9E9E"/>
+        <SolidColorBrush x:Key="UI.Border.Focus" Color="#1976D2"/>
+
+        <!-- ACCENT COLORS - Akcenty -->
+        <SolidColorBrush x:Key="UI.Accent.Primary" Color="#1976D2"/>
+        <SolidColorBrush x:Key="UI.Accent.Hover" Color="#1E88E5"/>
+        <SolidColorBrush x:Key="UI.Accent.Pressed" Color="#0D47A1"/>
+
+        <!-- STATUS COLORS - Statusy -->
+        <SolidColorBrush x:Key="UI.Status.Success" Color="#43A047"/>
+        <SolidColorBrush x:Key="UI.Status.Error" Color="#E53935"/>
+        <SolidColorBrush x:Key="UI.Status.Warning" Color="#FB8C00"/>
+
+        <!-- NAVIGATION - Nawigacja boczna -->
+        <SolidColorBrush x:Key="Navigation.Background" Color="#171717"/>
+        <SolidColorBrush x:Key="Navigation.TabActive" Color="#FF0A87A7"/>
+        <SolidColorBrush x:Key="Navigation.TabBorder" Color="#1976D2"/>
+
+        <!-- GRID COLORS - Tabele DataGrid/SfDataGrid -->
+        <SolidColorBrush x:Key="Grid.Header" Color="#1976D2"/>
+        <SolidColorBrush x:Key="Grid.RowDefault" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Grid.RowAlternate" Color="#FAFAFA"/>
+        <SolidColorBrush x:Key="Grid.RowHover" Color="#E3F2FD"/>
+        <SolidColorBrush x:Key="Grid.RowSelected" Color="#BBDEFB"/>
+
     </Application.Resources>
 </Application>
