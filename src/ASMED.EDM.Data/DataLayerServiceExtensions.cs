@@ -84,6 +84,13 @@ public static class DataLayerServiceExtensions
         services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
+        // Rejestracja repozytoriów fakturowania
+        services.AddScoped<IFirmaRepository, FirmaRepository>();
+        services.AddScoped<ICennikRepository, CennikRepository>();
+        services.AddScoped<IFakturaRepository, FakturaRepository>();
+        services.AddScoped<IListaBadanRepository, ListaBadanRepository>();
+        services.AddScoped<IBadanieRepository, BadanieRepository>();
+
         // Rejestracja serwisów domenowych
         services.AddScoped<IAuditService, AuditService>();
         services.AddScoped<IPatientService, PatientService>();
@@ -93,7 +100,10 @@ public static class DataLayerServiceExtensions
         services.AddScoped<IMedicalRecordService, MedicalRecordService>();
         services.AddScoped<IPrescriptionService, PrescriptionService>();
 
-        // Rejestracja serwisu migracji danych (Access → MySQL)
+        // Rejestracja serwisu fakturowania
+        services.AddScoped<IFakturaService, FakturaService>();
+
+        // Rejestracja serwisu migracji
         services.AddSingleton<IMigrationService, MigrationService>();
 
         return services;

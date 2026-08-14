@@ -94,3 +94,15 @@ public class CountToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+/// <summary>
+/// Konwerter: null/empty string → Collapsed, niepusty string → Visible
+/// </summary>
+public class NullToVisibilityConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is string s && !string.IsNullOrEmpty(s) ? Visibility.Visible : Visibility.Collapsed;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+

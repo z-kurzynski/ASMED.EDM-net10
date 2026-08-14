@@ -25,6 +25,13 @@ public class AsmedDbContext : DbContext
     public DbSet<EdmDocument> EdmDocuments => Set<EdmDocument>();
     public DbSet<P1SyncLog> P1SyncLogs => Set<P1SyncLog>();
 
+    // ─── Moduł fakturowania ───────────────────────────────────────────────────
+    public DbSet<Firma> Firmy => Set<Firma>();
+    public DbSet<Cennik> Cenniki => Set<Cennik>();
+    public DbSet<Faktura> Faktury => Set<Faktura>();
+    public DbSet<ListaBadan> ListyBadan => Set<ListaBadan>();
+    public DbSet<Badanie> Badania => Set<Badanie>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -38,6 +45,10 @@ public class AsmedDbContext : DbContext
         modelBuilder.Entity<MedicalRecord>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Prescription>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<EdmDocument>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Firma>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Faktura>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<ListaBadan>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Badanie>().HasQueryFilter(e => !e.IsDeleted);
 
         // Konfiguracja relacji i indeksów
         ConfigurePatient(modelBuilder);
@@ -50,6 +61,11 @@ public class AsmedDbContext : DbContext
         ConfigureAuditLog(modelBuilder);
         ConfigureEdmDocument(modelBuilder);
         ConfigureP1SyncLog(modelBuilder);
+        ConfigureFirma(modelBuilder);
+        ConfigureCennik(modelBuilder);
+        ConfigureFaktura(modelBuilder);
+        ConfigureListaBadan(modelBuilder);
+        ConfigureBadanie(modelBuilder);
 
         // Lub zastosuj konfiguracje z osobnych plików
         // modelBuilder.ApplyConfigurationsFromAssembly(typeof(AsmedDbContext).Assembly);
@@ -87,6 +103,138 @@ public class AsmedDbContext : DbContext
         });
     }
 
+    private void ConfigureFirma(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Firma>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nazwa).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.NIP).HasMaxLength(20);
+            entity.Property(e => e.NazwaCennika).HasMaxLength(100);
+            entity.Property(e => e.FkEmail).HasMaxLength(255);
+            entity.Property(e => e.Kod).HasMaxLength(10);
+            entity.Property(e => e.Miejscowosc).HasMaxLength(100);
+            entity.Property(e => e.Ulica).HasMaxLength(200);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => e.Nazwa);
+            entity.HasIndex(e => e.NIP);
+        });
+    }
+
+    private void ConfigureCennik(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Cennik>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nazwa).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.CenaPodstawowa).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaLaryngolog).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaOkulista).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaKsiazeczka).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaLipidogram).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaEKG).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaPoradnia).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.CenaInne).HasColumnType("decimal(10,2)");
+
+            entity.HasIndex(e => e.Nazwa).IsUnique();
+        });
+    }
+
+    private void ConfigureFaktura(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Faktura>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.NumerFaktury).HasMaxLength(50);
+            entity.Property(e => e.KwotaBrutto).HasColumnType("decimal(12,2)");
+            entity.Property(e => e.SumaBadan).HasColumnType("decimal(12,2)");
+            entity.Property(e => e.Saldo).HasColumnType("decimal(12,2)");
+            entity.Property(e => e.Uwagi).HasMaxLength(500);
+            entity.Property(e => e.NazwaCennika).HasMaxLength(100);
+            entity.Property(e => e.PdfPath).HasMaxLength(500);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => e.NumerFaktury);
+            entity.HasIndex(e => e.FirmaId);
+            entity.HasIndex(e => e.DataWystawienia);
+
+            entity.HasOne(e => e.Firma)
+                .WithMany(f => f.Faktury)
+                .HasForeignKey(e => e.FirmaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.ListaBadan)
+                .WithOne(l => l.Faktura)
+                .HasForeignKey<Faktura>(e => e.ListaBadanId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private void ConfigureListaBadan(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ListaBadan>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.NumerListy).HasMaxLength(50);
+            entity.Property(e => e.SumaRazem).HasColumnType("decimal(12,2)");
+            entity.Property(e => e.Uwagi).HasMaxLength(500);
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => e.FirmaId);
+            entity.HasIndex(e => e.DataUtworzenia);
+
+            entity.HasOne(e => e.Firma)
+                .WithMany(f => f.ListyBadan)
+                .HasForeignKey(e => e.FirmaId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+
+    private void ConfigureBadanie(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Badanie>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.TypBadania).HasMaxLength(100);
+            entity.Property(e => e.Wynik).HasMaxLength(100);
+            entity.Property(e => e.NrKsiegi).HasMaxLength(50);
+            entity.Property(e => e.NazwaCennika).HasMaxLength(100);
+            entity.Property(e => e.Razem).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena1Podstawowa).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena2Laryngolog).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena3Okulista).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena4Ksiazeczka).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena5Lipidogram).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena6EKG).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena7Poradnia).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena8Inne).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena9).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.Cena10).HasColumnType("decimal(10,2)");
+            entity.Property(e => e.RowVersion).IsRowVersion();
+
+            entity.HasIndex(e => e.PatientId);
+            entity.HasIndex(e => e.ListaBadanId);
+            entity.HasIndex(e => e.FakturaId);
+            entity.HasIndex(e => e.DataBadania);
+
+            entity.HasOne(e => e.Patient)
+                .WithMany()
+                .HasForeignKey(e => e.PatientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.ListaBadan)
+                .WithMany(l => l.Badania)
+                .HasForeignKey(e => e.ListaBadanId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Faktura)
+                .WithMany()
+                .HasForeignKey(e => e.FakturaId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+    }
+
     private void ConfigureP1SyncLog(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<P1SyncLog>(entity =>
@@ -121,6 +269,11 @@ public class AsmedDbContext : DbContext
             entity.HasIndex(e => e.IdentificationNumber).IsUnique();
             entity.HasIndex(e => e.Email);
             entity.HasIndex(e => new { e.LastName, e.FirstName });
+
+            entity.HasOne(e => e.Firma)
+                .WithMany()
+                .HasForeignKey(e => e.FirmaId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 

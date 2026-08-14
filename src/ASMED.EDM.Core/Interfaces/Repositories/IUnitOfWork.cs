@@ -19,6 +19,13 @@ public interface IUnitOfWork : IDisposable
     IRepository<EdmDocument> EdmDocuments { get; }
     IRepository<P1SyncLog> P1SyncLogs { get; }
 
+    // Moduł fakturowania
+    IFirmaRepository Firmy { get; }
+    ICennikRepository Cenniki { get; }
+    IFakturaRepository Faktury { get; }
+    IListaBadanRepository ListyBadan { get; }
+    IBadanieRepository Badania { get; }
+
     /// <summary>
     /// Zapisuje wszystkie zmiany do bazy danych
     /// </summary>

@@ -105,6 +105,10 @@ public partial class App : Application
         services.AddTransient<Views.Skierowania.SkierListaPacjentowView>();
         services.AddTransient<Views.Skierowania.SkierPacjentaEditView>();
 
+        // Fakturowanie
+        services.AddTransient<Views.Faktura.FakturaAddView>();
+        services.AddTransient<ViewModels.Faktura.FakturaAddViewModel>();
+
         // Rejestracja ViewModels
         services.AddSingleton<ViewModels.MainWindowViewModel>();
         services.AddSingleton<ViewModels.MainViewModel>();

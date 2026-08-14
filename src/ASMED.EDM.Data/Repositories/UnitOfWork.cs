@@ -24,6 +24,13 @@ public class UnitOfWork : IUnitOfWork
     private IRepository<EdmDocument>? _edmDocuments;
     private IRepository<P1SyncLog>? _p1SyncLogs;
 
+    // Moduł fakturowania
+    private IFirmaRepository? _firmy;
+    private ICennikRepository? _cenniki;
+    private IFakturaRepository? _faktury;
+    private IListaBadanRepository? _listyBadan;
+    private IBadanieRepository? _badania;
+
     public UnitOfWork(AsmedDbContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -59,6 +66,22 @@ public class UnitOfWork : IUnitOfWork
 
     public IRepository<P1SyncLog> P1SyncLogs =>
         _p1SyncLogs ??= new Repository<P1SyncLog>(_context);
+
+    // Moduł fakturowania
+    public IFirmaRepository Firmy =>
+        _firmy ??= new FirmaRepository(_context);
+
+    public ICennikRepository Cenniki =>
+        _cenniki ??= new CennikRepository(_context);
+
+    public IFakturaRepository Faktury =>
+        _faktury ??= new FakturaRepository(_context);
+
+    public IListaBadanRepository ListyBadan =>
+        _listyBadan ??= new ListaBadanRepository(_context);
+
+    public IBadanieRepository Badania =>
+        _badania ??= new BadanieRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

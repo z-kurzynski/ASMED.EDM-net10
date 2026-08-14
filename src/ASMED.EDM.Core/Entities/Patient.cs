@@ -94,6 +94,12 @@ public class Patient : BaseEntity
 
     // Navigation properties
     /// <summary>
+    /// Powiązana firma (pracodawca) — Access: P_Pacjent.P_Firma_id
+    /// </summary>
+    public int? FirmaId { get; set; }
+    public Firma? Firma { get; set; }
+
+    /// <summary>
     /// Lista wizyt pacjenta
     /// </summary>
     public virtual ICollection<Visit> Visits { get; set; } = new List<Visit>();
