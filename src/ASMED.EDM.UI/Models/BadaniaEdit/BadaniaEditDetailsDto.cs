@@ -16,6 +16,18 @@ public class BadaniaEditDetailsDto
     public string? B_Stanowisko { get; set; }
     public bool? B_Zaswiadczenie { get; set; }
     public bool? B_ksiazeczka { get; set; }
+    public bool? B_wywiad { get; set; }
+    public bool? B_orzeczenie { get; set; }
+    public int? B_orzeczenie_ID { get; set; }
+    public int? B_edm_document_id { get; set; }
+    public bool? B_ankieta { get; set; }
+
+    // backward-compatible PascalCase alias used by some XAML bindings
+    public bool? B_Ankieta
+    {
+        get => B_ankieta;
+        set => B_ankieta = value;
+    }
 
     // P_Pacjent
     public int P_ID { get; set; }

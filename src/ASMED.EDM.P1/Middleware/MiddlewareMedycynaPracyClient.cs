@@ -23,7 +23,7 @@ public interface IMiddlewareMedycynaPracyClient
     Task<MiddlewarePacjentResponse<MpPacjentCreatedResult>> ZarejestrujPacjentaAsync(MpPacjent pacjent, CancellationToken cancellationToken = default);
 
     /// <summary>POST /medycynapracy/pacjent/odczyt — odczyt pacjenta po identyfikatorze zasobu (id z rejestracji/wyszukania).</summary>
-    Task<MiddlewarePacjentResponse<MpPacjent>> OdczytajPacjentaAsync(string id, CancellationToken cancellationToken = default);
+    Task<MiddlewarePacjentResponse<MpFhirPatientResource>> OdczytajPacjentaAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>PUT /medycynapracy/pacjent — aktualizacja danych osobowych pacjenta.</summary>
     Task<MiddlewarePacjentResponse<MpPacjentCreatedResult>> AktualizujPacjentaAsync(string id, MpPacjent pacjent, CancellationToken cancellationToken = default);
@@ -33,6 +33,15 @@ public interface IMiddlewareMedycynaPracyClient
 
     /// <summary>POST /medycynapracy/orzeczenie — wystawienie (przesłanie) orzeczenia lekarza medycyny pracy do P1.</summary>
     Task<MiddlewareOrzeczenieResponse<object>> WystawOrzeczenieAsync(MpOrzeczenie orzeczenie, CancellationToken cancellationToken = default);
+
+    /// <summary>POST /medycynapracy/orzeczenie/odczyt — odczyt orzeczenia po identyfikatorze dokumentu (root/extension).</summary>
+    Task<MiddlewareOrzeczenieResponse<MpOrzeczenie>> OdczytajOrzeczenieAsync(MpOrzeczenieOdczytKryteria kryteria, CancellationToken cancellationToken = default);
+
+    /// <summary>POST /medycynapracy/orzeczenie/wyszukaj — wyszukanie orzeczeń wg kryteriów (identyfikator usługobiorcy, status dokumentu, stronicowanie).</summary>
+    Task<MiddlewareOrzeczenieResponse<object>> WyszukajOrzeczeniaAsync(MpKryteriaWyszukiwaniaOrzeczenia kryteria, CancellationToken cancellationToken = default);
+
+    /// <summary>POST /medycynapracy/orzeczenie/anuluj — anulowanie uprzednio wystawionego orzeczenia.</summary>
+    Task<MiddlewareOrzeczenieResponse<object>> AnulujOrzeczenieAsync(MpAnulowanie anulowanie, CancellationToken cancellationToken = default);
 }
 
 public class MiddlewareMedycynaPracyClient : IMiddlewareMedycynaPracyClient
@@ -42,11 +51,12 @@ public class MiddlewareMedycynaPracyClient : IMiddlewareMedycynaPracyClient
     private readonly IOptions<P1Settings> _settings;
     private readonly ILogger<MiddlewareMedycynaPracyClient> _logger;
 
-    // Krótszy timeout niż domyślny HttpClient (100s) — pozwala szybciej wykryć sytuację,
+    // Timeout krótszy niż domyślny HttpClient (100s) — pozwala wykryć sytuację,
     // gdy backend Middleware "wisi" (np. wolne/martwe wywołanie do zewnętrznego systemu P1),
-    // zamiast czekać kilkadziesiąt sekund bez żadnej informacji dla użytkownika.
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(8);
-    private const int MaxTimeoutRetries = 1;
+    // ale wystarczająco długi, by nie przerywać wywołań, które faktycznie wymagają
+    // dłuższego oczekiwania na odpowiedź zewnętrznego rejestru P1 (np. pacjent/odczyt).
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(20);
+    private const int MaxTimeoutRetries = 2;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -85,14 +95,14 @@ public class MiddlewareMedycynaPracyClient : IMiddlewareMedycynaPracyClient
         return SendAsync<MiddlewarePacjentResponse<MpPacjentCreatedResult>>(HttpMethod.Post, "medycynapracy/pacjent", fields, cancellationToken);
     }
 
-    public Task<MiddlewarePacjentResponse<MpPacjent>> OdczytajPacjentaAsync(string id, CancellationToken cancellationToken = default)
+    public Task<MiddlewarePacjentResponse<MpFhirPatientResource>> OdczytajPacjentaAsync(string id, CancellationToken cancellationToken = default)
     {
         var fields = new Dictionary<string, string>
         {
             ["author"] = SerializeAuthorMinimal(),
             ["id"] = id
         };
-        return SendAsync<MiddlewarePacjentResponse<MpPacjent>>(HttpMethod.Post, "medycynapracy/pacjent/odczyt", fields, cancellationToken);
+        return SendAsync<MiddlewarePacjentResponse<MpFhirPatientResource>>(HttpMethod.Post, "medycynapracy/pacjent/odczyt", fields, cancellationToken);
     }
 
     public Task<MiddlewarePacjentResponse<MpPacjentCreatedResult>> AktualizujPacjentaAsync(string id, MpPacjent pacjent, CancellationToken cancellationToken = default)
@@ -128,6 +138,41 @@ public class MiddlewareMedycynaPracyClient : IMiddlewareMedycynaPracyClient
             ["doctor_pass"] = _settings.Value.DoctorCertificatePassword
         };
         return SendAsync<MiddlewareOrzeczenieResponse<object>>(HttpMethod.Post, "medycynapracy/orzeczenie", fields, cancellationToken);
+    }
+
+    public Task<MiddlewareOrzeczenieResponse<MpOrzeczenie>> OdczytajOrzeczenieAsync(MpOrzeczenieOdczytKryteria kryteria, CancellationToken cancellationToken = default)
+    {
+        var fields = new Dictionary<string, string>
+        {
+            ["author"] = SerializeAuthor(),
+            ["idPodmiotu"] = _settings.Value.IdPodmiotu,
+            ["identyfikatorRoot"] = kryteria.IdentyfikatorRoot,
+            ["identyfikatorExtension"] = kryteria.IdentyfikatorExtension
+        };
+        return SendAsync<MiddlewareOrzeczenieResponse<MpOrzeczenie>>(HttpMethod.Post, "medycynapracy/orzeczenie/odczyt", fields, cancellationToken);
+    }
+
+    public Task<MiddlewareOrzeczenieResponse<object>> WyszukajOrzeczeniaAsync(MpKryteriaWyszukiwaniaOrzeczenia kryteria, CancellationToken cancellationToken = default)
+    {
+        var fields = new Dictionary<string, string>
+        {
+            ["author"] = SerializeAuthor(),
+            ["idPodmiotu"] = _settings.Value.IdPodmiotu,
+            ["kryteria"] = JsonSerializer.Serialize(kryteria, JsonOptions)
+        };
+        return SendAsync<MiddlewareOrzeczenieResponse<object>>(HttpMethod.Post, "medycynapracy/orzeczenie/wyszukaj", fields, cancellationToken);
+    }
+
+    public Task<MiddlewareOrzeczenieResponse<object>> AnulujOrzeczenieAsync(MpAnulowanie anulowanie, CancellationToken cancellationToken = default)
+    {
+        var fields = new Dictionary<string, string>
+        {
+            ["author"] = SerializeAuthor(),
+            ["idPodmiotu"] = _settings.Value.IdPodmiotu,
+            ["anulowanie"] = JsonSerializer.Serialize(anulowanie, JsonOptions),
+            ["doctor_pass"] = _settings.Value.DoctorCertificatePassword
+        };
+        return SendAsync<MiddlewareOrzeczenieResponse<object>>(HttpMethod.Post, "medycynapracy/orzeczenie/anuluj", fields, cancellationToken);
     }
 
     private string SerializeAuthor()

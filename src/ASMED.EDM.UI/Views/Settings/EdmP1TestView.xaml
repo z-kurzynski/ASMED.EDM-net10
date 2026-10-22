@@ -176,6 +176,48 @@
         <TextBox x:Name="RegResultTextBox" IsReadOnly="True" TextWrapping="Wrap"
                  AcceptsReturn="True" MinHeight="120" VerticalScrollBarVisibility="Auto"/>
     </StackPanel>
+
+    <StackPanel Width="360" Margin="16,0,0,0">
+        <TextBlock Text="Test Middleware — pozostałe operacje na orzeczeniu"
+                   FontSize="14"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,12"/>
+
+        <TextBlock Text="Odczytaj orzeczenie (POST /orzeczenie/odczyt)" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <TextBlock Text="Identyfikator Root:" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieIdentyfikatorRootTextBox" Margin="0,0,0,8"/>
+        <TextBlock Text="Identyfikator Extension:" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieIdentyfikatorExtensionTextBox" Text="14/2026" Margin="0,0,0,8"/>
+        <Button x:Name="OdczytajOrzeczenieButton" Content="Odczytaj orzeczenie (Middleware)"
+                Click="OdczytajOrzeczenieButton_Click" Margin="0,0,0,12" Padding="8,4"/>
+
+        <TextBlock Text="Wyszukaj orzeczenia (POST /orzeczenie/wyszukaj)" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <TextBlock Text="Data wystawienia od (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieWyszukajDataOdTextBox" Text="2020-01-01" Margin="0,0,0,8"/>
+        <TextBlock Text="Data wystawienia do (yyyy-MM-dd):" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieWyszukajDataDoTextBox" Margin="0,0,0,8"/>
+        <TextBlock Text="Identyfikator usługobiorcy (PESEL):" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieWyszukajIdentyfikatorTextBox" Text="70032816894" Margin="0,0,0,8"/>
+        <TextBlock Text="Status dokumentu (opcjonalnie):" Margin="0,0,0,4"/>
+        <TextBox x:Name="OrzeczenieWyszukajStatusTextBox" Margin="0,0,0,8"/>
+        <Button x:Name="WyszukajOrzeczeniaButton" Content="Wyszukaj orzeczenia (Middleware)"
+                Click="WyszukajOrzeczeniaButton_Click" Margin="0,0,0,12" Padding="8,4"/>
+
+        <TextBlock Text="Anuluj orzeczenie (POST /orzeczenie/anuluj)" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <TextBlock Text="Numer dokumentu (anulującego):" Margin="0,0,0,4"/>
+        <TextBox x:Name="AnulujNumerDokumentuTextBox" Text="15/2026" Margin="0,0,0,8"/>
+        <TextBlock Text="Anulowany numer dokumentu:" Margin="0,0,0,4"/>
+        <TextBox x:Name="AnulowanyNumerDokumentuTextBox" Text="14/2026" Margin="0,0,0,8"/>
+        <TextBlock Text="Anulowana wersja:" Margin="0,0,0,4"/>
+        <TextBox x:Name="AnulowanaWersjaTextBox" Text="1" Margin="0,0,0,8"/>
+        <Button x:Name="AnulujOrzeczenieButton" Content="Anuluj orzeczenie (Middleware)"
+                Click="AnulujOrzeczenieButton_Click" Margin="0,0,0,12" Padding="8,4"/>
+
+        <TextBlock Text="Wynik:" Margin="0,8,0,4" FontWeight="Bold"/>
+        <TextBox x:Name="OrzeczenieExtraResultTextBox" IsReadOnly="True" TextWrapping="Wrap"
+                 AcceptsReturn="True" MinHeight="160" VerticalScrollBarVisibility="Auto"/>
+    </StackPanel>
     </StackPanel>
     </ScrollViewer>
 </UserControl>

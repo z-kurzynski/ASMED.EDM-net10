@@ -18,21 +18,21 @@
         <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
             <Setter Property="Fill" Value="Cyan"/>
         </Style>
-        
+
         <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
             <Setter Property="Background" Value="#00000000"/>
             <Setter Property="BorderBrush" Value="#00000000"/>
             <Setter Property="Foreground" Value="Cyan"/>
             <Setter Property="Padding" Value="1"/>
         </Style>
-        
+
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <Grid Grid.Row="0" VerticalAlignment="Top" Height="55">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0"/>
@@ -230,6 +230,8 @@
                         </Grid.RowDefinitions>
 
                         <!-- Wiersz 0: Dane Pacjenta i Firmy -->
+
+                        <!-- Wiersz 1: Dane Badania -->
                         <Grid Grid.Row="0" Height="110" VerticalAlignment="Top">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -455,7 +457,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Text="bez Daty" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,10,0"/>
-                                     <Button x:Name="btnClearDates" Content="🗑️" Width="22" Height="22" FontSize="11" 
+                                    <Button x:Name="btnClearDates" Content="🗑️" Width="22" Height="22" FontSize="11" 
                                         Background="#FFD0D3D6" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" 
                                         Click="ClearDates_Click"/>
                                 </StackPanel>
@@ -497,7 +499,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    
+
                                     <TextBlock Grid.Column="0" Text="Badanie" FontWeight="Bold" FontSize="10" 
                                                 HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="1" Text="Laryngolog" FontWeight="Bold" FontSize="10" 

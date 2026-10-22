@@ -20,11 +20,10 @@
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -32,14 +31,14 @@
 
         <TextBlock Grid.Row="0" Text="❤️ ASMED EDM" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource UI.Background.App}"/>
 
-        <TextBlock Grid.Row="2" Text="Nazwa użytkownika:"/>
+        <TextBlock Grid.Row="2" Text="Nazwa użytkownika:" Foreground="{DynamicResource UI.Text.Primary}"/>
         <TextBox Grid.Row="3" Name="UsernameTextBox" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" FontSize="18"/>
 
-        <TextBlock Grid.Row="4" Text="Hasło:"/>
-        <PasswordBox Grid.Row="5" Name="PasswordBox" KeyDown="PasswordBox_KeyDown"/>
+        <TextBlock Grid.Row="4" Text="Hasło:" Foreground="{DynamicResource UI.Text.Primary}"/>
+        <PasswordBox Grid.Row="5" Name="PasswordBox" KeyDown="PasswordBox_KeyDown" FontSize="18"/>
 
-        <TextBlock Grid.Row="6" Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,8,0,0"/>
+        <TextBlock Grid.Row="6" Text="{Binding ErrorMessage}" Foreground="{DynamicResource UI.Text.Accent}" TextWrapping="Wrap" Margin="0,8,0,0"/>
 
-        <Button Grid.Row="8" Content="Zaloguj" Height="32" Click="LoginButton_Click" IsDefault="True"/>
+        <Button Grid.Row="8" Content="Zaloguj" Height="32" Click="LoginButton_Click" IsDefault="True" Background="{DynamicResource UI.Background.ButtonSuccess}" Foreground="{DynamicResource UI.Text.Primary}" FontSize="16" BorderBrush="{DynamicResource UI.Background.Panel}"/>
     </Grid>
 </Window>

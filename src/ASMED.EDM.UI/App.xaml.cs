@@ -28,7 +28,7 @@ public partial class App : Application
     public App()
     {
         //Register Syncfusion license 34.x.x
-        SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCd1p/TH5YfUNzdUVEY1ZUTXxaS1ZhSXxVdkJhWH5bdXBRRGBUU0J9XEY=");
+        SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1JBaF5cXmRCd1p/TH5YfUNzdUVEY1ZUTXxaS1ZhSXxVd0VhW35ZcHNVRWJYWUF9XEc=");
 
         // Globalna obsługa nieobsłużonych wyjątków — zapobiega cicha crash 0xc000041d
         DispatcherUnhandledException += (s, e) =>

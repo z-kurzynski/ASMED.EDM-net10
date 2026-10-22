@@ -223,6 +223,10 @@ SELECT
     B_Skierowania.B_TypBadania,
     B_Skierowania.B_Zaswiadczenie,
     B_Skierowania.B_ksiazeczka,
+    B_Skierowania.B_laryngolog,
+    B_Skierowania.B_okulista,
+    B_Skierowania.B_EKG,
+    B_Skierowania.B_Lipidogram,
     B_Skierowania.B_ankieta,
     B_Skierowania.B_wywiad,
     B_Skierowania.B_orzeczenie,
@@ -260,6 +264,10 @@ WHERE
                     B_Stanowisko = reader["B_Stanowisko"]?.ToString(),
                     B_Zaswiadczenie = reader["B_Zaswiadczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_Zaswiadczenie"]),
                     B_ksiazeczka = reader["B_ksiazeczka"] is DBNull ? null : Convert.ToBoolean(reader["B_ksiazeczka"]),
+                    B_laryngolog = reader["B_laryngolog"] is DBNull ? null : Convert.ToBoolean(reader["B_laryngolog"]),
+                    B_okulista = reader["B_okulista"] is DBNull ? null : Convert.ToBoolean(reader["B_okulista"]),
+                    B_EKG = reader["B_EKG"] is DBNull ? null : Convert.ToBoolean(reader["B_EKG"]),
+                    B_Lipidogram = reader["B_Lipidogram"] is DBNull ? null : Convert.ToBoolean(reader["B_Lipidogram"]),
                     B_ankieta = reader["B_ankieta"] is DBNull ? null : Convert.ToBoolean(reader["B_ankieta"]),
                     B_wywiad = reader["B_wywiad"] is DBNull ? null : Convert.ToBoolean(reader["B_wywiad"]),
                     B_orzeczenie = reader["B_orzeczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_orzeczenie"]),
@@ -952,4 +960,55 @@ VALUES (@cennik, @nazwa, @cena, 1)";
     }
 
     #endregion
+
+    /// <summary>
+    /// Aktualizuje na bieżąco pojedynczą flagę statusu (np. B_ksiazeczka, B_laryngolog)
+    /// w tabeli B_Skierowania dla wskazanego rekordu. Nazwa kolumny musi pochodzić
+    /// z bezpiecznej, wewnętrznie kontrolowanej listy (nigdy z danych wejściowych użytkownika).
+    /// </summary>
+    public bool UpdateBSkierowaniaFlag(int bSkierowaniaId, string columnName, bool value)
+    {
+        if (_dbFactory == null)
+        {
+            Console.WriteLine($"⚠️ UpdateBSkierowaniaFlag: DbConnectionFactory not available, cannot update {columnName}");
+            return false;
+        }
+
+        try
+        {
+            using var connection = _dbFactory.CreateConnection();
+            connection.Open();
+
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = $"UPDATE B_Skierowania SET {columnName} = @val WHERE B_ID = @id";
+
+            var valParam = cmd.CreateParameter();
+            valParam.ParameterName = "@val";
+            valParam.Value = value ? 1 : 0;
+            cmd.Parameters.Add(valParam);
+
+            var idParam = cmd.CreateParameter();
+            idParam.ParameterName = "@id";
+            idParam.Value = bSkierowaniaId;
+            cmd.Parameters.Add(idParam);
+
+            var affected = cmd.ExecuteNonQuery();
+
+            if (affected == 0)
+            {
+                Console.WriteLine($"⚠️ UpdateBSkierowaniaFlag: brak zaktualizowanych wierszy dla B_ID={bSkierowaniaId}, kolumna={columnName}");
+            }
+            else
+            {
+                Console.WriteLine($"✅ UpdateBSkierowaniaFlag: {columnName}={value} zapisane dla B_ID={bSkierowaniaId}");
+            }
+
+            return affected > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ UpdateBSkierowaniaFlag error ({columnName}, B_ID={bSkierowaniaId}): {ex.Message}");
+            return false;
+        }
+    }
 }

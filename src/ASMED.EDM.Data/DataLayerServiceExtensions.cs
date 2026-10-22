@@ -105,8 +105,11 @@ public static class DataLayerServiceExtensions
         // Rejestracja serwisu fakturowania
         services.AddScoped<IFakturaService, FakturaService>();
 
-        // Rejestracja serwisu uprawnie\u0144 do zak\u0142adek
+        // Rejestracja serwisu uprawnień do zakładek
         services.AddScoped<IPermissionService, PermissionService>();
+
+        // Rejestracja serwisu autoryzacji podpisu lekarza (TOTP)
+        services.AddScoped<IDoctorSignatureAuthorizationService, DoctorSignatureAuthorizationService>();
 
         // Rejestracja serwisu migracji
         services.AddSingleton<IMigrationService, MigrationService>();

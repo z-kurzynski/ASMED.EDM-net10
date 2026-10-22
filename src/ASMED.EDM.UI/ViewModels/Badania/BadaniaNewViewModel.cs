@@ -570,6 +570,28 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
                 // 🧹 Wyczyść wybrane ceny i zresetuj przyciski toggle
                 ClearSelectedPrices();
 
+                // 🔗 Powiąż przyciski toggle ze statusem zapisanym w B_Skierowania:
+                // "Sanitary" (Książeczka) ↔ B_ksiazeczka, "HealthClinic" (Urlop) ↔ B_Zaswiadczenie
+                var sanitaryPrice = GetPriceForExamination("Sanitary");
+                Cena4 = (details.B_ksiazeczka == true && sanitaryPrice > 0) ? sanitaryPrice : null;
+
+                var healthClinicPrice = GetPriceForExamination("HealthClinic");
+                Cena7 = (details.B_Zaswiadczenie == true && healthClinicPrice > 0) ? healthClinicPrice : null;
+
+                // "Laryngologist" ↔ B_laryngolog, "Ophthalmologist" ↔ B_okulista,
+                // "EKG" ↔ B_EKG, "Lipidogram" ↔ B_Lipidogram
+                var laryngologPrice = GetPriceForExamination("Laryngologist");
+                Cena2 = (details.B_laryngolog == true && laryngologPrice > 0) ? laryngologPrice : null;
+
+                var okulistaPrice = GetPriceForExamination("Ophthalmologist");
+                Cena3 = (details.B_okulista == true && okulistaPrice > 0) ? okulistaPrice : null;
+
+                var lipidogramPrice = GetPriceForExamination("Lipidogram");
+                Cena5 = (details.B_Lipidogram == true && lipidogramPrice > 0) ? lipidogramPrice : null;
+
+                var ekgPrice = GetPriceForExamination("EKG");
+                Cena6 = (details.B_EKG == true && ekgPrice > 0) ? ekgPrice : null;
+
                 Console.WriteLine($"📅 Reset complete: DataBadania={DataBadania:dd-MM-yyyy}, DataWaznosci={DataWaznosci:dd-MM-yyyy}, ValidityYears={_validityYears}, ValidityMonth={DataWaznosci.Month}");
             }
             else
@@ -686,6 +708,74 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
             case "HealthClinic": Cena7 = value; break;
             case "Other": Cena8 = value; break;
         }
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_ksiazeczka w SelectedDetails (powiązane z przyciskiem "Sanitary"/Książeczka)
+    /// i wymusza odświeżenie bindingu Status_Info (elipsa Książeczka).
+    /// </summary>
+    public void SetKsiazeczkaStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_ksiazeczka = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_ksiazeczka", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_Zaswiadczenie w SelectedDetails (powiązane z przyciskiem "HealthClinic"/Urlop)
+    /// i wymusza odświeżenie bindingu Status_Info (elipsa Urlop).
+    /// </summary>
+    public void SetZaswiadczenieStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_Zaswiadczenie = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_Zaswiadczenie", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_laryngolog w SelectedDetails (powiązane z przyciskiem "Laryngologist").
+    /// </summary>
+    public void SetLaryngologStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_laryngolog = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_laryngolog", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_okulista w SelectedDetails (powiązane z przyciskiem "Ophthalmologist").
+    /// </summary>
+    public void SetOkulistaStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_okulista = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_okulista", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_EKG w SelectedDetails (powiązane z przyciskiem "EKG").
+    /// </summary>
+    public void SetEKGStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_EKG = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_EKG", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_Lipidogram w SelectedDetails (powiązane z przyciskiem "Lipidogram").
+    /// </summary>
+    public void SetLipidogramStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_Lipidogram = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_Lipidogram", value);
     }
 
     public void ToggleExamination(string examType)

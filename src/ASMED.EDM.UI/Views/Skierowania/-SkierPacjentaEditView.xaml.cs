@@ -122,12 +122,14 @@ namespace ASMED.EDM.UI.Views.Skierowania
 
         private void PobierzZEdm_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: pobieranie danych pacjenta z EDM
-            MessageBox.Show(
-                "Funkcja pobierania danych z EDM zostanie zaimplementowana w kolejnym kroku.",
-                "Pobierz z EDM",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+            if (DataContext is not SkierPacjentaEditViewModel vm)
+            {
+                MessageBox.Show("Brak kontekstu widoku.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (vm.WeryfikujPobierzZP1Command.CanExecute(null))
+                vm.WeryfikujPobierzZP1Command.Execute(null);
         }
 
         private void SprawdzPesel_Click(object sender, RoutedEventArgs e)

@@ -41,25 +41,27 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.*" />
     <!-- Jawne zadeklarowanie pakietu, aby wykluczyć natywne assety iOS/macOS/Linux (zbyt długie ścieżki w ClickOnce) -->
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" ExcludeAssets="native" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" ExcludeAssets="native" />
+    <!-- Musi zgadzać się z wersją EF Core w ASMED.EDM.Data (Pomelo.EntityFrameworkCore.MySql 9.x wymaga EF Core 9) -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.*">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.12" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.12" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
-    <PackageReference Include="Syncfusion.DocumentSDK.AI.AgentTools" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.Pdf.Wpf" Version="34.2.8" Aliases="PdfWpf" />
-    <PackageReference Include="Syncfusion.XlsIO.Wpf" Version="34.2.8" Aliases="XlsWpf" />
-    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.SfChart.WPF" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="34.2.8" />
-    <PackageReference Include="Syncfusion.Tools.WPF" Version="34.2.8" />
+    <PackageReference Include="QRCoder" Version="1.8.1" />
+    <PackageReference Include="Syncfusion.DocumentSDK.AI.AgentTools" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.Pdf.Wpf" Version="35.1.41" Aliases="PdfWpf" />
+    <PackageReference Include="Syncfusion.XlsIO.Wpf" Version="35.1.41" Aliases="XlsWpf" />
+    <PackageReference Include="Syncfusion.SfGrid.WPF" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.SfChart.WPF" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.SfScheduler.WPF" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="35.1.41" />
+    <PackageReference Include="Syncfusion.Tools.WPF" Version="35.1.41" />
   </ItemGroup>
 
   <PropertyGroup>

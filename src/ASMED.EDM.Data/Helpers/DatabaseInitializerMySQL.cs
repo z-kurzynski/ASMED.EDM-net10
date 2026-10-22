@@ -729,6 +729,9 @@ public static class DatabaseInitializerMySQL
         ("Visits", "P1EventId", "VARCHAR(255) NULL"),
         ("Visits", "P1SyncStatus", "INT NOT NULL DEFAULT 0"),
 
+        // Pacjenci — identyfikator w Rejestrze Pacjentów P1 (CWUB)
+        ("P_Pacjent", "P_CWUB_ID", "VARCHAR(255) NULL"),
+
         // Doctors — autoryzacja podpisu lekarza (TOTP) i dane certyfikatu P1 per-lekarz
         ("Doctors", "TotpSecretKeyEncrypted", "VARCHAR(500) NULL"),
         ("Doctors", "TotpEnabled", "TINYINT(1) NOT NULL DEFAULT 0"),
@@ -915,16 +918,33 @@ public static class DatabaseInitializerMySQL
                 }
             }
 
-            // Faza 2 — migracje (ADD COLUMN IF NOT EXISTS)
+            // Faza 2 — migracje (ADD COLUMN, jeśli kolumna jeszcze nie istnieje)
             foreach (var (table, column, typeDef) in Migrations)
             {
                 try
                 {
-                    using var cmd = new MySqlCommand(
-                        $"ALTER TABLE `{table}` ADD COLUMN IF NOT EXISTS `{column}` {typeDef}", conn);
-                    cmd.ExecuteNonQuery();
+                    bool columnExists;
+                    using (var checkCmd = new MySqlCommand(
+                        "SELECT COUNT(*) FROM information_schema.columns " +
+                        "WHERE table_schema = @schema AND table_name = @table AND column_name = @column", conn))
+                    {
+                        checkCmd.Parameters.AddWithValue("@schema", conn.Database);
+                        checkCmd.Parameters.AddWithValue("@table", table);
+                        checkCmd.Parameters.AddWithValue("@column", column);
+                        columnExists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
+                    }
+
+                    if (!columnExists)
+                    {
+                        using var cmd = new MySqlCommand(
+                            $"ALTER TABLE `{table}` ADD COLUMN `{column}` {typeDef}", conn);
+                        cmd.ExecuteNonQuery();
+                    }
                 }
-                catch { /* kolumna już istnieje lub tabela nie istnieje — pomijamy */ }
+                catch (Exception ex)
+                {
+                    result.Errors.Add($"Migration {table}.{column}: {ex.Message}");
+                }
             }
 
             // Faza 2b — migracja danych (przepisanie wartości ze starych kolumn do nowych)

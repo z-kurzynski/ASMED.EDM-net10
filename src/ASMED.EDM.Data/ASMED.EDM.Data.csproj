@@ -21,6 +21,7 @@
     <PackageReference Include="Otp.NET" Version="1.4.1" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
     <PackageReference Include="System.Data.OleDb" Version="9.*" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.12" />
   </ItemGroup>
 
   <PropertyGroup>

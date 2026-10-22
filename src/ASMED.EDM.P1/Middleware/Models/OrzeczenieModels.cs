@@ -103,20 +103,45 @@ public class MpOrzeczenie
     public string? Uwagi { get; set; }
 }
 
-/// <summary>Kryteria wyszukiwania orzeczeń (POST /medycynapracy/orzeczenie/wyszukaj).</summary>
+/// <summary>
+/// Kryteria odczytu orzeczenia po identyfikatorze dokumentu (POST /medycynapracy/orzeczenie/odczyt).
+/// Zgodnie z oficjalną kolekcją Postman ("Odczytaj orzeczenie"), API oczekuje dwóch osobnych pól
+/// formularza: identyfikatorRoot i identyfikatorExtension (nie połączonego identyfikatorDokumentu).
+/// </summary>
+public class MpOrzeczenieOdczytKryteria
+{
+    public string IdentyfikatorRoot { get; set; } = string.Empty;
+
+    public string IdentyfikatorExtension { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Kryteria wyszukiwania orzeczeń (POST /medycynapracy/orzeczenie/wyszukaj).
+/// API akceptuje wyłącznie pola: dataWystawieniaOd, dataWystawieniaDo, identyfikatorUslugobiorcy,
+/// identyfikatorAutora, identyfikatorDokumentuSkierowania, statusDokumentu, rodzajDokumentu.
+/// </summary>
 public class MpKryteriaWyszukiwaniaOrzeczenia
 {
+    [JsonPropertyName("dataWystawieniaOd")]
+    public string? DataWystawieniaOd { get; set; }
+
+    [JsonPropertyName("dataWystawieniaDo")]
+    public string? DataWystawieniaDo { get; set; }
+
     [JsonPropertyName("identyfikatorUslugobiorcy")]
     public string? IdentyfikatorUslugobiorcy { get; set; }
+
+    [JsonPropertyName("identyfikatorAutora")]
+    public string? IdentyfikatorAutora { get; set; }
+
+    [JsonPropertyName("identyfikatorDokumentuSkierowania")]
+    public string? IdentyfikatorDokumentuSkierowania { get; set; }
 
     [JsonPropertyName("statusDokumentu")]
     public string? StatusDokumentu { get; set; }
 
-    [JsonPropertyName("numerStrony")]
-    public int NumerStrony { get; set; }
-
-    [JsonPropertyName("liczbaWynikowNaStronie")]
-    public int LiczbaWynikowNaStronie { get; set; } = 20;
+    [JsonPropertyName("rodzajDokumentu")]
+    public string? RodzajDokumentu { get; set; }
 }
 
 /// <summary>Dane anulowania dokumentu orzeczenia (POST /medycynapracy/orzeczenie/anuluj).</summary>

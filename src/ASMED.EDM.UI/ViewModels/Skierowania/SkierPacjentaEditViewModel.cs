@@ -1,8 +1,12 @@
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.P1.Middleware;
+using ASMED.EDM.P1.Middleware.Models;
 using MySqlConnector;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -15,6 +19,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
     public class SkierPacjentaEditViewModel : INotifyPropertyChanged
     {
         private readonly DbConnectionFactory _dbFactory;
+        private readonly IMiddlewareMedycynaPracyClient? _p1Client;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         /// <summary>Zdarzenie zamknięcia widoku — wraca do listy pacjentów.</summary>
@@ -28,13 +33,15 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
         public ICommand DodajKarteBadanCommand { get; }
         public ICommand UsunPacjentaCommand { get; }
         public ICommand CopyPacjentIdCommand { get; }
+        public ICommand WeryfikujPobierzZP1Command { get; }
 
         /// <summary>Ustawiany przez code-behind — otwiera formularz nowego pacjenta z wstępnie uzupełnionymi danymi.</summary>
         public Action? NavigateCopyPacjent { get; set; }
 
-        public SkierPacjentaEditViewModel(DbConnectionFactory dbFactory)
+        public SkierPacjentaEditViewModel(DbConnectionFactory dbFactory, IMiddlewareMedycynaPracyClient? p1Client = null)
         {
             _dbFactory = dbFactory;
+            _p1Client  = p1Client;
 
             SaveCommand             = new RelayCommand(_ => ZapiszPacjenta(), _ => CzyWybranoFirme);
             AnulujCommand           = new RelayCommand(_ => RequestPowrot?.Invoke());
@@ -43,6 +50,10 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
             DodajKarteBadanCommand  = new RelayCommand(_ => DodajKarteBadan(), _ => PacjentZapisany);
             UsunPacjentaCommand     = new RelayCommand(_ => UsunPacjenta(),    _ => PacjentZapisany);
             CopyPacjentIdCommand    = new RelayCommand(_ => NavigateCopyPacjent?.Invoke());
+            WeryfikujPobierzZP1Command = new RelayCommand(
+                async _ => await WeryfikujPobierzZP1Async(),
+                _ => !string.IsNullOrWhiteSpace(PESEL) && !BrakPESEL && !string.IsNullOrWhiteSpace(Imie)
+                     && !string.IsNullOrWhiteSpace(Nazwisko) && !CzyTrwaWeryfikacjaP1);
 
             LoadAutoCompleteData();
             LoadFirmyFromDb();
@@ -114,6 +125,117 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
             set { _brakPesel = value; OnPropertyChanged(); OnPropertyChanged(nameof(PeselEnabled)); }
         }
         public bool PeselEnabled => !BrakPESEL;
+
+        /// <summary>Identyfikator pacjenta w Rejestrze Pacjentów P1 (zapisywany w lokalnej kolumnie P_CWUB_ID).</summary>
+        private string? _p1PacjentId;
+        public string? P1PacjentId
+        {
+            get => _p1PacjentId;
+            private set { _p1PacjentId = value; OnPropertyChanged(); OnPropertyChanged(nameof(CzyZweryfikowanoP1)); }
+        }
+        public bool CzyZweryfikowanoP1 => !string.IsNullOrWhiteSpace(P1PacjentId);
+
+        private bool _czyTrwaWeryfikacjaP1;
+        public bool CzyTrwaWeryfikacjaP1
+        {
+            get => _czyTrwaWeryfikacjaP1;
+            private set { _czyTrwaWeryfikacjaP1 = value; OnPropertyChanged(); CommandManager.InvalidateRequerySuggested(); }
+        }
+
+        /// <summary>
+        /// Weryfikuje pacjenta po numerze PESEL w Rejestrze Pacjentów P1 (Middleware) i w razie znalezienia
+        /// zapisuje jego identyfikator w <see cref="P1PacjentId"/> (docelowo kolumna P_CWUB_ID).
+        /// </summary>
+        private async Task WeryfikujPobierzZP1Async()
+        {
+            if (_p1Client == null)
+            {
+                MessageBox.Show("Brak konfiguracji integracji z P1 (Middleware).", "Weryfikacja PESEL",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            var pesel = PESEL?.Trim();
+            if (string.IsNullOrWhiteSpace(pesel))
+            {
+                MessageBox.Show("Podaj numer PESEL.", "Weryfikacja PESEL", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var imie = Imie?.Trim();
+            var nazwisko = Nazwisko?.Trim();
+            if (string.IsNullOrWhiteSpace(imie) || string.IsNullOrWhiteSpace(nazwisko))
+            {
+                MessageBox.Show("Podaj imię i nazwisko pacjenta — wymagane do weryfikacji w P1.", "Weryfikacja PESEL",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            CzyTrwaWeryfikacjaP1 = true;
+            try
+            {
+                var odpowiedz = await _p1Client.WyszukajPacjentaAsync(new MpKryteriaWyszukiwaniaPacjenta
+                {
+                    Identyfikator = pesel,
+                    Imie = imie,
+                    Nazwisko = nazwisko
+                });
+
+                if (odpowiedz.IsError)
+                {
+                    MessageBox.Show($"Błąd weryfikacji PESEL w P1:\n{odpowiedz.MessagesText}", "Weryfikacja PESEL",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                var zasob = odpowiedz.Pacjent?.Entry?.FirstOrDefault()?.Resource;
+                if (zasob == null || string.IsNullOrWhiteSpace(zasob.Id))
+                {
+                    MessageBox.Show("Nie znaleziono pacjenta o podanym numerze PESEL w rejestrze P1.", "Weryfikacja PESEL",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                P1PacjentId = zasob.Id;
+
+                // Jeżeli pacjent jest już zapisany lokalnie, od razu utrwalamy jego ID z P1.
+                if (PacjentId > 0)
+                {
+                    ZapiszP1PacjentId(PacjentId, P1PacjentId);
+                }
+
+                MessageBox.Show($"Pacjent zweryfikowany w P1.\nID pacjenta w P1: {P1PacjentId}", "Weryfikacja PESEL",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd weryfikacji PESEL w P1:\n{ex.Message}", "Weryfikacja PESEL",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                CzyTrwaWeryfikacjaP1 = false;
+            }
+        }
+
+        private void ZapiszP1PacjentId(int pacjentId, string? p1Id)
+        {
+            try
+            {
+                using var conn = _dbFactory.CreateConnection();
+                conn.Open();
+                using var cmd = (MySqlCommand)conn.CreateCommand();
+                cmd.CommandText = "UPDATE P_Pacjent SET P_CWUB_ID = @p1Id WHERE P_ID = @id";
+                cmd.Parameters.AddWithValue("@p1Id", (object?)p1Id ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", pacjentId);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Błąd zapisu identyfikatora P1:\n{ex.Message}", "Błąd",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
 
         private string? _plec;
         public string? Plec
@@ -273,7 +395,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText =
                     "SELECT P_imie, P_nazwisko, P_pesel, P_brak, P_plec, P_data_urodzenia, " +
-                    "P_zawod, P_Uwagi, P_Adres_ulica_numer, P_Ades_kod, P_Ades_miasto, P_Firma_id, P_email, P_telefon " +
+                    "P_zawod, P_Uwagi, P_Adres_ulica_numer, P_Ades_kod, P_Ades_miasto, P_Firma_id, P_email, P_telefon, P_CWUB_ID " +
                     "FROM P_Pacjent WHERE P_ID = @id";
                 ((MySqlCommand)cmd).Parameters.AddWithValue("@id", id);
 
@@ -295,6 +417,7 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                 Miejscowosc   = reader["P_Ades_miasto"]?.ToString() ?? string.Empty;
                 Email         = reader["P_email"]?.ToString()       ?? string.Empty;
                 Telefon       = reader["P_telefon"]?.ToString()     ?? string.Empty;
+                P1PacjentId   = reader["P_CWUB_ID"] is DBNull ? null : reader["P_CWUB_ID"]?.ToString();
 
                 // PESEL - ustawiamy backing field bezposrednio, zeby nie nadpisac
                 // daty urodzenia i plci (juz ustawione z bazy powyzej)
@@ -427,11 +550,11 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                         INSERT INTO P_Pacjent
                             (P_Imie, P_Nazwisko, P_PESEL, P_brak, P_Plec,
                              P_data_urodzenia, P_zawod, P_Adres_ulica_numer,
-                             P_Ades_kod, P_Ades_miasto, P_Uwagi, P_Firma_id,P_firma, P_email, P_telefon, P_activ)
+                             P_Ades_kod, P_Ades_miasto, P_Uwagi, P_Firma_id,P_firma, P_email, P_telefon, P_CWUB_ID, P_activ)
                         VALUES
                             (@imie, @nazwisko, @pesel, @brakPesel, @plec,
                              @dataUr, @zawod, @ulica,
-                             @kod, @miasto, @uwagi, @firmaId, @firma, @email, @telefon, 1)";
+                             @kod, @miasto, @uwagi, @firmaId, @firma, @email, @telefon, @p1Id, 1)";
                 }
                 else
                 {
@@ -446,10 +569,13 @@ namespace ASMED.EDM.UI.ViewModels.Skierowania
                             P_Firma_id = @firmaId,
                             P_firma = @firma,
                             P_email = @email, 
-                            P_telefon = @telefon
+                            P_telefon = @telefon,
+                            P_CWUB_ID = @p1Id
                         WHERE P_ID = @id";
                     cmd.Parameters.AddWithValue("@id", PacjentId);
                 }
+
+                cmd.Parameters.AddWithValue("@p1Id", (object?)P1PacjentId ?? DBNull.Value);
 
                 cmd.Parameters.AddWithValue("@imie",     Imie.Trim());
                 cmd.Parameters.AddWithValue("@nazwisko",  Nazwisko.Trim());

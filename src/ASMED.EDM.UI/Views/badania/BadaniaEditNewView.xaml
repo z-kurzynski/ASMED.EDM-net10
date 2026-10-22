@@ -18,21 +18,21 @@
         <Style TargetType="{x:Type Path}" x:Key="SfDataGridHeaderIconStyle">
             <Setter Property="Fill" Value="Cyan"/>
         </Style>
-        
+
         <Style TargetType="{x:Type syncfusion:FilterToggleButton}">
             <Setter Property="Background" Value="#00000000"/>
             <Setter Property="BorderBrush" Value="#00000000"/>
             <Setter Property="Foreground" Value="Cyan"/>
             <Setter Property="Padding" Value="1"/>
         </Style>
-        
+
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <Grid Grid.Row="0" VerticalAlignment="Top" Height="55">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0"/>
@@ -207,75 +207,79 @@
                 </Grid>
             </Border>
             <Border BorderBrush="{DynamicResource {x:Static SystemColors.HotTrackBrushKey}}" BorderThickness="1,0.9,1,1" CornerRadius="8,8,8,8" Background="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}" Grid.Column="1" Margin="5,0,10,0" VerticalAlignment="Top" Height="625">
-                <Grid>
+                <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="75"/>
                         <RowDefinition/>
+                        <RowDefinition Height="Auto" MinHeight="68.3"/>
                         <RowDefinition Height="Auto" MinHeight="100"/>
                     </Grid.RowDefinitions>
 
                     <!-- Przyciski zapisu -->
                     <!-- Nagłówek prawej kolumny -->
                     <!-- Nagłówek prawej kolumny -->
-                    <Grid Margin="19,11,0,0" VerticalAlignment="Top">
-                        <Grid x:Name="top_edit_badania" HorizontalAlignment="Stretch">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                        <Grid Width="831">
+                            <Grid x:Name="top_edit_badania" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                            <!-- Lewy panel: tytuł -->
-                            <!-- Prawy panel: Info o fakturze -->
-                            <StackPanel x:Name="info" Grid.Column="0" Orientation="Horizontal" Margin="5,0,10,0" Height="21">
-                                <TextBlock Text="✏️ Edycja Badania" 
-                                    FontSize="16" FontWeight="SemiBold" 
-                                    Foreground="#FFEDEB47" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding SkierowanieInfo}" 
-                                    FontSize="15" 
-                                    TextWrapping="Wrap"
-                                    Margin="10,3,0,0" VerticalAlignment="Center" 
-                                    Foreground="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Visibility="Collapsed"/>
-                                <!-- DEBUG: StatusMessage -->
-                                <!-- DEBUG: DebugInfo -->
-                            </StackPanel>
-
-                            <!-- Prawy panel: Info o fakturze -->
-                            <Border x:Name="faktura" Grid.Column="1" HorizontalAlignment="Right"
-                                CornerRadius="5" 
-                                Margin="10,0,24,0"
-                                VerticalAlignment="Center" 
-                                BorderBrush="#FFEDEB47" 
-                                BorderThickness="1,1,2,1"
-                                Background="#FF3F51B5" Height="26" Padding="10,0,10,0" Width="180">
-                                <Border.Style>
-                                    <Style TargetType="{x:Type Border}">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SelectedSkierowanie.Bad_Fakt}" Value="Visible">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="FAKTURA" 
-                                        FontSize="12" 
-                                        FontWeight="Bold" 
+                                <!-- Lewy panel: tytuł -->
+                                <!-- Prawy panel: Info o fakturze -->
+                                <StackPanel x:Name="info" Grid.Column="0" Orientation="Horizontal" Margin="5,0,10,0" Height="21">
+                                    <TextBlock Text="✏️ Edycja Badania" 
+                                        FontSize="16" FontWeight="SemiBold" 
                                         Foreground="#FFEDEB47" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding SelectedSkierowanie.Bad_Fakt}" 
-                                        Foreground="White" 
-                                        HorizontalAlignment="Left"
-                                        TextAlignment="Center" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding SkierowanieInfo}" 
+                                        FontSize="15" 
+                                        TextWrapping="Wrap"
+                                        Margin="10,3,0,0" VerticalAlignment="Center" 
+                                        Foreground="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" Visibility="Collapsed"/>
+                                    <!-- DEBUG: StatusMessage -->
+                                    <!-- DEBUG: DebugInfo -->
                                 </StackPanel>
-                            </Border>
-                        </Grid>
 
-                    </Grid>
-                    <Grid Margin="15.3,0,0,0" Grid.Row="1">
+                                <!-- Prawy panel: Info o fakturze -->
+                                <Border x:Name="faktura" Grid.Column="1" HorizontalAlignment="Right"
+                                    CornerRadius="5" 
+                                    Margin="10,0,24,0"
+                                    VerticalAlignment="Center" 
+                                    BorderBrush="#FFEDEB47" 
+                                    BorderThickness="1,1,2,1"
+                                    Background="#FF3F51B5" Height="26" Padding="10,0,10,0" Width="180">
+                                    <Border.Style>
+                                        <Style TargetType="{x:Type Border}">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedSkierowanie.Bad_Fakt}" Value="Visible">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="FAKTURA" 
+                                            FontSize="12" 
+                                            FontWeight="Bold" 
+                                            Foreground="#FFEDEB47" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SelectedSkierowanie.Bad_Fakt}" 
+                                            Foreground="White" 
+                                            HorizontalAlignment="Left"
+                                            TextAlignment="Center" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                        </Grid>
+                    </StackPanel>
+                    <Grid Margin="15,0,0,20" Grid.Row="1">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="113"/>
-                            <RowDefinition Height="Auto" MinHeight="66.96"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto" MinHeight="68.3"/>
+                            <RowDefinition Height="Auto" MinHeight="100"/>
                         </Grid.RowDefinitions>
 
                         <!-- Wiersz 0: Dane Pacjenta i Firmy -->
@@ -502,6 +506,12 @@
                                         FormatString="dd.MM.yyyy" Width="140" 
                                         Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold"/>
                                 </StackPanel>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="bez Daty" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,10,0"/>
+                                    <Button x:Name="btnClearDates" Content="🗑️" Width="22" Height="22" FontSize="11" 
+                                        Background="#FFD0D3D6" Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" 
+                                        Click="ClearDates_Click"/>
+                                </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Wynik" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <ComboBox x:Name="Wynik_Bad" ItemsSource="{Binding WynikOptions}" 
@@ -574,7 +584,7 @@
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
-                        <Border x:Name="wycena_badania" Grid.Row="2" BorderBrush="#ddd" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,10,20,0">
+                        <Border x:Name="wycena_badania" Grid.Row="3" BorderBrush="#ddd" BorderThickness="1" CornerRadius="5" Padding="10" Margin="0,10,20,0">
                             <Grid Margin="0,0,-2,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -597,7 +607,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    
+
                                     <TextBlock Grid.Column="0" Text="Badanie" FontWeight="Bold" FontSize="10" 
                                         HorizontalAlignment="Center" Padding="3"/>
                                     <TextBlock Grid.Column="1" Text="Laryngolog" FontWeight="Bold" FontSize="10" 
@@ -703,47 +713,49 @@
                                 <!-- Przyciski toggle -->
                                 <Grid x:Name="Przyciski_Wyboru1" Grid.Row="3">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="21*"/>
+                                        <ColumnDefinition Width="18*"/>
+                                        <ColumnDefinition Width="74*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
+                                        <ColumnDefinition Width="97*"/>
                                     </Grid.ColumnDefinitions>
 
                                     <Button x:Name="btnNewToggleBasic1" Grid.Column="0" 
-                                        Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                        Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Click="ToggleNewExamination_Click" 
-                                        Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" Tag="Basic"/>
+                                        Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" Tag="Basic" Grid.ColumnSpan="3"/>
 
-                                    <Button x:Name="btnNewToggleLaryngologist1" Grid.Column="1" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleLaryngologist1" Grid.Column="3" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click" 
                                         Tag="Laryngologist"/>
 
-                                    <Button x:Name="btnNewToggleOphthalmologist1" Grid.Column="2" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleOphthalmologist1" Grid.Column="4" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click"
                                         Tag="Ophthalmologist"/>
-                                    <Button x:Name="btnNewToggleSanitary1" Grid.Column="3" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleSanitary1" Grid.Column="5" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click" 
                                         Tag="Sanitary"/>
-                                    <Button x:Name="btnNewToggleLipidogram1" Grid.Column="4" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleLipidogram1" Grid.Column="6" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click"
                                         Tag="Lipidogram"/>
-                                    <Button x:Name="btnNewToggleEKG1" Grid.Column="5" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleEKG1" Grid.Column="7" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click" 
                                         Tag="EKG"/>
-                                    <Button x:Name="btnNewToggleHealthClinic1" Grid.Column="6" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleHealthClinic1" Grid.Column="8" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click" 
                                         Tag="HealthClinic"/>
-                                    <Button x:Name="btnNewToggleOther1" Grid.Column="7" Content="✗ NIEAKTYWNE" Height="32" Margin="2" 
+                                    <Button x:Name="btnNewToggleOther1" Grid.Column="9" Content="✗ NIEAKTYWNE" Height="32" Margin="2,2,2,2" 
                                         Background="#FFD0D3D6" FontWeight="Bold" FontSize="9" 
                                         Click="ToggleNewExamination_Click"
                                         Tag="Other"/>
@@ -762,6 +774,171 @@
                                 </Grid>
                             </Grid>
                         </Border>
+                        <StackPanel x:Name="Status_Info" Orientation="Horizontal" VerticalAlignment="Top" Grid.Row="3" HorizontalAlignment="Right" Height="41" Width="507">
+                            <!-- Ankieta: icon colored green when true, gray when false -->
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Książeczka" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" TextWrapping="Wrap" />
+                                <Ellipse x:Name="elipse_ksiazeczka1" Width="24" Height="24" Stroke="Transparent">
+                                    <Ellipse.Style>
+                                        <Style TargetType="{x:Type Ellipse}">
+                                            <Setter Property="Fill" Value="#FFC1C0C0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedDetails.B_ksiazeczka}" Value="True">
+                                                    <Setter Property="Fill" Value="#FF09D070" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                    <Ellipse.ToolTip>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="Nie" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDetails.B_ksiazeczka}" Value="True">
+                                                            <Setter Property="Text" Value="Tak" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Ellipse.ToolTip>
+                                </Ellipse>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="Urlop (zdrowie)" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" TextWrapping="Wrap" Margin="10,0,10,0" />
+                                <Ellipse x:Name="elipse_urlop1" Width="24" Height="24" Stroke="Transparent">
+                                    <Ellipse.Style>
+                                        <Style TargetType="{x:Type Ellipse}">
+                                            <Setter Property="Fill" Value="#FFC1C0C0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedDetails.B_Zaswiadczenie}" Value="True">
+                                                    <Setter Property="Fill" Value="#FF09D070" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                    <Ellipse.ToolTip>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="Nie" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDetails.B_Zaswiadczenie}" Value="True">
+                                                            <Setter Property="Text" Value="Tak" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Ellipse.ToolTip>
+                                </Ellipse>
+                            </StackPanel>
+                            <!-- Ankieta: icon colored green when true, gray when false -->
+                            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                <TextBlock Text="Ankieta" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                                <Ellipse x:Name="elipse_ankieta" Width="24" Height="24" Stroke="Transparent">
+                                    <Ellipse.Style>
+                                        <Style TargetType="{x:Type Ellipse}">
+                                            <Setter Property="Fill" Value="#FFC1C0C0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedDetails.B_Ankieta}" Value="True">
+                                                    <Setter Property="Fill" Value="#FF09D070" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                    <Ellipse.ToolTip>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="Nie" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDetails.B_Ankieta}" Value="True">
+                                                            <Setter Property="Text" Value="Tak" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Ellipse.ToolTip>
+                                </Ellipse>
+                            </StackPanel>
+
+                            <!-- Wywiad: icon colored green when true, gray when false -->
+                            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                <TextBlock Text="Wywiad" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="10,0,10,1" />
+                                <Ellipse x:Name="elipse_wywiad" Width="24" Height="24" Stroke="Transparent">
+                                    <Ellipse.Style>
+                                        <Style TargetType="{x:Type Ellipse}">
+                                            <Setter Property="Fill" Value="#FFC1C0C0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedDetails.B_wywiad}" Value="True">
+                                                    <Setter Property="Fill" Value="#FF09D070" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                    <Ellipse.ToolTip>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="Nie" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDetails.B_wywiad}" Value="True">
+                                                            <Setter Property="Text" Value="Tak" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Ellipse.ToolTip>
+                                </Ellipse>
+                            </StackPanel>
+
+                            <!-- Orzeczenie: icon colored green when true, gray when false -->
+                            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                <TextBlock Text="Orzeczenie" FontSize="12" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                                <Ellipse x:Name="elipse_orzeczenie" Width="24" Height="24" Stroke="Transparent">
+                                    <Ellipse.Style>
+                                        <Style TargetType="{x:Type Ellipse}">
+                                            <Setter Property="Fill" Value="#FFC1C0C0" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedDetails.B_orzeczenie}" Value="True">
+                                                    <Setter Property="Fill" Value="#FF09D070" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                    <Ellipse.ToolTip>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="{x:Type TextBlock}">
+                                                    <Setter Property="Text" Value="Nie" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedDetails.B_orzeczenie}" Value="True">
+                                                            <Setter Property="Text" Value="Tak" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Ellipse.ToolTip>
+                                </Ellipse>
+                            </StackPanel>
+
+                            <!-- ID pola: B_orzeczenie_ID i B_edm_document_id -->
+                            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                <TextBlock Text="Orzeczenie ID" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                                <TextBox Text="{Binding SelectedDetails.B_orzeczenie_ID, Mode=TwoWay}" Width="70" Height="22" FontSize="14" Background="{x:Null}" Foreground="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" HorizontalAlignment="Right" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Vertical" Margin="0,0,10,0">
+                                <TextBlock Text="EDM Doc ID" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
+                                <TextBox Text="{Binding SelectedDetails.B_edm_document_id, Mode=TwoWay}" Width="70" Height="22" FontSize="14" Background="{x:Null}" Foreground="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" HorizontalAlignment="Right" />
+                            </StackPanel>
+                        </StackPanel>
 
                     </Grid>
                     <Grid HorizontalAlignment="Center" Margin="0,1,10,30" VerticalAlignment="Bottom" Grid.Row="2">
@@ -780,9 +957,10 @@
 
                         </Border>
 
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Grid.Row="3">
 
-                            <syncfusion:ButtonAdv
+                        <syncfusion:ButtonAdv
                                 x:Name="btnAnuluj"
                                 Height="45"
                                 Label="❌ Anuluj"
@@ -791,15 +969,15 @@
                                 Foreground="#FFFBFBFB"
                                 FontSize="16"
                                 Command="{Binding RefreshCommand}" IconHeight="0" IconWidth="0" Margin="10,0,0,0">
-                                <syncfusion:ButtonAdv.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                                </syncfusion:ButtonAdv.BorderBrush>
-                                <syncfusion:ButtonAdv.IconTemplate>
-                                    <DataTemplate/>
-                                </syncfusion:ButtonAdv.IconTemplate>
-                            </syncfusion:ButtonAdv>
+                            <syncfusion:ButtonAdv.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                            </syncfusion:ButtonAdv.BorderBrush>
+                            <syncfusion:ButtonAdv.IconTemplate>
+                                <DataTemplate/>
+                            </syncfusion:ButtonAdv.IconTemplate>
+                        </syncfusion:ButtonAdv>
 
-                            <syncfusion:ButtonAdv
+                        <syncfusion:ButtonAdv
                                 x:Name="btnDeleteBadanie"
                                 Height="45"
                                 Label="🗑️ Usuń Badanie"
@@ -811,15 +989,15 @@
                                 IconHeight="0" 
                                 IconWidth="0" 
                                 Margin="10,0,0,0">
-                                <syncfusion:ButtonAdv.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                                </syncfusion:ButtonAdv.BorderBrush>
-                                <syncfusion:ButtonAdv.IconTemplate>
-                                    <DataTemplate/>
-                                </syncfusion:ButtonAdv.IconTemplate>
-                            </syncfusion:ButtonAdv>
+                            <syncfusion:ButtonAdv.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                            </syncfusion:ButtonAdv.BorderBrush>
+                            <syncfusion:ButtonAdv.IconTemplate>
+                                <DataTemplate/>
+                            </syncfusion:ButtonAdv.IconTemplate>
+                        </syncfusion:ButtonAdv>
 
-                            <syncfusion:ButtonAdv
+                        <syncfusion:ButtonAdv
                                 x:Name="btnWyczysc"
                                 Height="45"
                                 Label="🔄 Wyczyść"
@@ -831,15 +1009,15 @@
                                 IconHeight="0" 
                                 IconWidth="0" 
                                 Margin="10,0,0,0">
-                                <syncfusion:ButtonAdv.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                                </syncfusion:ButtonAdv.BorderBrush>
-                                <syncfusion:ButtonAdv.IconTemplate>
-                                    <DataTemplate/>
-                                </syncfusion:ButtonAdv.IconTemplate>
-                            </syncfusion:ButtonAdv>
+                            <syncfusion:ButtonAdv.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                            </syncfusion:ButtonAdv.BorderBrush>
+                            <syncfusion:ButtonAdv.IconTemplate>
+                                <DataTemplate/>
+                            </syncfusion:ButtonAdv.IconTemplate>
+                        </syncfusion:ButtonAdv>
 
-                            <syncfusion:ButtonAdv
+                        <syncfusion:ButtonAdv
                                 x:Name="btnSaveBadanie"
                                 Height="45"
                                 Label="💾 Zapisz Badanie"
@@ -850,16 +1028,14 @@
                                 Command="{Binding SaveBadanieCommand}"
                                 IconHeight="0" IconWidth="0" Margin="10,0,0,0" 
                                 HorizontalAlignment="Left">
-                                <syncfusion:ButtonAdv.BorderBrush>
-                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
-                                </syncfusion:ButtonAdv.BorderBrush>
-                                <syncfusion:ButtonAdv.IconTemplate>
-                                    <DataTemplate/>
-                                </syncfusion:ButtonAdv.IconTemplate>
-                            </syncfusion:ButtonAdv>
-                        </StackPanel>
-
-                    </Grid>
+                            <syncfusion:ButtonAdv.BorderBrush>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveCaptionColorKey}}"/>
+                            </syncfusion:ButtonAdv.BorderBrush>
+                            <syncfusion:ButtonAdv.IconTemplate>
+                                <DataTemplate/>
+                            </syncfusion:ButtonAdv.IconTemplate>
+                        </syncfusion:ButtonAdv>
+                    </StackPanel>
 
                 </Grid>
             </Border>

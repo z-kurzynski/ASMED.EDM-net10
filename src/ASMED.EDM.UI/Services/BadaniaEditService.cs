@@ -153,7 +153,12 @@ SELECT
     B_Skierowania.B_TypBadania,
     B_Skierowania.B_Stanowisko,
     B_Skierowania.B_Zaswiadczenie,
-    B_Skierowania.B_ksiazeczka
+    B_Skierowania.B_ksiazeczka,
+    B_Skierowania.B_ankieta,
+    B_Skierowania.B_wywiad,
+    B_Skierowania.B_orzeczenie,
+    B_Skierowania.B_orzeczenie_ID,
+    B_Skierowania.B_edm_document_id
 FROM
     (
         (
@@ -186,6 +191,11 @@ WHERE
                     B_Stanowisko = reader["B_Stanowisko"]?.ToString(),
                     B_Zaswiadczenie = reader["B_Zaswiadczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_Zaswiadczenie"]),
                     B_ksiazeczka = reader["B_ksiazeczka"] is DBNull ? null : Convert.ToBoolean(reader["B_ksiazeczka"]),
+                    B_ankieta = reader["B_ankieta"] is DBNull ? null : Convert.ToBoolean(reader["B_ankieta"]),
+                    B_wywiad = reader["B_wywiad"] is DBNull ? null : Convert.ToBoolean(reader["B_wywiad"]),
+                    B_orzeczenie = reader["B_orzeczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_orzeczenie"]),
+                    B_orzeczenie_ID = reader["B_orzeczenie_ID"] is DBNull ? null : Convert.ToInt32(reader["B_orzeczenie_ID"]),
+                    B_edm_document_id = reader["B_edm_document_id"] is DBNull ? null : Convert.ToInt32(reader["B_edm_document_id"]),
 
                     P_ID = reader["P_ID"] is DBNull ? 0 : Convert.ToInt32(reader["P_ID"]),
                     P_pesel = reader["P_pesel"]?.ToString(),

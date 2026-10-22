@@ -25,6 +25,7 @@ public partial class BadaniaNewView : UserControl
 
                 // Subskrypcja na event resetowania przycisków toggle
                 vm.ToggleButtonsResetRequested += ResetToggleButtons;
+                vm.PropertyChanged += Vm_PropertyChanged;
 
                 DataContext = vm;
                 Console.WriteLine("✅ BadaniaNewView: DataContext set with DbConnectionFactory");
@@ -34,6 +35,7 @@ public partial class BadaniaNewView : UserControl
                 // Fallback bez DI (nie powinno się zdarzyć)
                 var vm = new BadaniaNewViewModel(null);
                 vm.ToggleButtonsResetRequested += ResetToggleButtons;
+                vm.PropertyChanged += Vm_PropertyChanged;
                 DataContext = vm;
                 Console.WriteLine("⚠️ BadaniaNewView: DataContext set WITHOUT DbConnectionFactory");
             }
@@ -150,6 +152,67 @@ public partial class BadaniaNewView : UserControl
             var price = vm.GetPriceForExamination(examinationType);
             vm.SetCenaForExaminationType(examinationType, price);
             Console.WriteLine($"🟢 Toggle ON: {examinationType} = {price:N2} zł");
+        }
+
+        // Powiązanie wybranych przycisków z polami statusu w B_Skierowania
+        // (Status_Info): "Sanitary" = Książeczka ↔ B_ksiazeczka, "HealthClinic" = Urlop ↔ B_Zaswiadczenie,
+        // "Laryngologist" ↔ B_laryngolog, "Ophthalmologist" ↔ B_okulista, "EKG" ↔ B_EKG, "Lipidogram" ↔ B_Lipidogram
+        var newActiveState = !isActive;
+        switch (examinationType)
+        {
+            case "Sanitary": vm.SetKsiazeczkaStatus(newActiveState); break;
+            case "HealthClinic": vm.SetZaswiadczenieStatus(newActiveState); break;
+            case "Laryngologist": vm.SetLaryngologStatus(newActiveState); break;
+            case "Ophthalmologist": vm.SetOkulistaStatus(newActiveState); break;
+            case "EKG": vm.SetEKGStatus(newActiveState); break;
+            case "Lipidogram": vm.SetLipidogramStatus(newActiveState); break;
+        }
+    }
+
+    /// <summary>
+    /// Synchronizuje wygląd przycisków powiązanych z polami statusu (Książeczka, Urlop,
+    /// Laryngolog, Okulista, EKG, Lipidogram) po załadowaniu ceny z bazy przy wyborze badania z listy.
+    /// </summary>
+    private void Vm_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (DataContext is not BadaniaNewViewModel vm) return;
+
+        switch (e.PropertyName)
+        {
+            case nameof(BadaniaNewViewModel.Cena2):
+                SetToggleButtonVisual(btnNewToggleLaryngologist, vm.Cena2.GetValueOrDefault() > 0);
+                break;
+            case nameof(BadaniaNewViewModel.Cena3):
+                SetToggleButtonVisual(btnNewToggleOphthalmologist, vm.Cena3.GetValueOrDefault() > 0);
+                break;
+            case nameof(BadaniaNewViewModel.Cena4):
+                SetToggleButtonVisual(btnNewToggleSanitary, vm.Cena4.GetValueOrDefault() > 0);
+                break;
+            case nameof(BadaniaNewViewModel.Cena5):
+                SetToggleButtonVisual(btnNewToggleLipidogram, vm.Cena5.GetValueOrDefault() > 0);
+                break;
+            case nameof(BadaniaNewViewModel.Cena6):
+                SetToggleButtonVisual(btnNewToggleEKG, vm.Cena6.GetValueOrDefault() > 0);
+                break;
+            case nameof(BadaniaNewViewModel.Cena7):
+                SetToggleButtonVisual(btnNewToggleHealthClinic, vm.Cena7.GetValueOrDefault() > 0);
+                break;
+        }
+    }
+
+    private static void SetToggleButtonVisual(Button? btn, bool isActive)
+    {
+        if (btn == null) return;
+
+        if (isActive)
+        {
+            btn.Content = "✓ AKTYWNE";
+            btn.Background = Brushes.LightGreen;
+        }
+        else
+        {
+            btn.Content = "✗ NIEAKTYWNE";
+            btn.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFD0D3D6"));
         }
     }
 
