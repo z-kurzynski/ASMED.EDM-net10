@@ -10,7 +10,7 @@
         Height="320" Width="400"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        WindowStyle="SingleBorderWindow">
+        WindowStyle="SingleBorderWindow" BorderThickness="1,1,1,1" BorderBrush="{DynamicResource Grid.RowHover}">
     <Window.Background>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <GradientStop Color="#FF0E89D8" Offset="0.145"/>
@@ -32,13 +32,19 @@
         <TextBlock Grid.Row="0" Text="❤️ ASMED EDM" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource UI.Background.App}"/>
 
         <TextBlock Grid.Row="2" Text="Nazwa użytkownika:" Foreground="{DynamicResource UI.Text.Primary}"/>
-        <TextBox Grid.Row="3" Name="UsernameTextBox" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" FontSize="18"/>
+        <TextBox Grid.Row="3" Name="UsernameTextBox" Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" FontSize="18" IsEnabled="{Binding IsNotBusy}"/>
 
         <TextBlock Grid.Row="4" Text="Hasło:" Foreground="{DynamicResource UI.Text.Primary}"/>
-        <PasswordBox Grid.Row="5" Name="PasswordBox" KeyDown="PasswordBox_KeyDown" FontSize="18"/>
+        <PasswordBox Grid.Row="5" Name="PasswordBox" KeyDown="PasswordBox_KeyDown" FontSize="18" IsEnabled="{Binding IsNotBusy}"/>
 
-        <TextBlock Grid.Row="6" Text="{Binding ErrorMessage}" Foreground="{DynamicResource UI.Text.Accent}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+        <StackPanel Grid.Row="6" Margin="0,8,0,0">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource UI.Text.Accent}" TextWrapping="Wrap"/>
+            <StackPanel Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="{Binding BusyMessage}" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,0,0,4" Foreground="{DynamicResource UI.Text.Primary}"/>
+                <ProgressBar IsIndeterminate="True" Height="12" Maximum="200"/>
+            </StackPanel>
+        </StackPanel>
 
-        <Button Grid.Row="8" Content="Zaloguj" Height="32" Click="LoginButton_Click" IsDefault="True" Background="{DynamicResource UI.Background.ButtonSuccess}" Foreground="{DynamicResource UI.Text.Primary}" FontSize="16" BorderBrush="{DynamicResource UI.Background.Panel}"/>
+        <Button Grid.Row="8" Content="Zaloguj" Height="32" Click="LoginButton_Click" IsDefault="True" IsEnabled="{Binding IsNotBusy}" Visibility="{Binding IsBusy, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" Background="{DynamicResource UI.Background.ButtonSuccess}" Foreground="{DynamicResource UI.Text.Primary}" FontSize="16" BorderBrush="{DynamicResource UI.Background.App}" BorderThickness="2,2,1,2" ClipToBounds="True"/>
     </Grid>
 </Window>

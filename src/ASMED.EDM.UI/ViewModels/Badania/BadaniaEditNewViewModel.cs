@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models.BadaniaEdit;
@@ -77,7 +78,7 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
 
             ClearCommand = new RelayCommand(ExecuteClearCommand);
             RefreshCommand = new RelayCommand(ExecuteRefreshCommand);
-            SaveBadanieCommand = new RelayCommand(() => { /* TODO */ });
+            SaveBadanieCommand = new RelayCommand(ExecuteSaveBadanie);
 
             LoadData();
             Console.WriteLine("[EDIT VM] Constructor completed");
@@ -101,6 +102,8 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
         get => _selectedFilter;
         set { if (_selectedFilter != value) { _selectedFilter = value; OnPropertyChanged(); ApplyFilter(); } }
     }
+
+    public ObservableCollection<string> FilterOptions { get; } = new() { "All", "Nazwisko", "Firma" };
 
     // ---- Lista skierowania ----
     public ObservableCollection<BadaniaEditListDto> Skierowania
@@ -428,10 +431,10 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
                 Cena2 = details.Bad_Cena2;
                 Cena3 = details.Bad_Cena3;
                 Cena4 = details.Bad_Cena4;
-                Cena5 = details.Bad_Cena6;
-                Cena6 = details.Bad_Cena7;
-                Cena7 = details.Bad_Cena8;
-                Cena8 = details.Bad_Cena9;
+                Cena5 = details.Bad_Cena5;
+                Cena6 = details.Bad_Cena6;
+                Cena7 = details.Bad_Cena7;
+                Cena8 = details.Bad_Cena8;
 
                 // StatusMessage i DebugInfo
                 StatusMessage = $"[OK] B_ID={details.B_ID} | {details.P_imie} {details.P_nazwisko}";
@@ -444,7 +447,7 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
                     $"Bad_Wynik: {details.Bad_Wynik}  Bad_Nr_KS: {details.Bad_Nr_KS}\n" +
                     $"Bad_bn_cennik: {details.Bad_bn_cennik}  Bad_Fakt: {details.Bad_Fakt}\n" +
                     $"Cena1={details.Bad_Cena1} Cena2={details.Bad_Cena2} Cena3={details.Bad_Cena3} Cena4={details.Bad_Cena4}\n" +
-                    $"Cena6={details.Bad_Cena6} Cena7={details.Bad_Cena7} Cena8={details.Bad_Cena8} Cena9={details.Bad_Cena9}";
+                    $"Cena5={details.Bad_Cena5} Cena6={details.Bad_Cena6} Cena7={details.Bad_Cena7} Cena8={details.Bad_Cena8}";
 
                 Console.WriteLine($"[EDIT VM] StatusMessage: {StatusMessage}");
             }
@@ -603,6 +606,69 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
         LoadData();
     }
 
+    private void ExecuteSaveBadanie()
+    {
+        var details = SelectedDetails;
+        if (SelectedSkierowanie == null || details == null)
+        {
+            MessageBox.Show("Wybierz badanie z listy.", "Brak badania", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (string.IsNullOrEmpty(SelectedCennik?.bn_cennik))
+        {
+            MessageBox.Show("Wybierz cennik.", "Brak cennika", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(details.Bad_Fakt) &&
+            MessageBox.Show($"Badanie jest już na fakturze {details.Bad_Fakt}.\nCzy na pewno zapisać zmiany?",
+                "Badanie zafakturowane", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        try
+        {
+            details.Bad_bn_cennik = SelectedCennik!.bn_cennik;
+            details.Bad_Data = DataBadania;
+            details.Bad_Data_Do = DataWaznosci == DateTime.MinValue ? null : DataWaznosci;
+            details.Bad_Wynik = SelectedWynik;
+            details.Bad_Nr_KS = string.IsNullOrWhiteSpace(NrKsiegi) ? null : NrKsiegi.Trim();
+            details.Bad_Cena1 = Cena1;
+            details.Bad_Cena2 = Cena2;
+            details.Bad_Cena3 = Cena3;
+            details.Bad_Cena4 = Cena4;
+            details.Bad_Cena5 = Cena5;
+            details.Bad_Cena6 = Cena6;
+            details.Bad_Cena7 = Cena7;
+            details.Bad_Cena8 = Cena8;
+            details.Bad_Razem = (Cena1 ?? 0) + (Cena2 ?? 0) + (Cena3 ?? 0) + (Cena4 ?? 0)
+                              + (Cena5 ?? 0) + (Cena6 ?? 0) + (Cena7 ?? 0) + (Cena8 ?? 0);
+
+            if (!_badaniaEditService.UpdateBadanie(details))
+            {
+                MessageBox.Show($"Nie znaleziono badania Bad_ID={details.Bad_ID} - zmiany nie zostały zapisane.",
+                    "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            ToastHelper.ShowWindowsToast(
+                "✅ Badanie zapisane",
+                $"Bad_ID: {details.Bad_ID} | Pacjent: {details.P_imie} {details.P_nazwisko}");
+
+            int bId = details.B_ID;
+            LoadData();
+            ApplyFilter();
+            SelectedSkierowanie = Skierowania.FirstOrDefault(s => s.B_ID == bId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ [EDIT VM] ExecuteSaveBadanie ERROR: {ex.Message}\n{ex.StackTrace}");
+            MessageBox.Show($"Błąd podczas zapisu badania:\n{ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
     private void ApplyFilter()
     {
         if (string.IsNullOrWhiteSpace(FilterText))
@@ -640,6 +706,26 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
     }
 
     public void RecalculateTotalPrice() { OnPropertyChanged(nameof(SumaText)); }
+
+    /// <summary>
+    /// Przycisk "Sanitary" (Książeczka) ↔ B_ksiazeczka - zapis do bazy od razu, jak w BadaniaNewViewModel.
+    /// </summary>
+    public void SetKsiazeczkaStatus(bool value) => SetSkierowanieFlag("B_ksiazeczka", value, d => d.B_ksiazeczka = value);
+
+    /// <summary>
+    /// Przycisk "HealthClinic" (Urlop) ↔ B_Zaswiadczenie - zapis do bazy od razu, jak w BadaniaNewViewModel.
+    /// </summary>
+    public void SetZaswiadczenieStatus(bool value) => SetSkierowanieFlag("B_Zaswiadczenie", value, d => d.B_Zaswiadczenie = value);
+
+    private void SetSkierowanieFlag(string column, bool value, Action<BadaniaEditDetailsDto> apply)
+    {
+        if (SelectedDetails == null) return;
+        apply(SelectedDetails);
+        OnPropertyChanged(nameof(SelectedDetails));
+
+        if (!_badaniaEditService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, column, value))
+            StatusMessage = $"[BŁĄD] Nie zapisano {column}={value} dla B_ID={SelectedDetails.B_ID}";
+    }
 
     public void ToggleExamination(string examType)
     {

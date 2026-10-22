@@ -25,6 +25,7 @@ public partial class ConfigurationViewModel : ObservableObject
     private readonly IConfiguration _configuration;
     private readonly IOptions<DatabaseSettings> _databaseSettings;
     private readonly DbConnectionFactory _dbFactory;
+    private readonly Services.AppStartupState _startupState;
 
     #region Observable Properties
 
@@ -160,13 +161,15 @@ public partial class ConfigurationViewModel : ObservableObject
         ILogger<ConfigurationViewModel> logger,
         IConfiguration configuration,
         IOptions<DatabaseSettings> databaseSettings,
-        DbConnectionFactory dbFactory)
+        DbConnectionFactory dbFactory,
+        Services.AppStartupState startupState)
     {
         _connectionService = connectionService;
         _logger = logger;
         _configuration = configuration;
         _databaseSettings = databaseSettings;
         _dbFactory = dbFactory;
+        _startupState = startupState;
 
         LoadCurrentConfiguration();
         UpdateActiveConnectionStatus();
@@ -449,6 +452,24 @@ public partial class ConfigurationViewModel : ObservableObject
 
             // TODO: Wywołaj MainViewModel.RefreshDatabaseConnectionAsync()
             // Wymaga przekazania MainViewModel przez DI lub event bus
+
+            if (_startupState.IsDatabaseConfigurationMode)
+            {
+                var restart = MessageBox.Show(
+                    "✅ Konfiguracja zapisana!\n\n" +
+                    "Połączenia MySQL zostały zapisane w Windows Registry:\n" +
+                    "HKEY_CURRENT_USER\\Software\\ASMED\\EDM\n\n" +
+                    "Aplikacja działa w trybie konfiguracji bazy danych.\n" +
+                    "Uruchomić ją ponownie teraz, aby połączyć się z bazą i zalogować?",
+                    "Sukces",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (restart == MessageBoxResult.Yes && Application.Current is App app)
+                    app.RestartApplication();
+
+                return;
+            }
 
             MessageBox.Show(
                 "✅ Konfiguracja zapisana!\n\n" +

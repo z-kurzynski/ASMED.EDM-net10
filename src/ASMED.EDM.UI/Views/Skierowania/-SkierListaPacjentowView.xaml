@@ -233,6 +233,42 @@
                     </syncfusion:GridTemplateColumn.CellTemplate>
                 </syncfusion:GridTemplateColumn>
 
+                <!-- Stan weryfikacji P1 (tylko informacja) -->
+                <syncfusion:GridTemplateColumn HeaderText="P1" Width="38"
+                                    AllowSorting="False" AllowFiltering="False">
+                    <syncfusion:GridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Height="35" Width="30" CornerRadius="4"
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    ToolTip="{Binding WeryfikacjaP1ToolTip}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#FFC0392B"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CzyZweryfikowanoP1}" Value="True">
+                                                <Setter Property="Background" Value="#FF27AE60"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Foreground="White" FontSize="14" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="!"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CzyZweryfikowanoP1}" Value="True">
+                                                    <Setter Property="Text" Value="✔"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </syncfusion:GridTemplateColumn.CellTemplate>
+                </syncfusion:GridTemplateColumn>
+
             </syncfusion:SfDataGrid.Columns>
         </syncfusion:SfDataGrid>
 

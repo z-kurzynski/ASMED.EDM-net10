@@ -29,11 +29,14 @@ public partial class MainWindow : Window
     // Uchwyt monitora, na którym aktualnie znajduje się okno — do wykrywania przeniesienia na inny ekran
     private IntPtr _currentMonitor = IntPtr.Zero;
 
-    public MainWindow(MainWindowViewModel viewModel)
+    private readonly Services.AppStartupState _startupState;
+
+    public MainWindow(MainWindowViewModel viewModel, Services.AppStartupState startupState)
     {
         Console.WriteLine("🏠 MainWindow: Constructor started");
         InitializeComponent();
         DataContext = viewModel;
+        _startupState = startupState;
 
         // Przekieruj Console.Out tak, aby każde Console.Write uruchamiało cykl paska postępu
         try
@@ -43,6 +46,23 @@ public partial class MainWindow : Window
         }
         catch { /* ignoruj jeśli nie można przekierować konsoli */ }
 
+        if (startupState.IsDatabaseConfigurationMode)
+            EnterDatabaseConfigurationMode(viewModel);
+        else
+            CreateTabViews();
+
+        SourceInitialized += MainWindow_SourceInitialized;
+        LocationChanged   += MainWindow_LocationChanged;
+
+        // Lazy-load widoku EDM/P1 — tworzy się dopiero gdy ContentControl jest widoczny
+        EdmP1TestContent.Loaded    += EdmP1TestContent_Loaded;
+
+        Loaded += MainWindow_Loaded;
+        Console.WriteLine("✅ MainWindow: Constructor completed");
+    }
+
+    private void CreateTabViews()
+    {
         Console.WriteLine("📋 MainWindow: Creating tab views...");
         // Ustaw domyślne widoki wszystkich zakładek
         NowaKartaContent.Content      = new SkierListaPacjentowView();
@@ -81,19 +101,53 @@ public partial class MainWindow : Window
             { BadanieContent,         () => new BadanieView() },
             { OrzeczenieContent,      () => new OrzeczenieView() },
         };
+    }
 
-        SourceInitialized += MainWindow_SourceInitialized;
-        LocationChanged   += MainWindow_LocationChanged;
+    /// <summary>
+    /// Tryb konfiguracji bazy danych (brak połączenia przy starcie, np. czysta instalacja):
+    /// widoczna jest tylko zakładka "Baza / Ustawienia" → "Ustawienia", a widoki wymagające bazy nie są tworzone.
+    /// </summary>
+    private void EnterDatabaseConfigurationMode(MainWindowViewModel viewModel)
+    {
+        Console.WriteLine("⚠️ MainWindow: brak połączenia z bazą — tryb konfiguracji bazy danych");
 
-        // Lazy-load widoku EDM/P1 — tworzy się dopiero gdy ContentControl jest widoczny
-        EdmP1TestContent.Loaded    += EdmP1TestContent_Loaded;
+        foreach (var tab in MainTabControl.Items.OfType<TabItem>())
+            tab.Visibility = tab == tabUstawieniaRoot ? Visibility.Visible : Visibility.Collapsed;
 
-        Loaded += MainWindow_Loaded;
-        Console.WriteLine("✅ MainWindow: Constructor completed");
+        // Treść ukrytych podzakładek jest odłączana, aby ich widoki nie odpytywały bazy w zdarzeniu Loaded.
+        foreach (var subTab in new[] { tabUstawieniaFaktura, tabUstawieniaFirma, tabUstawieniaRaporty, tabUstawieniaMigracja, tabUstawieniaEdm })
+        {
+            subTab.Content = null;
+            subTab.Visibility = Visibility.Collapsed;
+        }
+
+        MainTabControl.SelectedItem = tabUstawieniaRoot;
+        tabUstawieniaKonfiguracja.IsSelected = true;
+
+        DatabaseConfigurationBanner.Visibility = Visibility.Visible;
+        Title += " — tryb konfiguracji bazy danych";
+        viewModel.SetDatabaseUnavailable();
     }
 
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        if (_startupState.IsDatabaseConfigurationMode)
+        {
+            MessageBox.Show(this,
+                "Brak połączenia z bazą danych.\n\n" +
+                (string.IsNullOrWhiteSpace(_startupState.DatabaseUnavailableReason)
+                    ? string.Empty
+                    : $"Szczegóły: {_startupState.DatabaseUnavailableReason}\n\n") +
+                "Aplikacja została uruchomiona w trybie konfiguracji.\n" +
+                "W zakładce \"Baza / Ustawienia\" → \"Konfiguracja\" wprowadź dane serwera MySQL, " +
+                "przetestuj połączenie, zainicjalizuj bazę (jeśli jest nowa) i zapisz konfigurację, " +
+                "a następnie uruchom aplikację ponownie.",
+                "ASMED EDM - konfiguracja bazy danych",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
         await ApplyTabPermissionsAsync();
     }
 

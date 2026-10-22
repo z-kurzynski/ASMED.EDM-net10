@@ -420,6 +420,42 @@ public static class DatabaseInitializerMySQL
             """),
 
         // ══════════════════════════════════════════════════════════════════════════
+        // TABELA: Doctors (Profil lekarza — dane do autoryzacji w EDM / P1)
+        // ══════════════════════════════════════════════════════════════════════════
+        ("Doctors", """
+            CREATE TABLE IF NOT EXISTS `Doctors` (
+                Id                          INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                UserId                      INT NOT NULL,
+                MedicalLicenseNumber        VARCHAR(50) NOT NULL,
+                Specialization              VARCHAR(200) NULL,
+                Title                       VARCHAR(50) NULL,
+                Qualifications              LONGTEXT NULL,
+                Description                 LONGTEXT NULL,
+                IsAcceptingNewPatients      TINYINT(1) NOT NULL DEFAULT 1,
+                ConsultationFee             DECIMAL(18,2) NULL,
+                TotpSecretKeyEncrypted      VARCHAR(500) NULL,
+                TotpEnabled                 TINYINT(1) NOT NULL DEFAULT 0,
+                TotpEnrolledAt              DATETIME NULL,
+                DoctorCertificatePassword   VARCHAR(255) NULL,
+                IdIzbyLekarskiej            VARCHAR(50) NULL,
+                AuthorMedycynaPracyId       VARCHAR(100) NULL,
+
+                CreatedAt                   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CreatedById                 INT NULL,
+                ModifiedAt                  DATETIME NULL,
+                ModifiedById                INT NULL,
+                IsDeleted                   TINYINT(1) NOT NULL DEFAULT 0,
+                DeletedAt                   DATETIME NULL,
+                DeletedById                 INT NULL,
+                RowVersion                  TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+
+                UNIQUE INDEX idx_UserId (UserId),
+                UNIQUE INDEX idx_MedicalLicenseNumber (MedicalLicenseNumber),
+                FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE RESTRICT
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ══════════════════════════════════════════════════════════════════════════
         // TABELA: LoginHistory (Historia logowań)
         // ══════════════════════════════════════════════════════════════════════════
         ("LoginHistory", """
@@ -436,6 +472,41 @@ public static class DatabaseInitializerMySQL
                 INDEX idx_UserId (UserId),
                 INDEX idx_LoginTime (LoginTime),
                 FOREIGN KEY (UserId) REFERENCES Users(Id) ON DELETE CASCADE
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ══════════════════════════════════════════════════════════════════════════
+        // TABELA: AuditLogs (Log audytowy operacji)
+        // ══════════════════════════════════════════════════════════════════════════
+        ("AuditLogs", """
+            CREATE TABLE IF NOT EXISTS `AuditLogs` (
+                Id              INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                Timestamp       DATETIME(6) NOT NULL,
+                UserId          INT NULL,
+                Username        VARCHAR(50) NULL,
+                OperationType   VARCHAR(50) NOT NULL,
+                EntityName      VARCHAR(100) NULL,
+                EntityId        VARCHAR(50) NULL,
+                OldValues       LONGTEXT NULL,
+                NewValues       LONGTEXT NULL,
+                IpAddress       VARCHAR(50) NULL,
+                UserAgent       LONGTEXT NULL,
+                AdditionalInfo  LONGTEXT NULL,
+                IsSuccess       TINYINT(1) NOT NULL DEFAULT 1,
+                ErrorMessage    LONGTEXT NULL,
+
+                CreatedAt       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+                CreatedById     INT NULL,
+                ModifiedAt      DATETIME(6) NULL,
+                ModifiedById    INT NULL,
+                IsDeleted       TINYINT(1) NOT NULL DEFAULT 0,
+                DeletedAt       DATETIME(6) NULL,
+                DeletedById     INT NULL,
+                RowVersion      LONGBLOB NULL,
+
+                INDEX idx_Timestamp (Timestamp),
+                INDEX idx_UserId (UserId),
+                INDEX idx_Entity (EntityName, EntityId)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -737,6 +808,8 @@ public static class DatabaseInitializerMySQL
         ("Doctors", "TotpEnabled", "TINYINT(1) NOT NULL DEFAULT 0"),
         ("Doctors", "TotpEnrolledAt", "DATETIME NULL"),
         ("Doctors", "DoctorCertificatePassword", "VARCHAR(255) NULL"),
+        ("Doctors", "IdIzbyLekarskiej", "VARCHAR(50) NULL"),
+        ("Doctors", "AuthorMedycynaPracyId", "VARCHAR(100) NULL"),
 
         // Users — dostosowanie do nowego modelu (BaseEntity + rozdzielone imię/nazwisko)
         // Stare kolumny (FullName, CreatedDate, LastLogin, EndLogin) pozostają w bazie

@@ -55,8 +55,9 @@ public class MiddlewareMedycynaPracyClient : IMiddlewareMedycynaPracyClient
     // gdy backend Middleware "wisi" (np. wolne/martwe wywołanie do zewnętrznego systemu P1),
     // ale wystarczająco długi, by nie przerywać wywołań, które faktycznie wymagają
     // dłuższego oczekiwania na odpowiedź zewnętrznego rejestru P1 (np. pacjent/odczyt).
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(20);
-    private const int MaxTimeoutRetries = 2;
+    // Zmierzone: pacjent/wyszukaj odpowiada po ~18-20s, więc 20s przerywało poprawne odpowiedzi.
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(60);
+    private const int MaxTimeoutRetries = 1;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {

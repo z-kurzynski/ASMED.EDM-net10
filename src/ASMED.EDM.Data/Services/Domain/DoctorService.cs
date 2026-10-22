@@ -1,4 +1,6 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
+using ASMED.EDM.Core.Helpers;
 using ASMED.EDM.Core.Interfaces.Repositories;
 using ASMED.EDM.Core.Interfaces.Services;
 using Microsoft.Extensions.Logging;
@@ -173,6 +175,79 @@ public class DoctorService : IDoctorService
             throw;
         }
     }
+
+    // ==================== EDM PROFILE ====================
+
+    public async Task<Doctor> SaveEdmProfileAsync(int userId, DoctorEdmProfileDto profile, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(profile);
+        _logger.LogInformation("Zapis profilu EDM lekarza dla użytkownika ID: {UserId}", userId);
+
+        var pwz = profile.MedicalLicenseNumber?.Trim() ?? string.Empty;
+        if (!MedicalLicenseValidator.IsValidDoctorPwz(pwz))
+        {
+            throw new InvalidOperationException(
+                "Nieprawidłowy numer PWZ lekarza. Wymagane 7 cyfr z poprawną cyfrą kontrolną.");
+        }
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId, cancellationToken)
+            ?? throw new InvalidOperationException($"Użytkownik o ID {userId} nie istnieje");
+
+        var byLicense = await _unitOfWork.Doctors.GetByMedicalLicenseNumberAsync(pwz, cancellationToken);
+        if (byLicense != null && byLicense.UserId != userId)
+        {
+            throw new InvalidOperationException($"Numer PWZ {pwz} jest już przypisany do innego lekarza.");
+        }
+
+        // Uwzględniamy także logicznie usunięty profil — indeks UserId jest unikalny.
+        var allDoctors = await _unitOfWork.Doctors.GetAllIncludingDeletedAsync(cancellationToken);
+        var doctor = allDoctors.FirstOrDefault(d => d.UserId == userId);
+        var isNew = doctor == null;
+
+        doctor ??= new Doctor { UserId = userId, CreatedById = profile.ModifiedById };
+
+        doctor.MedicalLicenseNumber = pwz;
+        doctor.Title = NullIfEmpty(profile.Title);
+        doctor.Specialization = NullIfEmpty(profile.Specialization);
+        doctor.IdIzbyLekarskiej = NullIfEmpty(profile.IdIzbyLekarskiej);
+        doctor.AuthorMedycynaPracyId = NullIfEmpty(profile.AuthorMedycynaPracyId);
+        if (profile.DoctorCertificatePassword != null)
+        {
+            doctor.DoctorCertificatePassword = profile.DoctorCertificatePassword.Length == 0
+                ? null
+                : profile.DoctorCertificatePassword;
+        }
+
+        doctor.IsDeleted = false;
+        doctor.DeletedAt = null;
+        doctor.DeletedById = null;
+        doctor.ModifiedById = profile.ModifiedById;
+
+        if (isNew)
+        {
+            await _unitOfWork.Doctors.AddAsync(doctor, cancellationToken);
+        }
+        else
+        {
+            _unitOfWork.Doctors.Update(doctor);
+        }
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _auditService.LogOperationAsync(
+            userId: profile.ModifiedById ?? userId,
+            operationType: isNew ? "CREATE_DOCTOR_EDM_PROFILE" : "UPDATE_DOCTOR_EDM_PROFILE",
+            entityName: nameof(Doctor),
+            entityId: doctor.Id.ToString(),
+            newValues: $"User: {user.Username}, PWZ: {pwz}",
+            cancellationToken: cancellationToken);
+
+        _logger.LogInformation("Zapisano profil EDM lekarza ID: {DoctorId} (użytkownik {UserId})", doctor.Id, userId);
+        return doctor;
+    }
+
+    private static string? NullIfEmpty(string? value)
+        => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     // ==================== SCHEDULES ====================
 

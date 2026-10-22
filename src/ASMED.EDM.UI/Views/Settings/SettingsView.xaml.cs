@@ -13,7 +13,34 @@ public partial class SettingsView : UserControl
     public SettingsView()
     {
         InitializeComponent();
+
+        if (IsDatabaseConfigurationMode())
+        {
+            ApplyDatabaseConfigurationMode();
+            return;
+        }
+
         Loaded += SettingsView_Loaded;
+    }
+
+    private static bool IsDatabaseConfigurationMode() =>
+        System.Windows.Application.Current is App { Host: not null } app
+        && app.Host.Services.GetRequiredService<Services.AppStartupState>().IsDatabaseConfigurationMode;
+
+    /// <summary>
+    /// Tryb konfiguracji bazy (brak połączenia): zostają tylko podzakładki niewymagające bazy.
+    /// TabControlExt ładuje także treść ukrytych zakładek, dlatego widoki odpytujące bazę są odłączane,
+    /// zanim zdążą obsłużyć zdarzenie Loaded.
+    /// </summary>
+    private void ApplyDatabaseConfigurationMode()
+    {
+        foreach (var tab in new[] { tabCenniki, tabUzytkownicy, tabRoleUprawnienia })
+        {
+            tab.Content = null;
+            tab.Visibility = Visibility.Collapsed;
+        }
+
+        settingsTabControl.SelectedItem = tabKonfiguracja;
     }
 
     private async void SettingsView_Loaded(object sender, RoutedEventArgs e)

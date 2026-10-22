@@ -289,6 +289,7 @@ public class SkierListaPacjentowViewModel : ViewModelBase
                     P.P_Nazwisko,
                     P.P_PESEL,
                     P.P_Firma,
+                    P.P_CWUB_ID,
                     COUNT(B.B_ID) AS LiczbaKartBadan,
                     (
                         SELECT MAX(Bad.Bad_Data_Do)
@@ -300,7 +301,7 @@ public class SkierListaPacjentowViewModel : ViewModelBase
                     P_Pacjent AS P
                     LEFT JOIN B_Skierowania AS B ON P.P_ID = B.B_Pacjent_ID
                 GROUP BY
-                    P.P_ID, P.P_Imie, P.P_Nazwisko, P.P_PESEL, P.P_Firma
+                    P.P_ID, P.P_Imie, P.P_Nazwisko, P.P_PESEL, P.P_Firma, P.P_CWUB_ID
                 ORDER BY
                     P.P_Nazwisko, P.P_Imie";
 
@@ -316,6 +317,7 @@ public class SkierListaPacjentowViewModel : ViewModelBase
                     LastName      = reader["P_Nazwisko"]?.ToString() ?? string.Empty,
                     PESEL         = reader["P_PESEL"]?.ToString()    ?? string.Empty,
                     Company       = reader["P_Firma"]?.ToString()    ?? string.Empty,
+                    P_CWUB_ID     = reader["P_CWUB_ID"] == DBNull.Value ? null : reader["P_CWUB_ID"].ToString(),
                     LiczbaKartBadan = Convert.ToInt32(reader["LiczbaKartBadan"]),
                     BadWazneDo = reader["BadWazneDo"] == DBNull.Value ? null : Convert.ToDateTime(reader["BadWazneDo"])
                 });

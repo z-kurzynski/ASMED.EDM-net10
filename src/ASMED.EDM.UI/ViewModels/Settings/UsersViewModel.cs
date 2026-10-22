@@ -22,6 +22,7 @@ public partial class UsersViewModel : ViewModelBase
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<UsersViewModel> _logger;
     private readonly INotificationService _notificationService;
+    private readonly IDoctorEdmProfileDialogService _doctorEdmProfileDialogService;
 
     [ObservableProperty]
     private ObservableCollection<User> _users = new();
@@ -51,6 +52,7 @@ public partial class UsersViewModel : ViewModelBase
     private string? _formLastName;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsDoctorEdmProfileAvailable))]
     private UserRole _formRole = UserRole.Receptionist;
 
     [ObservableProperty]
@@ -61,6 +63,7 @@ public partial class UsersViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveUserCommand))]
+    [NotifyPropertyChangedFor(nameof(IsDoctorEdmProfileAvailable))]
     private bool _isEditMode;
 
     public ObservableCollection<UserRole> AvailableRoles { get; } = new()
@@ -76,14 +79,19 @@ public partial class UsersViewModel : ViewModelBase
 
     public string SaveButtonLabel => IsEditMode ? "💾 Zapisz zmiany" : "➕ Dodaj użytkownika";
 
+    /// <summary>Czy pokazać przycisk danych EDM lekarza (edycja użytkownika z rolą Doctor).</summary>
+    public bool IsDoctorEdmProfileAvailable => IsEditMode && FormRole == UserRole.Doctor;
+
     public UsersViewModel(
         IServiceScopeFactory scopeFactory,
         ILogger<UsersViewModel> logger,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        IDoctorEdmProfileDialogService doctorEdmProfileDialogService)
     {
         _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _notificationService = notificationService ?? throw new ArgumentNullException(nameof(notificationService));
+        _doctorEdmProfileDialogService = doctorEdmProfileDialogService ?? throw new ArgumentNullException(nameof(doctorEdmProfileDialogService));
     }
 
     public override async Task OnNavigatedToAsync()
@@ -152,6 +160,8 @@ public partial class UsersViewModel : ViewModelBase
                     return;
                 }
 
+                var previousRole = existing.Role;
+
                 existing.Email = string.IsNullOrWhiteSpace(FormEmail) ? null : FormEmail;
                 existing.FirstName = FormFirstName ?? string.Empty;
                 existing.LastName = FormLastName ?? string.Empty;
@@ -162,10 +172,25 @@ public partial class UsersViewModel : ViewModelBase
 
                 if (!string.IsNullOrWhiteSpace(FormPassword))
                 {
-                    await userService.AdminSetPasswordAsync(existing.Id, FormPassword);
+                    var passwordSet = await userService.AdminSetPasswordAsync(existing.Id, FormPassword);
+                    if (!passwordSet)
+                    {
+                        _notificationService.ShowToast(
+                            $"Dane użytkownika {FormUsername} zapisane, ale nie udało się zmienić hasła (hasło musi mieć min. 6 znaków).",
+                            ToastType.Error);
+                        return;
+                    }
                 }
 
                 _notificationService.ShowToast($"Użytkownik {FormUsername} zaktualizowany", ToastType.Success);
+
+                if (existing.Role == UserRole.Doctor)
+                {
+                    await EnsureDoctorEdmProfileAsync(
+                        existing.Id,
+                        GetDisplayName(existing),
+                        forceDialog: previousRole != UserRole.Doctor);
+                }
             }
             else
             {
@@ -179,9 +204,14 @@ public partial class UsersViewModel : ViewModelBase
                     IsActive = true
                 };
 
-                await userService.CreateUserAsync(newUser, FormPassword ?? string.Empty);
+                var createdUser = await userService.CreateUserAsync(newUser, FormPassword ?? string.Empty);
 
                 _notificationService.ShowToast($"Użytkownik {FormUsername} dodany", ToastType.Success);
+
+                if (createdUser.Role == UserRole.Doctor)
+                {
+                    await EnsureDoctorEdmProfileAsync(createdUser.Id, GetDisplayName(createdUser), forceDialog: true);
+                }
             }
 
             await LoadUsersAsync();
@@ -208,6 +238,70 @@ public partial class UsersViewModel : ViewModelBase
         }
 
         return current.Message;
+    }
+
+    private static string GetDisplayName(User user)
+        => string.IsNullOrWhiteSpace(user.FullName) ? user.Username : $"{user.FullName.Trim()} ({user.Username})";
+
+    /// <summary>
+    /// Dla użytkownika z rolą Doctor otwiera dialog danych EDM, jeśli profil lekarza
+    /// nie istnieje lub rola została właśnie zmieniona na Doctor.
+    /// </summary>
+    private async Task EnsureDoctorEdmProfileAsync(int userId, string displayName, bool forceDialog)
+    {
+        bool hasProfile;
+        using (var scope = _scopeFactory.CreateScope())
+        {
+            var doctorService = scope.ServiceProvider.GetRequiredService<IDoctorService>();
+            hasProfile = await doctorService.GetDoctorByUserIdAsync(userId) != null;
+        }
+
+        if (hasProfile && !forceDialog)
+        {
+            return;
+        }
+
+        var saved = _doctorEdmProfileDialogService.ShowDialog(userId, displayName);
+
+        if (saved)
+        {
+            _notificationService.ShowToast($"Zapisano dane EDM lekarza: {displayName}", ToastType.Success);
+        }
+        else if (!hasProfile)
+        {
+            _notificationService.ShowToast(
+                $"Użytkownik {displayName} ma rolę Doctor, ale nie uzupełniono danych EDM — nie będzie mógł podpisywać dokumentów. " +
+                "Uzupełnij je przyciskiem „Dane EDM lekarza”.",
+                ToastType.Warning,
+                durationMs: 6000);
+        }
+    }
+
+    [RelayCommand]
+    private async Task EditDoctorEdmProfileAsync()
+    {
+        if (SelectedUser == null)
+        {
+            return;
+        }
+
+        if (SelectedUser.Role != UserRole.Doctor)
+        {
+            _notificationService.ShowToast(
+                "Najpierw zapisz zmianę roli użytkownika na Doctor.",
+                ToastType.Warning);
+            return;
+        }
+
+        try
+        {
+            await EnsureDoctorEdmProfileAsync(SelectedUser.Id, GetDisplayName(SelectedUser), forceDialog: true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd obsługi danych EDM lekarza");
+            _notificationService.ShowToast($"Błąd: {GetInnermostMessage(ex)}", ToastType.Error);
+        }
     }
 
     [RelayCommand]
@@ -252,6 +346,7 @@ public partial class UsersViewModel : ViewModelBase
     private void ClearForm()
     {
         IsEditMode = false;
+        ShowPassword = false;
         SelectedUser = null;
         FormUsername = string.Empty;
         FormPassword = string.Empty;
@@ -353,6 +448,7 @@ public partial class UsersViewModel : ViewModelBase
         }
 
         IsEditMode = true;
+        ShowPassword = true;
         FormUsername = SelectedUser.Username;
         FormPassword = string.Empty;
         FormEmail = SelectedUser.Email;

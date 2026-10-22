@@ -249,8 +249,8 @@
                             </StackPanel>
                         </Button>
                         <Button 
-                            Command="{Binding AddAppointmentCommand}"
-                            CommandParameter="{Binding SelectedDate, ElementName=Schedule}"
+                            Command="{Binding AddTodayAppointmentCommand}"
+                            ToolTip="Zarejestruj w pierwszym wolnym terminie dzisiaj"
                             Background="#FF1264C5" 
                             Foreground="White" 
                             Height="35"

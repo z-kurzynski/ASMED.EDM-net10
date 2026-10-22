@@ -175,7 +175,10 @@ namespace ASMED.EDM.UI.Views.Skierowania
 
         private void Rejestracja_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: przełączenie na zakładkę Rejestracja
+            if (Window.GetWindow(this) is MainWindow mainWindow)
+            {
+                mainWindow.SelectRejestracjaTab();
+            }
         }
         private void prinlist_Click(object sender, RoutedEventArgs e)
         {

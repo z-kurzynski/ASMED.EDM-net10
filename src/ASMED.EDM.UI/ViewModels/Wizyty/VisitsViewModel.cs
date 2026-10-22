@@ -1,4 +1,6 @@
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.P1.Middleware;
+using ASMED.EDM.P1.Middleware.Models;
 using ASMED.EDM.UI.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -20,13 +22,15 @@ public partial class VisitsViewModel : ViewModelBase
     private readonly ILogger<VisitsViewModel> _logger;
     private readonly DbConnectionFactory? _dbFactory;
     private readonly INotificationService _notificationService;
+    private readonly IMiddlewareMedycynaPracyClient? _p1Client;
     private bool _isLoadingDetails = false; // Flaga zapobiegająca rekurencji
 
-    public VisitsViewModel(ILogger<VisitsViewModel> logger, DbConnectionFactory? dbFactory = null, INotificationService? notificationService = null)
+    public VisitsViewModel(ILogger<VisitsViewModel> logger, DbConnectionFactory? dbFactory = null, INotificationService? notificationService = null, IMiddlewareMedycynaPracyClient? p1Client = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _dbFactory = dbFactory;
         _notificationService = notificationService ?? new NotificationService();
+        _p1Client = p1Client;
         _logger.LogInformation("VisitsViewModel initialized");
 
         // Zaladuj rejestracje (wizyty) z bazy MySQL
@@ -159,6 +163,157 @@ public partial class VisitsViewModel : ViewModelBase
     {
         get => BrakPesel;
         set => BrakPesel = value;
+    }
+
+    partial void OnBrakPeselChanged(bool value) => WeryfikujPacjentaP1Command.NotifyCanExecuteChanged();
+
+    // ═══════════════════════════════════════════════════════
+    // ✅ WERYFIKACJA PACJENTA W P1 (CWUB)
+    // ═══════════════════════════════════════════════════════
+
+    /// <summary>
+    /// True, gdy pacjent ma zapisany identyfikator z Rejestru Pacjentów P1 (kolumna P_Pacjent.P_CWUB_ID).
+    /// </summary>
+    public bool CzyZweryfikowanoP1 => !string.IsNullOrWhiteSpace(SelectedPacjent?.P_CWUB_ID);
+
+    /// <summary>Po pozytywnej weryfikacji w P1 PESEL nie może być edytowany.</summary>
+    public bool PeselEdytowalny => !CzyZweryfikowanoP1;
+
+    public string WeryfikacjaP1ToolTip => CzyTrwaWeryfikacjaP1
+        ? "Trwa weryfikacja pacjenta w P1..."
+        : CzyZweryfikowanoP1
+            ? $"Pacjent zweryfikowany w P1 (CWUB ID: {SelectedPacjent?.P_CWUB_ID}) — kliknij, aby zweryfikować ponownie"
+            : "Brak weryfikacji pacjenta w P1 — kliknij, aby zweryfikować po numerze PESEL";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(WeryfikacjaP1ToolTip))]
+    [NotifyCanExecuteChangedFor(nameof(WeryfikujPacjentaP1Command))]
+    private bool _czyTrwaWeryfikacjaP1;
+
+    private void OdswiezStanWeryfikacjiP1()
+    {
+        OnPropertyChanged(nameof(CzyZweryfikowanoP1));
+        OnPropertyChanged(nameof(PeselEdytowalny));
+        OnPropertyChanged(nameof(WeryfikacjaP1ToolTip));
+        WeryfikujPacjentaP1Command.NotifyCanExecuteChanged();
+    }
+
+    private bool CanWeryfikujPacjentaP1() =>
+        SelectedPacjent?.P_ID != null && !CzyTrwaWeryfikacjaP1 && !BrakPESEL;
+
+    /// <summary>
+    /// Weryfikuje pacjenta po numerze PESEL (oraz imieniu i nazwisku) w Rejestrze Pacjentów P1.
+    /// Po znalezieniu zapisuje identyfikator w P_Pacjent.P_CWUB_ID wraz ze zweryfikowanym numerem PESEL.
+    /// Można ją powtórzyć dla zweryfikowanego pacjenta — nowy wynik nadpisuje poprzedni identyfikator.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanWeryfikujPacjentaP1))]
+    private async Task WeryfikujPacjentaP1()
+    {
+        var pacjent = SelectedPacjent;
+        if (pacjent?.P_ID == null)
+            return;
+
+        if (_p1Client == null)
+        {
+            _notificationService.ShowToast("Brak konfiguracji integracji z P1 (Middleware).", ToastType.Warning);
+            return;
+        }
+
+        var pesel = pacjent.P_Pesel?.Trim();
+        var imie = pacjent.P_Imie?.Trim();
+        var nazwisko = pacjent.P_Nazwisko?.Trim();
+        if (string.IsNullOrWhiteSpace(pesel))
+        {
+            _notificationService.ShowToast("Podaj numer PESEL — wymagany do weryfikacji w P1.", ToastType.Warning);
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(imie) || string.IsNullOrWhiteSpace(nazwisko))
+        {
+            _notificationService.ShowToast("Podaj imię i nazwisko pacjenta — wymagane do weryfikacji w P1.", ToastType.Warning);
+            return;
+        }
+
+        CzyTrwaWeryfikacjaP1 = true;
+        try
+        {
+            var odpowiedz = await _p1Client.WyszukajPacjentaAsync(new MpKryteriaWyszukiwaniaPacjenta
+            {
+                Identyfikator = pesel,
+                Imie = imie,
+                Nazwisko = nazwisko
+            });
+
+            if (odpowiedz.IsError)
+            {
+                _notificationService.ShowToast($"Błąd weryfikacji pacjenta w P1:\n{odpowiedz.MessagesText}", ToastType.Error);
+                return;
+            }
+
+            var p1Id = odpowiedz.Pacjent?.Entry?.FirstOrDefault()?.Resource?.Id;
+            if (string.IsNullOrWhiteSpace(p1Id))
+            {
+                _notificationService.ShowToast("Nie znaleziono pacjenta o podanym numerze PESEL w rejestrze P1.", ToastType.Warning);
+                return;
+            }
+
+            var poprzedniP1Id = pacjent.P_CWUB_ID;
+            if (!await ZapiszWeryfikacjeP1Async(pacjent.P_ID.Value, pesel, p1Id))
+                return;
+
+            pacjent.P_CWUB_ID = p1Id;
+            pacjent.P_Pesel = pesel;
+            pacjent.P_Brak = false;
+
+            if (ReferenceEquals(SelectedPacjent, pacjent))
+            {
+                // VisitPatientItem nie implementuje INotifyPropertyChanged — wymuszamy odświeżenie bindowań.
+                OnPropertyChanged(nameof(SelectedPacjent));
+                OdswiezStanWeryfikacjiP1();
+            }
+
+            _logger.LogInformation("Pacjent P_ID={Id} zweryfikowany w P1, CWUB ID={P1Id} (poprzednio: {Poprzedni})", pacjent.P_ID, p1Id, poprzedniP1Id ?? "brak");
+            var komunikat = string.IsNullOrWhiteSpace(poprzedniP1Id) || poprzedniP1Id == p1Id
+                ? $"Pacjent zweryfikowany w P1 (ID: {p1Id})."
+                : $"Pacjent zweryfikowany ponownie w P1 — zmieniono ID z {poprzedniP1Id} na {p1Id}.";
+            _notificationService.ShowToast(komunikat, ToastType.Success);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd weryfikacji pacjenta P_ID={Id} w P1", pacjent.P_ID);
+            _notificationService.ShowToast($"Błąd weryfikacji pacjenta w P1:\n{ex.Message}", ToastType.Error);
+        }
+        finally
+        {
+            CzyTrwaWeryfikacjaP1 = false;
+        }
+    }
+
+    private async Task<bool> ZapiszWeryfikacjeP1Async(int pacjentId, string pesel, string p1Id)
+    {
+        if (_dbFactory == null)
+        {
+            _notificationService.ShowToast("Nie można zapisać wyniku weryfikacji - brak połączenia z bazą danych.", ToastType.Error);
+            return false;
+        }
+
+        try
+        {
+            using var conn = _dbFactory.CreateConnection();
+            await conn.OpenAsync();
+            using var cmd = (MySqlCommand)conn.CreateCommand();
+            cmd.CommandText = "UPDATE P_Pacjent SET P_CWUB_ID = @p1Id, P_pesel = @pesel, P_brak = 0 WHERE P_ID = @id";
+            cmd.Parameters.AddWithValue("@p1Id", p1Id);
+            cmd.Parameters.AddWithValue("@pesel", pesel);
+            cmd.Parameters.AddWithValue("@id", pacjentId);
+            await cmd.ExecuteNonQueryAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd zapisu P_CWUB_ID dla P_ID={Id}", pacjentId);
+            _notificationService.ShowToast($"Błąd zapisu identyfikatora P1:\n{ex.Message}", ToastType.Error);
+            return false;
+        }
     }
 
     // IsGroupW nowe metody do grupowania wizyt w widoku kalendarza (Syncfusion SfScheduler)
@@ -624,6 +779,8 @@ public partial class VisitsViewModel : ViewModelBase
 
     partial void OnSelectedPacjentChanged(VisitPatientItem? value)
     {
+        OdswiezStanWeryfikacjiP1();
+
         // Przełączamy widoki w prawej kolumnie
         if (value != null)
         {
@@ -690,6 +847,7 @@ public partial class VisitsViewModel : ViewModelBase
                     P_Pacjent.P_Ades_kod,
                     P_Pacjent.P_Ades_miasto,
                     P_Pacjent.P_Adres_ulica_numer,
+                    P_Pacjent.P_CWUB_ID,
                     Firma.Nazwa AS Firma_Nazwa,
                     Firma.Kod AS Firma_Kod,
                     Firma.Miejscowosc AS Firma_Miejscowosc,
@@ -733,6 +891,7 @@ public partial class VisitsViewModel : ViewModelBase
                     P_AdresKod = reader["P_Ades_kod"]?.ToString(),
                     P_AdresMiasto = reader["P_Ades_miasto"]?.ToString(),
                     P_AdresUlica = reader["P_Adres_ulica_numer"]?.ToString(),
+                    P_CWUB_ID = reader["P_CWUB_ID"] is DBNull ? null : reader["P_CWUB_ID"]?.ToString(),
                     Firma_Nazwa = reader["Firma_Nazwa"]?.ToString(),
                     Firma_Kod = reader["Firma_Kod"]?.ToString(),
                     Firma_Miejscowosc = reader["Firma_Miejscowosc"]?.ToString(),
@@ -1212,6 +1371,9 @@ public class VisitPatientItem
     public string? P_AdresKod { get; set; }
     public string? P_AdresMiasto { get; set; }
     public int? P_FirmaId { get; set; }
+
+    /// <summary>Identyfikator pacjenta w Rejestrze Pacjentów P1 (CWUB); brak = pacjent niezweryfikowany.</summary>
+    public string? P_CWUB_ID { get; set; }
 
     // ═══════════════════════════════════════════════════════════
     // ✅ FIRMA (z JOIN Firma)

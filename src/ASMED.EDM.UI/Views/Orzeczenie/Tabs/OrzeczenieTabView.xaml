@@ -27,7 +27,7 @@
                                 SelectedDateFormat="Short"
                                 Width="140" 
                                 FontSize="18"
-                                ToolTip="Data Badania " Height="30" Foreground="{DynamicResource UI.Text.Success}"/>
+                                ToolTip="Data Badania " Height="30" Foreground="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" FontWeight="Bold"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -40,7 +40,7 @@
                                 SelectedDateFormat="Short"
                                 Width="140" 
                                 FontSize="18"
-                                ToolTip="Data Skierowania" Height="30"/>
+                                ToolTip="Data Skierowania" Height="30" FontWeight="Bold"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -54,7 +54,7 @@
                                 SelectedDateFormat="Short"
                                 Width="140" 
                                 FontSize="18"
-                                ToolTip="Data następnego badania" Height="30" Foreground="{DynamicResource UI.Text.Selected}"/>
+                                ToolTip="Data następnego badania" Height="30" Foreground="{DynamicResource UI.Text.Selected}" FontWeight="Bold"/>
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
@@ -83,7 +83,56 @@
         <StackPanel Orientation="Vertical" Grid.Row="2">
 
             <GroupBox Header="Dane Orzecznika" Padding="8" Margin="10,0,10,5" BorderBrush="{DynamicResource UI.Background.Column}">
-                <DataGrid d:ItemsSource="{d:SampleData ItemCount=1}" MinHeight="40" MinWidth="1"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Lekarz:" FontWeight="Bold" Margin="0,0,8,4"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding OrzecznikImieNazwisko}" FontSize="14" FontWeight="SemiBold" Margin="0,0,16,4" TextTrimming="CharacterEllipsis"
+                               Visibility="{Binding IsOrzecznikNazwaWidoczna, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,0,5,4" MinWidth="220" FontSize="13"
+                              ItemsSource="{Binding DostepniLekarze}"
+                              SelectedItem="{Binding SelectedLekarz, Mode=TwoWay}"
+                              DisplayMemberPath="Label"
+                              ToolTip="Wybierz lekarza (orzecznika), w imieniu którego wystawiane jest orzeczenie"
+                              Visibility="{Binding IsWyborLekarzaDostepny, Converter={StaticResource BooleanToVisibilityConverter}}" MaxDropDownHeight="200"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="PWZ:" FontWeight="Bold" Margin="0,0,8,4"/>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding OrzecznikPwz}" FontSize="14" Margin="0,0,16,4"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Specjalizacja:" FontWeight="Bold" Margin="0,0,8,4"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OrzecznikSpecjalizacja}" Margin="0,0,16,4" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="1" Grid.Column="2" Text="Izba lekarska:" FontWeight="Bold" Margin="0,0,8,4"/>
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding OrzecznikIdIzby}" Margin="0,0,16,4"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Text="{Binding OrzecznikStatus}" TextWrapping="Wrap" FontWeight="SemiBold">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#FFC0392B"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOrzecznikGotowy}" Value="True">
+                                        <Setter Property="Foreground" Value="#FF0E7134"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <Button Grid.Row="0" Grid.RowSpan="3" Grid.Column="4"
+                            Content="🩺 Dane EDM"
+                            Command="{Binding EdytujDaneOrzecznikaCommand}"
+                            ToolTip="Uzupełnij / edytuj swoje dane lekarza wymagane do podpisu w EDM"
+                            VerticalAlignment="Center" Padding="10,4" MinWidth="110" Cursor="Hand"/>
+                </Grid>
             </GroupBox>
 
             <StackPanel Orientation="Horizontal" Height="39" HorizontalAlignment="Right">

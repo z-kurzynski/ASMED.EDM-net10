@@ -1,4 +1,6 @@
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.Printing.Models;
+using ASMED.EDM.Printing.Services;
 using ASMED.EDM.UI.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MySqlConnector;
@@ -51,11 +53,14 @@ public class SkierPacjentaViewModel : ObservableObject
     public ICommand SaveCommand           { get; }
     public ICommand EditPatientCommand    { get; }
     public ICommand AddAppointmentCommand { get; }
+    public ICommand AddTodayAppointmentCommand { get; }
     public ICommand PrintKartaCommand          { get; }
     public ICommand PrintOrzeczenieCommand     { get; }
     public ICommand PrintSanitarneComand       { get; }
     public ICommand PrintAnkietaCommand        { get; }
     public ICommand PrintZaswiadczenieCommand  { get; }
+    public ICommand PrintUrlpoCommand          { get; }
+    public ICommand PrintAllCommand            { get; }
     public ICommand DeleteSkierowanieCommand   { get; }
 
     public SkierPacjentaViewModel() : this(null)
@@ -74,11 +79,14 @@ public class SkierPacjentaViewModel : ObservableObject
         SaveCommand              = new RelayCommand(_ => ZapiszSkierowanie());
         EditPatientCommand       = new RelayCommand(_ => EditPatientRequested?.Invoke());
         AddAppointmentCommand    = new RelayCommand(param => AddAppointmentFromSelectedSlot(param as DateTime?));
-        PrintKartaCommand        = new RelayCommand(_ => { /* TODO: druk karty badan */ });
-        PrintOrzeczenieCommand   = new RelayCommand(_ => { /* TODO: druk orzeczenia */ });
-        PrintSanitarneComand     = new RelayCommand(_ => { /* TODO: druk sanitarne */ });
-        PrintAnkietaCommand      = new RelayCommand(_ => { /* TODO: druk ankiety */ });
-        PrintZaswiadczenieCommand = new RelayCommand(_ => { /* TODO: druk komplet K+O */ });
+        AddTodayAppointmentCommand = new RelayCommand(_ => AddAppointmentToday());
+        PrintKartaCommand        = new RelayCommand(_ => PrintForm(PatientFormTemplates.Karta));
+        PrintOrzeczenieCommand   = new RelayCommand(_ => PrintForm(PatientFormTemplates.Orzeczenie));
+        PrintSanitarneComand     = new RelayCommand(_ => PrintForm(PatientFormTemplates.Sanitarne));
+        PrintAnkietaCommand      = new RelayCommand(_ => PrintForm(PatientFormTemplates.Ankieta));
+        PrintZaswiadczenieCommand = new RelayCommand(_ => PrintForm(PatientFormTemplates.Komplet));
+        PrintAllCommand          = new RelayCommand(_ => PrintForm(PatientFormTemplates.Komplet));
+        PrintUrlpoCommand        = new RelayCommand(_ => SkierowanieWydruki.PrintUrlop());
         DeleteSkierowanieCommand  = new RelayCommand(_ => DeleteSkierowanie());
     }
 
@@ -660,6 +668,90 @@ public class SkierPacjentaViewModel : ObservableObject
                 "Blad", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
+
+    /// <summary>
+    /// Rejestruje bieżącą kartę badań w pierwszym wolnym terminie dzisiejszego dnia
+    /// (w godzinach pracy kalendarza, niezależnie od aktualnej godziny).
+    /// </summary>
+    private void AddAppointmentToday()
+    {
+        if (PatientSkierowanieId <= 0)
+        {
+            MessageBox.Show("Karta badan musi byc najpierw zapisana, aby dodac rejestracje.",
+                "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (_dbFactory == null)
+        {
+            MessageBox.Show("Brak konfiguracji polaczenia z baza danych.",
+                "Blad", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        RefreshAppointmentsFromDb();
+
+        int? ownRId;
+        try
+        {
+            ownRId = RejestracjaTerminy.GetRejestracjaId(_dbFactory, PatientSkierowanieId);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Blad odczytu rejestracji z bazy: {ex.Message}",
+                "Blad", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        var slot = RejestracjaTerminy.FindFirstFreeSlot(Events, DateTime.Today, ownRId);
+        if (slot == null)
+        {
+            MessageBox.Show($"Brak wolnych terminow na dzis ({RejestracjaTerminy.ZakresGodzinText}).",
+                "Rejestracja", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        AddAppointmentFromSelectedSlot(slot);
+        DisplayDate = slot.Value.Date;
+    }
+
+    // ─── Wydruki ───────────────────────────────────────────────────────────────────────
+    private void PrintForm(string templateFileName) =>
+        SkierowanieWydruki.Print(BuildPrintData(), templateFileName);
+
+    private PatientPrintData BuildPrintData() => new()
+    {
+        B_ID                     = PatientSkierowanieId,
+        P_ID                     = PatientId,
+        P_Imie                   = PatientFirstName,
+        P_Nazwisko               = PatientLastName,
+        P_Pesel                  = PatientPesel,
+        P_Plec                   = PatientGender,
+        P_DataUrodzenia          = PatientBirthDate,
+        P_Zawod                  = PatientJobTitle,
+        P_AdresUlica             = PatientStreet,
+        P_AdresKod               = PatientPostalCode,
+        P_AdresMiasto            = PatientCity,
+        Firma_Nazwa              = CompanyName,
+        Firma_Ulica              = CompanyStreet,
+        Firma_Kod                = CompanyPostalCode,
+        Firma_Miejscowosc        = CompanyCity,
+        B_DataSkierowania        = ReferralDate,
+        B_TypBadania             = TestType,
+        B_Stanowisko             = PatientJobTitle,
+        B_RegistrationDate       = SkierowanieWydruki.ParseRegistrationDate(RejestrcjaData),
+        B_CzynnikFizyczny        = IsPhysical,
+        B_CzynnikFizycznyOpis    = SkierowanieWydruki.NullIfEmpty(PhysicalDescription),
+        B_CzynnikPylowy          = IsDust,
+        B_CzynnikPylowyOpis      = SkierowanieWydruki.NullIfEmpty(DustDescription),
+        B_CzynnikChemiczny       = IsChemical,
+        B_CzynnikChemicznyOpis   = SkierowanieWydruki.NullIfEmpty(ChemicalDescription),
+        B_CzynnikBiologiczny     = IsBiological,
+        B_CzynnikBiologicznyOpis = SkierowanieWydruki.NullIfEmpty(BiologicalDescription),
+        B_CzynnikInny            = IsOther,
+        B_CzynnikInnyOpis        = SkierowanieWydruki.NullIfEmpty(OtherDescription),
+        SkierowanieNumer         = PatientSkierowanieId > 0 ? PatientSkierowanieId.ToString() : "-"
+    };
 
     public void HandleAppointmentEditorClosed(ScheduleAppointment appointment, bool isDelete, bool isAdd)
     {

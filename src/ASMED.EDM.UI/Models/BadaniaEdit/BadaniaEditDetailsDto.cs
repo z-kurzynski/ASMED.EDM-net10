@@ -45,6 +45,7 @@ public class BadaniaEditDetailsDto
     public string? Firma_NIP { get; set; }
 
     // Badanie (EDIT ma wszystkie pola bo badanie już wykonane)
+    public int Bad_ID { get; set; }
     public string? Bad_bn_cennik { get; set; }  // nazwa cennika (string), nie ID
     public string? Bad_Fakt { get; set; }
     public string? Bad_Typ { get; set; }
@@ -55,6 +56,7 @@ public class BadaniaEditDetailsDto
     public decimal? Bad_Cena2 { get; set; }
     public decimal? Bad_Cena3 { get; set; }
     public decimal? Bad_Cena4 { get; set; }
+    public decimal? Bad_Cena5 { get; set; }
     public decimal? Bad_Cena6 { get; set; }
     public decimal? Bad_Cena7 { get; set; }
     public decimal? Bad_Cena8 { get; set; }

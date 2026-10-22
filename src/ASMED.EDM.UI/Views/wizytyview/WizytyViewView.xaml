@@ -170,7 +170,7 @@
                         <syncfusion:SfScheduler.DaysViewSettings>
                             <syncfusion:DaysViewSettings
                                 TimeIntervalSize="40"
-                                StartHour="11"
+                                StartHour="10"
                                 EndHour="15"
                                 TimeInterval="00:05:00"
                                 TimeRulerFormat="HH:mm"
@@ -384,7 +384,7 @@
                             Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
                             Visibility="{Binding ShowDetailsView, Converter={StaticResource BooleanToVisibilityConverter}}"
                             MaxHeight="650"
-                            Grid.RowSpan="2" d:IsHidden="True">
+                            Grid.RowSpan="2">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -461,19 +461,52 @@
                                             </StackPanel>
 
                                             <!-- PESEL + Brak + Płeć + Data urodzenia + Wiek -->
-                                            <StackPanel Orientation="Horizontal">
+                                            <StackPanel x:Name="Pesel" Orientation="Horizontal">
                                                 <StackPanel Width="120" Margin="0,0,10,0">
                                                     <TextBlock Text="PESEL:" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                                     <TextBox Text="{Binding SelectedPacjent.P_Pesel, Mode=TwoWay}" 
+                                                    IsReadOnly="{Binding CzyZweryfikowanoP1}"
                                                     FontSize="16" FontWeight="SemiBold" Height="30" VerticalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Width="20" Margin="0,0,10,0" VerticalAlignment="Center">
                                                     <TextBlock Text="Brak" FontSize="11" Foreground="Gray" Margin="0,0,0,2" VerticalAlignment="Center"/>
-                                                    <CheckBox IsChecked="{Binding BrakPESEL, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,5,0,0"/>
+                                                    <CheckBox IsChecked="{Binding BrakPESEL, Mode=TwoWay}" IsEnabled="{Binding PeselEdytowalny}" VerticalAlignment="Center" Margin="0,5,0,0"/>
                                                 </StackPanel>
-                                                <StackPanel Width="25" Panel.ZIndex="1" VerticalAlignment="Center">
-                                                    <TextBlock Text="Wer." FontSize="11" Foreground="Gray" Margin="0,0,0,2" VerticalAlignment="Center"/>
-                                                    <CheckBox IsChecked="{Binding BrakPESEL, Mode=TwoWay}" VerticalAlignment="Center" Margin="0,5,0,0" BorderBrush="{DynamicResource {x:Static SystemColors.AccentColorDark1BrushKey}}" Background="#00000000"/>
+                                                <!-- Weryfikacja pacjenta w P1 (CWUB): zielony = P_CWUB_ID zapisany, czerwony = brak (klik uruchamia weryfikację) -->
+                                                <StackPanel Width="25" Margin="0,0,5,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="P1" FontSize="11" Foreground="Gray" Margin="0,0,0,2" VerticalAlignment="Center"/>
+                                                    <Button x:Name="weryfikacja_p1_button"
+                                                            Command="{Binding WeryfikujPacjentaP1Command}"
+                                                            ToolTip="{Binding WeryfikacjaP1ToolTip}"
+                                                            ToolTipService.ShowOnDisabled="True"
+                                                            Width="22" Height="22" Margin="0,1,0,0" HorizontalAlignment="Left"
+                                                            Foreground="White" FontSize="12" FontWeight="Bold">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                </Border>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                        <Button.Style>
+                                                            <Style TargetType="Button">
+                                                                <Setter Property="Background" Value="#FFC0392B"/>
+                                                                <Setter Property="Content" Value="!"/>
+                                                                <Setter Property="Cursor" Value="Hand"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding CzyZweryfikowanoP1}" Value="True">
+                                                                        <Setter Property="Background" Value="#FF27AE60"/>
+                                                                        <Setter Property="Content" Value="✔"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding CzyTrwaWeryfikacjaP1}" Value="True">
+                                                                        <Setter Property="Background" Value="#FFF39C12"/>
+                                                                        <Setter Property="Content" Value="…"/>
+                                                                        <Setter Property="Cursor" Value="Wait"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Button.Style>
+                                                    </Button>
                                                 </StackPanel>
                                                 <StackPanel Width="40" Margin="0,0,10,0">
                                                     <TextBlock Text="Płeć" FontSize="11" Foreground="Gray" Margin="6,0,0,2" HorizontalAlignment="Left"/>

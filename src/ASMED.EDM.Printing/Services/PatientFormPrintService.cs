@@ -32,6 +32,7 @@ public static class PatientFormTemplates
     public const string Orzeczenie = "ASMED_Orzeczenie.pdf";
     public const string Sanitarne = "ASMED__Sanitarne.pdf";
     public const string Ankieta = "ASMED_Ankieta.pdf";
+    public const string Komplet = "ASMED__Karta badania Orzeczenie.pdf";
 }
 
 /// <summary>

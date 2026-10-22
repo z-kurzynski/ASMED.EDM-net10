@@ -93,7 +93,10 @@ namespace ASMED.EDM.UI.Views.Skierowania
 
         private void Rejestracja_Click(object sender, RoutedEventArgs e)
         {
-            // Placeholder for registration logic
+            if (Window.GetWindow(this) is MainWindow mainWindow)
+            {
+                mainWindow.SelectRejestracjaTab();
+            }
         }
 
         private void OpenSkierPacjentaCard(SkierowanieListItem item)

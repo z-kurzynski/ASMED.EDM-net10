@@ -18,6 +18,8 @@ namespace ASMED.EDM.UI;
 /// </summary>
 public partial class App : Application
 {
+    private static readonly TimeSpan DatabaseStartupCheckTimeout = TimeSpan.FromSeconds(20);
+
     private readonly IHost _host;
 
     public IHost Host => _host;
@@ -87,8 +89,10 @@ public partial class App : Application
         services.AddMiddlewareIntegration();
 
         // Rejestracja UI Services
+        services.AddSingleton<Services.AppStartupState>();
         services.AddSingleton<Services.IDialogService, Services.DialogService>();
         services.AddSingleton<Services.INotificationService, Services.NotificationService>();
+        services.AddSingleton<Services.IDoctorEdmProfileDialogService, Services.DoctorEdmProfileDialogService>();
         services.AddSingleton<ASMED.EDM.Core.Interfaces.Services.ICurrentUserService, Services.CurrentUserService>();
 
         // Rejestracja logowania
@@ -158,8 +162,23 @@ public partial class App : Application
         {
             await _host.StartAsync();
 
+            // Czysta instalacja / brak bazy: nie blokuj startu na logowaniu (wymaga bazy),
+            // tylko otwórz od razu zakładkę "Baza / Ustawienia" w trybie konfiguracji.
+            var (databaseAvailable, databaseError) = await CheckDatabaseAvailabilityAsync();
+            if (!databaseAvailable)
+            {
+                _host.Services.GetRequiredService<Services.AppStartupState>()
+                    .EnterDatabaseConfigurationMode(databaseError);
+                ShowMainWindow();
+                return;
+            }
+
             // Pokaż okno logowania przed głównym oknem aplikacji
             var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
+
+            // Ładowanie programu odbywa się jeszcze w oknie logowania (ze wskaźnikiem ładowania),
+            // aby użytkownik widział, że aplikacja pracuje.
+            loginWindow.ViewModel.LoadApplicationAsync = LoadApplicationAfterLoginAsync;
             var loginResult = loginWindow.ShowDialog();
 
             if (loginResult != true)
@@ -168,40 +187,8 @@ public partial class App : Application
                 return;
             }
 
-            // Upewnij się, że schemat bazy danych (w tym AppTab/RolePermission) istnieje
-            // na aktywnym połączeniu, zanim załadują się jakiekolwiek dane/uprawnienia.
-            try
-            {
-                var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
-                var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
-                var activeConnectionString = await connectionService.GetActiveConnectionStringAsync();
-                var initResult = await ASMED.EDM.Data.Helpers.DatabaseInitializerMySQL.RunAsync(activeConnectionString);
-
-                if (initResult.HasErrors)
-                {
-                    initLogger.LogWarning(
-                        "⚠️ Inicjalizacja schematu bazy danych zawiera błędy: {Errors}",
-                        string.Join(", ", initResult.Errors));
-                }
-                else
-                {
-                    initLogger.LogInformation(
-                        "✅ Schemat bazy danych zweryfikowany. Utworzono: {Created}, już istniały: {Existed}",
-                        initResult.Created.Count,
-                        initResult.AlreadyExisted.Count);
-                }
-            }
-            catch (Exception ex)
-            {
-                var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
-                initLogger.LogWarning(ex, "⚠️ Nie udało się zweryfikować/utworzyć schematu bazy danych przy starcie");
-            }
-
             // Pokazanie głównego okna (tryb offline-first dla development)
-            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-            MainWindow = mainWindow;
-            ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
-            mainWindow.Show();
+            ShowMainWindow();
 
             // Test połączenia z bazą danych W TLE (bez blokowania UI thread)
             _ = Task.Run(async () =>
@@ -252,6 +239,104 @@ public partial class App : Application
 
             Shutdown(1);
         }
+    }
+
+    /// <summary>
+    /// Ładowanie programu po zalogowaniu (wykonywane, gdy okno logowania pokazuje wskaźnik ładowania):
+    /// weryfikacja schematu bazy i utworzenie głównego okna.
+    /// </summary>
+    private async Task LoadApplicationAfterLoginAsync()
+    {
+        // Upewnij się, że schemat bazy danych (w tym AppTab/RolePermission) istnieje
+        // na aktywnym połączeniu, zanim załadują się jakiekolwiek dane/uprawnienia.
+        try
+        {
+            var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
+            var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
+            var activeConnectionString = await connectionService.GetActiveConnectionStringAsync();
+            var initResult = await Task.Run(() => ASMED.EDM.Data.Helpers.DatabaseInitializerMySQL.RunAsync(activeConnectionString));
+
+                                if (initResult.HasErrors)
+                                {
+                                    initLogger.LogWarning(
+                                        "⚠️ Inicjalizacja schematu bazy danych zawiera błędy: {Errors}",
+                                        string.Join(", ", initResult.Errors));
+                                }
+                                else
+                                {
+                                    initLogger.LogInformation(
+                                        "✅ Schemat bazy danych zweryfikowany. Utworzono: {Created}, już istniały: {Existed}",
+                                        initResult.Created.Count,
+                                        initResult.AlreadyExisted.Count);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                var initLogger = _host.Services.GetRequiredService<ILogger<App>>();
+                                initLogger.LogWarning(ex, "⚠️ Nie udało się zweryfikować/utworzyć schematu bazy danych przy starcie");
+                            }
+
+                            // Daj oknu logowania szansę na odrysowanie komunikatu przed synchronicznym tworzeniem głównego okna
+                            await System.Windows.Threading.Dispatcher.Yield(System.Windows.Threading.DispatcherPriority.Background);
+
+                            // Utworzenie (singletonu) głównego okna — pokazanie nastąpi po zamknięciu okna logowania.
+                            // Ewentualny błąd zostanie ponownie zgłoszony i obsłużony w ShowMainWindow (OnStartup).
+                            try
+                            {
+                                _host.Services.GetRequiredService<MainWindow>();
+                            }
+                            catch (Exception ex)
+                            {
+                                _host.Services.GetRequiredService<ILogger<App>>()
+                                    .LogWarning(ex, "⚠️ Nie udało się wstępnie utworzyć głównego okna");
+                            }
+                        }
+
+                        private void ShowMainWindow()
+    {
+        var mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        MainWindow = mainWindow;
+        ShutdownMode = System.Windows.ShutdownMode.OnMainWindowClose;
+        mainWindow.Show();
+    }
+
+    /// <summary>
+    /// Sprawdza, czy jakakolwiek skonfigurowana baza danych odpowiada (z failoverem Primary → Local).
+    /// Nigdy nie rzuca wyjątku — zwraca przyczynę niedostępności.
+    /// </summary>
+    private async Task<(bool Available, string? Error)> CheckDatabaseAvailabilityAsync()
+    {
+        var logger = _host.Services.GetRequiredService<ILogger<App>>();
+        try
+        {
+            using var cts = new CancellationTokenSource(DatabaseStartupCheckTimeout);
+            var connectionService = _host.Services.GetRequiredService<IDatabaseConnectionService>();
+            var connectionString = await connectionService.GetActiveConnectionStringAsync(cts.Token);
+
+            if (await connectionService.TestConnectionAsync(connectionString, cts.Token))
+                return (true, null);
+
+            logger.LogWarning("⚠️ Brak połączenia z bazą danych przy starcie — tryb konfiguracji bazy");
+            return (false, "Nie można połączyć się ze skonfigurowaną bazą danych.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "⚠️ Brak połączenia z bazą danych przy starcie — tryb konfiguracji bazy");
+            return (false, ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Uruchamia ponownie aplikację (np. po zapisaniu konfiguracji bazy w trybie konfiguracji).
+    /// </summary>
+    public void RestartApplication()
+    {
+        var executable = Environment.ProcessPath;
+        if (string.IsNullOrEmpty(executable))
+            return;
+
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(executable) { UseShellExecute = true });
+        Shutdown(0);
     }
 
     protected override async void OnExit(ExitEventArgs e)

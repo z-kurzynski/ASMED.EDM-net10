@@ -104,6 +104,15 @@ public partial class MainWindowViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Oznacza w stopce brak połączenia z bazą danych (tryb konfiguracji bazy przy starcie).
+    /// </summary>
+    public void SetDatabaseUnavailable()
+    {
+        DatabaseType        = "🔴 Brak połączenia";
+        DatabaseStatusColor = new SolidColorBrush(Color.FromRgb(185, 28, 28));   // czerwony
+    }
+
     private void ClockTimer_Tick(object? sender, EventArgs e)
     {
         var now = DateTime.Now;

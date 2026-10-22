@@ -19,14 +19,14 @@
         xmlns:viewmodels="clr-namespace:ASMED.EDM.UI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
 
         mc:Ignorable="d"
-    Title="ASMED EDM -- v20 -2026" 
+    Title="ASMED EDM -- v30 -2026" 
     WindowState="Normal"
     WindowStartupLocation="CenterScreen" 
     Width="Auto" 
     VerticalAlignment="Top"
     HorizontalAlignment="Stretch"
     MaxWidth="1600" 
-    MinWidth="1500" Background="#FFA4C9EF" MinHeight="820" MaxHeight="1080" >
+    MinWidth="1550" Background="#FFA4C9EF" MinHeight="820" MaxHeight="1080" >
 
     <Grid Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}">
         <Grid.RowDefinitions>
@@ -42,12 +42,26 @@
         <Border Grid.Row="0" 
                 Background="#FF0078D7" 
                 Height="55">
-            <TextBlock Text="❤️ ASMED EDM" 
+            <Grid>
+                <Border x:Name="DatabaseConfigurationBanner"
+                        Visibility="Collapsed"
+                        Background="#FFB91C1C"
+                        CornerRadius="4"
+                        Padding="14,6"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="⚠️ Brak połączenia z bazą danych — skonfiguruj bazę, zapisz i uruchom aplikację ponownie"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="White"/>
+                </Border>
+                <TextBlock Text="❤️ ASMED EDM" 
                        FontSize="22" 
                        FontWeight="Bold" 
                        Foreground="White"
                        HorizontalAlignment="Right" 
                        VerticalAlignment="Center" Margin="0,0,40,0"/>
+            </Grid>
         </Border>
 
         <!-- Środek - główna zawartość -->

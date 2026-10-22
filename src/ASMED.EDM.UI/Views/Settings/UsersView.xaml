@@ -121,7 +121,7 @@
                                          Text="{Binding FormPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="14"
                                          Height="30"
-                                         Visibility="{Binding ShowPassword, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="10,0,0,0"/>
+                                         Visibility="{Binding ShowPassword, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="10,0,10,0"/>
 
                                 <Button Grid.Column="1"
                                         Content="{Binding ShowPasswordIcon}"
@@ -206,6 +206,18 @@
                                     Cursor="Hand"
                                     Margin="0,0,0,5"
                                     Visibility="{Binding IsEditMode, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                            <Button Content="🩺 Dane EDM lekarza"
+                                    Command="{Binding EditDoctorEdmProfileCommand}"
+                                    Height="35"
+                                    Background="#FF00897B"
+                                    Foreground="White"
+                                    FontSize="14"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    Margin="0,0,0,5"
+                                    ToolTip="Dane lekarza wymagane do autoryzacji w EDM / P1 (PWZ, certyfikat, authenticator)"
+                                    Visibility="{Binding IsDoctorEdmProfileAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                             <Button Content="🗑️ Dezaktywuj użytkownika"
                                     Command="{Binding DeleteUserCommand}"

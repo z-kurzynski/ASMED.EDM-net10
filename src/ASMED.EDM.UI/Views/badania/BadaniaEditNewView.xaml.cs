@@ -171,6 +171,14 @@ public partial class BadaniaEditNewView : UserControl
             vm.SetCenaForExaminationType(examinationType, price);
             Console.WriteLine($"🟢 Toggle ON: {examinationType} = {price:N2} zł");
         }
+
+        // Książeczka ↔ B_ksiazeczka, Urlop ↔ B_Zaswiadczenie - natychmiastowy zapis w B_Skierowania
+        var newActiveState = !isActive;
+        switch (examinationType)
+        {
+            case "Sanitary": vm.SetKsiazeczkaStatus(newActiveState); break;
+            case "HealthClinic": vm.SetZaswiadczenieStatus(newActiveState); break;
+        }
     }
 
     private void DeleteBadanie_Click(object sender, RoutedEventArgs e)

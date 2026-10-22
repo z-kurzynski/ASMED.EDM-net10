@@ -77,6 +77,16 @@ public class Doctor : BaseEntity
     /// </summary>
     public string? DoctorCertificatePassword { get; set; }
 
+    /// <summary>
+    /// Identyfikator okręgowej izby lekarskiej (pole "author.idIzbyLekarskiej" w Middleware P1).
+    /// </summary>
+    public string? IdIzbyLekarskiej { get; set; }
+
+    /// <summary>
+    /// Identyfikator autora w module Medycyny Pracy (pole "author.authorMedycynaPracyId" w Middleware P1).
+    /// </summary>
+    public string? AuthorMedycynaPracyId { get; set; }
+
     // Navigation properties
     /// <summary>
     /// Wizyty prowadzone przez tego lekarza

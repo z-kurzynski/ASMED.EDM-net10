@@ -32,9 +32,10 @@ public class AuditService : IAuditService
         string? errorMessage = null,
         CancellationToken cancellationToken = default)
     {
+        AuditLog? auditLog = null;
         try
         {
-            var auditLog = new AuditLog
+            auditLog = new AuditLog
             {
                 Timestamp = DateTime.UtcNow,
                 UserId = userId,
@@ -58,6 +59,19 @@ public class AuditService : IAuditService
         {
             // Audyt nie powinien blokować głównej operacji
             _logger.LogError(ex, "Błąd podczas zapisywania logu audytu");
+
+            // Nieudany wpis zostałby w ChangeTrackerze (Added) i psułby kolejne SaveChanges w tym samym scope
+            if (auditLog != null)
+            {
+                try
+                {
+                    _unitOfWork.AuditLogs.Remove(auditLog);
+                }
+                catch (Exception detachEx)
+                {
+                    _logger.LogWarning(detachEx, "Nie udało się odłączyć nieudanego wpisu audytu");
+                }
+            }
         }
     }
 

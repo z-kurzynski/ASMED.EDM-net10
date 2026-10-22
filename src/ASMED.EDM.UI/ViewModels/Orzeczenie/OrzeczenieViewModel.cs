@@ -5,6 +5,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using ASMED.EDM.Data.Services;
+using ASMED.EDM.Core.Interfaces.Services;
+using ASMED.EDM.UI.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MySqlConnector;
 
@@ -31,10 +34,18 @@ public partial class OrzeczenieViewModel : ViewModelBase
     /// Konstruktor — synchronizuje stan przycisków z domyślnym DTO
     /// (lub z DTO załadowanym z bazy przez LoadFromDto).
     /// </summary>
-    public OrzeczenieViewModel(ILogger<OrzeczenieViewModel>? logger = null, DbConnectionFactory? dbFactory = null)
+    public OrzeczenieViewModel(
+        ILogger<OrzeczenieViewModel>? logger = null,
+        DbConnectionFactory? dbFactory = null,
+        IServiceScopeFactory? scopeFactory = null,
+        ICurrentUserService? currentUserService = null,
+        IDoctorEdmProfileDialogService? doctorEdmProfileDialogService = null)
     {
         _logger = logger;
         _dbFactory = dbFactory;
+        _scopeFactory = scopeFactory;
+        _currentUserService = currentUserService;
+        _doctorEdmProfileDialogService = doctorEdmProfileDialogService;
 
         LoadFromDto(_currentDto);
 
@@ -53,6 +64,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
         _sanitarneDataBadania = _customDefaultDate;
 
         LoadWizytyFromDb();
+        RefreshOrzecznik();
     }
 
     // ── Selektor "Ważność Badania do roku / miesiąca" (analogicznie do BadaniaNewViewModel) ──

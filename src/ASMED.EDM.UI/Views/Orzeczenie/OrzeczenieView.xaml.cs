@@ -78,6 +78,7 @@ public partial class OrzeczenieView : UserControl
             if (DataContext is OrzeczenieViewModel vm)
             {
                 vm.RefreshSilent();
+                vm.RefreshOrzecznik();
             }
 
             _autoRefreshTimer.Start();

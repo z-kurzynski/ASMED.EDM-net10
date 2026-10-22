@@ -1,0 +1,87 @@
+<Window x:Class="ASMED.EDM.UI.Views.Dialogs.DoctorEdmProfileDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    mc:Ignorable="d"
+    Title="Dane lekarza do autoryzacji w EDM"
+    Width="480"
+    SizeToContent="Height"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="NoResize"
+    Background="White">
+
+    <StackPanel Margin="20">
+        <TextBlock x:Name="txtHeader"
+                   Text="🩺 Dane lekarza do autoryzacji w EDM"
+                   FontSize="16" FontWeight="Bold"
+                   Foreground="#FF1976D2"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,5"/>
+        <TextBlock Text="Dane są wysyłane do P1 jako autor dokumentów (orzeczeń medycyny pracy)."
+                   FontSize="11" Foreground="#FF757575" TextWrapping="Wrap" Margin="0,0,0,15"/>
+
+        <TextBlock Text="Numer PWZ (NPWZ) *" Margin="0,0,0,3"/>
+        <TextBox x:Name="txtPwz" FontSize="14" Height="28" MaxLength="7"
+                 ToolTip="7 cyfr, pierwsza cyfra jest kontrolna"/>
+
+        <TextBlock Text="Tytuł" Margin="0,10,0,3"/>
+        <ComboBox x:Name="cmbTitle" IsEditable="True" FontSize="14" Height="28">
+            <ComboBoxItem Content="lek."/>
+            <ComboBoxItem Content="lek. dent."/>
+            <ComboBoxItem Content="dr n. med."/>
+            <ComboBoxItem Content="dr hab. n. med."/>
+            <ComboBoxItem Content="prof. dr hab. n. med."/>
+        </ComboBox>
+
+        <TextBlock Text="Specjalizacja" Margin="0,10,0,3"/>
+        <TextBox x:Name="txtSpecialization" FontSize="14" Height="28" MaxLength="200"/>
+
+        <TextBlock Text="Identyfikator izby lekarskiej" Margin="0,10,0,3"/>
+        <TextBox x:Name="txtIdIzbyLekarskiej" FontSize="14" Height="28" MaxLength="50"/>
+
+        <TextBlock Text="Identyfikator autora (moduł Medycyny Pracy)" Margin="0,10,0,3"/>
+        <TextBox x:Name="txtAuthorMedycynaPracyId" FontSize="14" Height="28" MaxLength="100"/>
+
+        <TextBlock Text="Hasło do certyfikatu podpisu lekarza (doctor_pass)" Margin="0,10,0,3"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="35"/>
+            </Grid.ColumnDefinitions>
+            <PasswordBox x:Name="pwdCertificate" Grid.Column="0" FontSize="14" Height="28"
+                         PasswordChanged="pwdCertificate_PasswordChanged"/>
+            <TextBox x:Name="txtCertificate" Grid.Column="0" FontSize="14" Height="28"
+                     Visibility="Collapsed" TextChanged="txtCertificate_TextChanged"/>
+            <Button x:Name="btnTogglePassword" Grid.Column="1" Content="👁️" Height="28" Margin="5,0,0,0"
+                    Background="#FF9E9E9E" Foreground="White" BorderThickness="0" Cursor="Hand"
+                    ToolTip="Pokaż/Ukryj hasło" Click="btnTogglePassword_Click"/>
+        </Grid>
+        <TextBlock x:Name="txtPasswordHint" FontSize="10" Foreground="#FF757575" TextWrapping="Wrap"
+                   Margin="0,3,0,0" Visibility="Collapsed"
+                   Text="Hasło jest już zapisane — pozostaw pole puste, aby go nie zmieniać."/>
+
+        <Border BorderBrush="#FFE0E0E0" BorderThickness="0,1,0,0" Margin="0,15,0,0" Padding="0,10,0,0">
+            <StackPanel>
+                <TextBlock Text="🔐 Autoryzacja podpisu (aplikacja authenticator)" FontWeight="SemiBold"/>
+                <TextBlock x:Name="txtTotpStatus" Margin="0,5,0,5" TextWrapping="Wrap" Foreground="#FF616161"/>
+                <TextBlock Text="Uwaga: klucz jest szyfrowany dla tego komputera — paruj na stanowisku, na którym lekarz podpisuje dokumenty."
+                           FontSize="10" Foreground="#FF757575" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                <Button x:Name="btnPairTotp" Content="📱 Sparuj aplikację authenticator" Height="30"
+                        HorizontalAlignment="Left" Padding="10,0"
+                        Background="#FF2196F3" Foreground="White" BorderThickness="0" Cursor="Hand"
+                        Click="btnPairTotp_Click"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="txtError" Foreground="Red" Margin="0,10,0,0" TextWrapping="Wrap" Visibility="Collapsed"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button x:Name="btnCancel" Content="Anuluj" Width="100" Height="32" Margin="0,0,10,0"
+                    IsCancel="True" Click="btnCancel_Click"/>
+            <Button x:Name="btnSave" Content="💾 Zapisz" Width="100" Height="32" IsDefault="True"
+                    Background="#FF4CAF50" Foreground="White" BorderThickness="0"
+                    Click="btnSave_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

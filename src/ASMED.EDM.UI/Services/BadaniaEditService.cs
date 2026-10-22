@@ -123,6 +123,7 @@ SELECT
     B_Skierowania.B_ID,
     P_Pacjent.P_ID,
     Firma.id,
+    Badanie.Bad_ID,
     Badanie.Bad_bn_cennik,
     Badanie.Bad_Fakt,
     Badanie.Bad_Typ,
@@ -133,6 +134,7 @@ SELECT
     Badanie.Bad_Cena2,
     Badanie.Bad_Cena3,
     Badanie.Bad_Cena4,
+    Badanie.Bad_Cena5,
     Badanie.Bad_Cena6,
     Badanie.Bad_Cena7,
     Badanie.Bad_Cena8,
@@ -169,7 +171,9 @@ FROM
     )
     INNER JOIN Badanie ON B_Skierowania.B_ID = Badanie.Bad_S_ID
 WHERE
-    B_Skierowania.B_ID = @BID";
+    B_Skierowania.B_ID = @BID
+ORDER BY Badanie.Bad_ID DESC
+LIMIT 1";
 
             using var cmd = connection.CreateCommand();
             cmd.CommandText = sql;
@@ -210,6 +214,7 @@ WHERE
                     Firma_Miejscowosc = reader["Miejscowosc"]?.ToString(),
                     Firma_NIP = reader["NIP"]?.ToString(),
 
+                    Bad_ID = reader["Bad_ID"] is DBNull ? 0 : Convert.ToInt32(reader["Bad_ID"]),
                     Bad_bn_cennik = reader["Bad_bn_cennik"]?.ToString(),
                     Bad_Fakt = reader["Bad_Fakt"]?.ToString(),
                     Bad_Typ = reader["Bad_Typ"]?.ToString(),
@@ -220,6 +225,7 @@ WHERE
                     Bad_Cena2 = ParseDecimal(reader["Bad_Cena2"]),
                     Bad_Cena3 = ParseDecimal(reader["Bad_Cena3"]),
                     Bad_Cena4 = ParseDecimal(reader["Bad_Cena4"]),
+                    Bad_Cena5 = ParseDecimal(reader["Bad_Cena5"]),
                     Bad_Cena6 = ParseDecimal(reader["Bad_Cena6"]),
                     Bad_Cena7 = ParseDecimal(reader["Bad_Cena7"]),
                     Bad_Cena8 = ParseDecimal(reader["Bad_Cena8"]),
@@ -362,8 +368,117 @@ WHERE
         }
     }
 
+    /// <summary>
+    /// Zapisuje zmiany edytowanego badania (tabela Badanie) oraz pola orzeczenia w B_Skierowania.
+    /// Ceny: Cena1..8 → Bad_Cena1..8 (tak jak przy INSERT w BadaniaNewService).
+    /// </summary>
+    public bool UpdateBadanie(BadaniaEditDetailsDto d)
+    {
+        if (_dbFactory == null) throw new InvalidOperationException("Brak połączenia z bazą danych.");
+        if (d.Bad_ID <= 0) throw new InvalidOperationException("Brak Bad_ID - nie można zapisać badania.");
+
+        using var connection = _dbFactory.CreateConnection();
+        connection.Open();
+        using var tx = connection.BeginTransaction();
+
+        static object Db(object? v) => v ?? DBNull.Value;
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.Transaction = tx;
+            cmd.CommandText = @"
+UPDATE Badanie SET
+    Bad_bn_cennik = @cennik,
+    Bad_Data      = @data,
+    Bad_Data_Do   = @dataDo,
+    Bad_Wynik     = @wynik,
+    Bad_Nr_KS     = @nrKs,
+    Bad_Cena1 = @c1, Bad_Cena2 = @c2, Bad_Cena3 = @c3, Bad_Cena4 = @c4,
+    Bad_Cena5 = @c5, Bad_Cena6 = @c6, Bad_Cena7 = @c7, Bad_Cena8 = @c8,
+    Bad_Razem = @razem
+WHERE Bad_ID = @badId";
+            cmd.Parameters.Add(new MySqlParameter("@cennik", Db(d.Bad_bn_cennik)));
+            cmd.Parameters.Add(new MySqlParameter("@data", Db(d.Bad_Data)));
+            cmd.Parameters.Add(new MySqlParameter("@dataDo", Db(d.Bad_Data_Do)));
+            cmd.Parameters.Add(new MySqlParameter("@wynik", Db(d.Bad_Wynik)));
+            cmd.Parameters.Add(new MySqlParameter("@nrKs", Db(d.Bad_Nr_KS)));
+            cmd.Parameters.Add(new MySqlParameter("@c1", d.Bad_Cena1 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c2", d.Bad_Cena2 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c3", d.Bad_Cena3 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c4", d.Bad_Cena4 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c5", d.Bad_Cena5 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c6", d.Bad_Cena6 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c7", d.Bad_Cena7 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@c8", d.Bad_Cena8 ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@razem", d.Bad_Razem ?? 0m));
+            cmd.Parameters.Add(new MySqlParameter("@badId", d.Bad_ID));
+
+            if (cmd.ExecuteNonQuery() == 0)
+            {
+                tx.Rollback();
+                return false;
+            }
+        }
+
+        using (var cmd = connection.CreateCommand())
+        {
+            cmd.Transaction = tx;
+            cmd.CommandText = @"
+UPDATE B_Skierowania SET
+    B_orzeczenie_ID   = @orzId,
+    B_edm_document_id = @edmId
+WHERE B_ID = @bId";
+            cmd.Parameters.Add(new MySqlParameter("@orzId", Db(d.B_orzeczenie_ID)));
+            cmd.Parameters.Add(new MySqlParameter("@edmId", Db(d.B_edm_document_id)));
+            cmd.Parameters.Add(new MySqlParameter("@bId", d.B_ID));
+            cmd.ExecuteNonQuery();
+        }
+
+        tx.Commit();
+        Console.WriteLine($"✅ BadaniaEditService.UpdateBadanie: Bad_ID={d.Bad_ID}, B_ID={d.B_ID} zapisane");
+        return true;
+    }
+
+    private static readonly HashSet<string> AllowedFlagColumns = new(StringComparer.Ordinal)
+    {
+        "B_ksiazeczka", "B_Zaswiadczenie"
+    };
+
+    /// <summary>
+    /// Natychmiastowa aktualizacja pojedynczej flagi w B_Skierowania (Książeczka / Urlop),
+    /// tak jak w BadaniaNewService.UpdateBSkierowaniaFlag.
+    /// </summary>
+    public bool UpdateBSkierowaniaFlag(int bSkierowaniaId, string columnName, bool value)
+    {
+        if (!AllowedFlagColumns.Contains(columnName))
+            throw new ArgumentException($"Niedozwolona kolumna: {columnName}", nameof(columnName));
+        if (_dbFactory == null) return false;
+
+        try
+        {
+            using var connection = _dbFactory.CreateConnection();
+            connection.Open();
+
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText = $"UPDATE B_Skierowania SET {columnName} = @val WHERE B_ID = @id";
+            cmd.Parameters.Add(new MySqlParameter("@val", value ? 1 : 0));
+            cmd.Parameters.Add(new MySqlParameter("@id", bSkierowaniaId));
+
+            var affected = cmd.ExecuteNonQuery();
+            Console.WriteLine(affected > 0
+                ? $"✅ BadaniaEditService.UpdateBSkierowaniaFlag: {columnName}={value} dla B_ID={bSkierowaniaId}"
+                : $"⚠️ BadaniaEditService.UpdateBSkierowaniaFlag: brak wierszy dla B_ID={bSkierowaniaId}");
+            return affected > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ BadaniaEditService.UpdateBSkierowaniaFlag error ({columnName}, B_ID={bSkierowaniaId}): {ex.Message}");
+            return false;
+        }
+    }
+
     // -----------------------------------------------------------------------
-    // Helper: bezpieczny parse decimal niezależny od kultury (obsługuje , i .)
+    // Helper: bezpieczny parse decimal
     // -----------------------------------------------------------------------
     private static decimal? ParseDecimal(object? raw)
     {

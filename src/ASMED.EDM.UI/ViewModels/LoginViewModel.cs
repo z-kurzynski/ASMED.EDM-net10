@@ -26,6 +26,18 @@ public partial class LoginViewModel : ViewModelBase
     /// </summary>
     public bool LoginSucceeded { get; private set; }
 
+    /// <summary>
+    /// True po pomyślnym zalogowaniu, gdy trwa ładowanie programu (okno nie powinno być wtedy zamykane).
+    /// </summary>
+    [ObservableProperty]
+    private bool _isLoadingApplication;
+
+    /// <summary>
+    /// Opcjonalne ładowanie programu wykonywane po zalogowaniu, przed zamknięciem okna logowania
+    /// (okno pokazuje w tym czasie wskaźnik ładowania).
+    /// </summary>
+    public Func<Task>? LoadApplicationAsync { get; set; }
+
     public LoginViewModel(IServiceScopeFactory scopeFactory, ICurrentUserService currentUserService)
     {
         _scopeFactory = scopeFactory;
@@ -47,6 +59,7 @@ public partial class LoginViewModel : ViewModelBase
             return;
         }
 
+        BusyMessage = "Logowanie...";
         IsBusy = true;
         try
         {
@@ -61,12 +74,22 @@ public partial class LoginViewModel : ViewModelBase
                     Role = UserRole.Administrator,
                     IsActive = true
                 });
-                LoginSucceeded = true;
-                RequestClose?.Invoke();
+                await CompleteLoginAsync();
                 return;
             }
 
-            var user = await AuthenticateWithScopeAsync(password);
+            User? user;
+            try
+            {
+                user = await AuthenticateWithScopeAsync(password);
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Brak połączenia z bazą danych: " + ex.GetBaseException().Message;
+                LoginSucceeded = false;
+                return;
+            }
+
             if (user == null)
             {
                 ErrorMessage = "Nieprawidłowa nazwa użytkownika lub hasło.";
@@ -75,13 +98,26 @@ public partial class LoginViewModel : ViewModelBase
             }
 
             _currentUserService.SetCurrentUser(user);
-            LoginSucceeded = true;
-            RequestClose?.Invoke();
+            await CompleteLoginAsync();
         }
         finally
         {
             IsBusy = false;
+            IsLoadingApplication = false;
+            BusyMessage = null;
         }
+    }
+
+    private async Task CompleteLoginAsync()
+    {
+        LoginSucceeded = true;
+        BusyMessage = "Ładowanie programu...";
+        IsLoadingApplication = true;
+
+        if (LoadApplicationAsync != null)
+            await LoadApplicationAsync();
+
+        RequestClose?.Invoke();
     }
 
     /// <summary>

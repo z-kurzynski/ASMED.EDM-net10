@@ -444,6 +444,8 @@ public class AsmedDbContext : DbContext
             entity.Property(e => e.RowVersion).IsRowVersion();
             entity.Property(e => e.TotpSecretKeyEncrypted).HasMaxLength(500);
             entity.Property(e => e.DoctorCertificatePassword).HasMaxLength(255);
+            entity.Property(e => e.IdIzbyLekarskiej).HasMaxLength(50);
+            entity.Property(e => e.AuthorMedycynaPracyId).HasMaxLength(100);
 
             entity.HasIndex(e => e.MedicalLicenseNumber).IsUnique();
             entity.HasIndex(e => e.UserId).IsUnique();

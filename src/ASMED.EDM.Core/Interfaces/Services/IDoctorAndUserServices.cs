@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 
 namespace ASMED.EDM.Core.Interfaces.Services;
@@ -18,6 +19,12 @@ public interface IDoctorService
     Task<Doctor> CreateDoctorAsync(Doctor doctor, CancellationToken cancellationToken = default);
     Task<Doctor> UpdateDoctorAsync(Doctor doctor, CancellationToken cancellationToken = default);
     Task DeleteDoctorAsync(int doctorId, int userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Tworzy lub aktualizuje profil lekarza (dane wymagane do autoryzacji w EDM / P1)
+    /// dla wskazanego użytkownika. Waliduje NPWZ i jego unikalność.
+    /// </summary>
+    Task<Doctor> SaveEdmProfileAsync(int userId, DoctorEdmProfileDto profile, CancellationToken cancellationToken = default);
 
     // Schedules
     Task<DoctorSchedule> AddScheduleAsync(DoctorSchedule schedule, CancellationToken cancellationToken = default);
