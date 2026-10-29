@@ -114,6 +114,9 @@
 
                             <syncfusion:SfDatePicker x:Name="Data_Badania" Value="{Binding CustomDefaultDate, Mode=TwoWay}" 
                                 FormatString="dd.MM.yyyy"
+                                SelectorFormatString="dd.MM.yyyy"
+                                AllowNull="True"
+                                AllowInlineEditing="True"
                                 Width="120" 
                                 FontSize="18"
                                 ToolTip="Data która będzie ustawiana jako Data Badania przy wyborze karty" Height="30"/>
@@ -323,7 +326,7 @@
                                                 </Border>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal" Margin="0,0,4,0" Grid.Column="1">
-                                                <syncfusion:ButtonAdv x:Name="BT_Wstepne" Content="" Label="Wstępne" IconHeight="0" IconWidth="0" Width="65" FontSize="11" HorizontalAlignment="Right" Margin="4,0,0,0" IsEnabled="{Binding IsWizytaSelected}" Command="{Binding ToggleWstepneCommand}">
+                                                <syncfusion:ButtonAdv x:Name="BT_Wstepne" Content="" Label="Wstępne" IconHeight="0" IconWidth="0" Width="65" FontSize="11" HorizontalAlignment="Right" Margin="4,0,0,0" IsEnabled="{Binding IsEdycjaMozliwa}" Command="{Binding ToggleWstepneCommand}">
                                                     <syncfusion:ButtonAdv.Style>
                                                         <Style TargetType="{x:Type syncfusion:ButtonAdv}">
                                                             <Style.Triggers>
@@ -335,7 +338,7 @@
                                                         </Style>
                                                     </syncfusion:ButtonAdv.Style>
                                                 </syncfusion:ButtonAdv>
-                                                <syncfusion:ButtonAdv x:Name="BT_Kontrolne" Content="" Label="Kontrolne" IconHeight="0" IconWidth="0" Width="65" FontSize="11" HorizontalAlignment="Right" Margin="3,0,0,0" IsEnabled="{Binding IsWizytaSelected}" Command="{Binding ToggleKontrolneCommand}">
+                                                <syncfusion:ButtonAdv x:Name="BT_Kontrolne" Content="" Label="Kontrolne" IconHeight="0" IconWidth="0" Width="65" FontSize="11" HorizontalAlignment="Right" Margin="3,0,0,0" IsEnabled="{Binding IsEdycjaMozliwa}" Command="{Binding ToggleKontrolneCommand}">
                                                     <syncfusion:ButtonAdv.Style>
                                                         <Style TargetType="{x:Type syncfusion:ButtonAdv}">
                                                             <Style.Triggers>
@@ -347,7 +350,7 @@
                                                         </Style>
                                                     </syncfusion:ButtonAdv.Style>
                                                 </syncfusion:ButtonAdv>
-                                                <syncfusion:ButtonAdv x:Name="BT_Okresowe" Content="" Label="Okresowe" Width="65" IconHeight="0" IconWidth="0" FontSize="11" HorizontalAlignment="Right" Margin="3,0,0,0" IsEnabled="{Binding IsWizytaSelected}" Command="{Binding ToggleOkresoweCommand}">
+                                                <syncfusion:ButtonAdv x:Name="BT_Okresowe" Content="" Label="Okresowe" Width="65" IconHeight="0" IconWidth="0" FontSize="11" HorizontalAlignment="Right" Margin="3,0,0,0" IsEnabled="{Binding IsEdycjaMozliwa}" Command="{Binding ToggleOkresoweCommand}">
                                                     <syncfusion:ButtonAdv.Style>
                                                         <Style TargetType="{x:Type syncfusion:ButtonAdv}">
                                                             <Style.Triggers>
@@ -400,7 +403,7 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
                                         <syncfusion:ButtonAdv x:Name="BT_Badanie" Content="" Label="Badanie" IconHeight="0" IconWidth="0" FontSize="11" BorderThickness="1,1,2,2"
-                                                    Command="{Binding ToggleBadanieCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" FontStyle="Normal" IsEnabled="{Binding IsWizytaSelected}">
+                                                    Command="{Binding ToggleBadanieCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" FontStyle="Normal" IsEnabled="{Binding IsEdycjaMozliwa}">
                                             <syncfusion:ButtonAdv.Style>
                                                 <Style TargetType="{x:Type syncfusion:ButtonAdv}" BasedOn="{StaticResource BistabilnyButtonStyle}">
                                                     <Style.Triggers>
@@ -414,7 +417,7 @@
                                         </syncfusion:ButtonAdv>
                                         <!-- dodaj bad Laryngologiczne do karty badan -->
                                         <syncfusion:ButtonAdv x:Name="BT_Laryngolog" Content="" Label="Laryngolog" IconHeight="0" IconWidth="0" FontSize="11" FontStyle="Normal" Grid.Column="1" Margin="2,0,0,0"
-                                                    Command="{Binding ToggleLaryngologCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderThickness="1,1,2,2" IsEnabled="{Binding IsWizytaSelected}">
+                                                    Command="{Binding ToggleLaryngologCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderThickness="1,1,2,2" IsEnabled="{Binding IsEdycjaMozliwa}">
                                             <syncfusion:ButtonAdv.Style>
                                                 <Style TargetType="{x:Type syncfusion:ButtonAdv}" BasedOn="{StaticResource BistabilnyButtonStyle}">
                                                     <Style.Triggers>
@@ -428,7 +431,7 @@
                                         </syncfusion:ButtonAdv>
                                         <!-- dodaj bad. okulistyczne do karty badan -->
                                         <syncfusion:ButtonAdv x:Name="BT_okulista" Content="" Label="okulista" IconHeight="0" IconWidth="0" FontSize="11" FontStyle="Normal" Grid.Column="2" Margin="2,0,0,0"
-                                                    Command="{Binding ToggleOkulistaCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderThickness="1,1,2,2" IsEnabled="{Binding IsWizytaSelected}">
+                                                    Command="{Binding ToggleOkulistaCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderThickness="1,1,2,2" IsEnabled="{Binding IsEdycjaMozliwa}">
                                             <syncfusion:ButtonAdv.Style>
                                                 <Style TargetType="{x:Type syncfusion:ButtonAdv}" BasedOn="{StaticResource BistabilnyButtonStyle}">
                                                     <Style.Triggers>
@@ -442,7 +445,7 @@
                                         </syncfusion:ButtonAdv>
                                         <!-- otworz krtę badania saniternego -->
                                         <syncfusion:ButtonAdv x:Name="BT_Sanitarne" Label="Sanitarne" Grid.Column="3" Margin="2,0,0,0"
-                                                    Command="{Binding ToggleSanitarneCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderBrush="#FF707070" FontStyle="Normal" BorderThickness="1,1,2,2" IsEnabled="{Binding IsWizytaSelected}">
+                                                    Command="{Binding ToggleSanitarneCommand}" Foreground="{DynamicResource {x:Static SystemColors.DesktopBrushKey}}" BorderBrush="#FF707070" FontStyle="Normal" BorderThickness="1,1,2,2" IsEnabled="{Binding IsEdycjaMozliwa}">
                                             <syncfusion:ButtonAdv.Style>
                                                 <Style TargetType="{x:Type syncfusion:ButtonAdv}" BasedOn="{StaticResource BistabilnyButtonStyle}">
                                                     <Style.Triggers>
@@ -456,7 +459,7 @@
                                         </syncfusion:ButtonAdv>
                                         <!-- otwórz kartę urlopu -->
                                         <syncfusion:ButtonAdv x:Name="BT_Urlop" Label="Urlop" Grid.Column="4" Margin="2,0,0,0"
-                                                    Command="{Binding ToggleUrlopCommand}" Foreground="Black" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" IsEnabled="{Binding IsWizytaSelected}">
+                                                    Command="{Binding ToggleUrlopCommand}" Foreground="Black" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" IsEnabled="{Binding IsEdycjaMozliwa}">
                                             <syncfusion:ButtonAdv.Style>
                                                 <Style TargetType="{x:Type syncfusion:ButtonAdv}" BasedOn="{StaticResource BistabilnyButtonStyle}">
                                                     <Style.Triggers>
@@ -470,7 +473,7 @@
                                         </syncfusion:ButtonAdv>
                                     </Grid>
                                 </StackPanel>
-                                <StackPanel VerticalAlignment="Bottom">
+                                <StackPanel VerticalAlignment="Bottom" IsEnabled="{Binding IsNiePodpisane}">
 
                                     <!-- ✅ NOWY: Separator -->
                                     <StackPanel x:Name="waznos_do_rok" Orientation="Vertical">
@@ -608,7 +611,7 @@
                                         Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0"/>
 
                                     <!-- Zatwierdź -->
-                                    <syncfusion:ButtonAdv Label="Zatwierdź" Grid.Column="2" Margin="2,0,0,0"
+                                    <syncfusion:ButtonAdv Label="Zatwierdź" Grid.Column="2" Margin="2,0,0,0" ToolTip="Zapisuje podpisane orzeczenie (aktywne po „Podpisz”)"
                                         Command="{Binding ZatwierdzCommand}" Foreground="{DynamicResource UI.Text.Primary}" BorderBrush="#FF707070" FontStyle="Normal" BorderThickness="1,1,2,2" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0"/>
                                 </Grid>
                             </StackPanel>

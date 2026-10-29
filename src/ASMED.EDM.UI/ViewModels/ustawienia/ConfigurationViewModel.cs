@@ -498,12 +498,32 @@ public partial class ConfigurationViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void SetActiveConnection(string connectionType)
+    private async Task SetActiveConnectionAsync(string connectionType)
     {
         if (string.IsNullOrWhiteSpace(connectionType)) return;
 
         var prev = _dbFactory.ActiveConnectionType;
         if (prev == connectionType) return;
+
+        var targetCs = connectionType switch
+        {
+            "Backup" => _dbFactory.BackupConnectionString,
+            "Local"  => _dbFactory.LocalConnectionString,
+            _        => _dbFactory.PrimaryConnectionString
+        };
+
+        StatusMessage = $"🔄 Testowanie połączenia {connectionType}...";
+        var (ok, message, _) = await _dbFactory.TestConnectionAsync(targetCs);
+        if (!ok)
+        {
+            StatusMessage = $"❌ Nie przełączono — brak połączenia z {connectionType}: {message}";
+            MessageBox.Show(
+                $"Nie można połączyć się z bazą {connectionType}.\n\n{message}\n\nAktywne połączenie pozostaje bez zmian ({prev}).",
+                "Przełączanie bazy",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
 
         _dbFactory.ActiveConnectionType = connectionType;
         UpdateActiveConnectionStatus();
@@ -511,6 +531,19 @@ public partial class ConfigurationViewModel : ObservableObject
         _logger.LogInformation("Aktywne połączenie zmienione: {Prev} → {New}", prev, connectionType);
 
         StatusMessage = $"✅ Aktywne połączenie przełączono na: {connectionType}";
+
+        // Moduły oparte na EF Core trzymają DbContext utworzony przy starcie (z poprzednim połączeniem),
+        // dlatego pełne przełączenie wymaga ponownego uruchomienia aplikacji.
+        var restart = MessageBox.Show(
+            $"✅ Przełączono na bazę: {connectionType} ({ActiveDatabaseName})\n\n" +
+            "Aby wszystkie moduły odczytywały dane z nowej bazy, aplikacja musi zostać uruchomiona ponownie.\n\n" +
+            "Uruchomić ponownie teraz?",
+            "Przełączanie bazy",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Question);
+
+        if (restart == MessageBoxResult.Yes && Application.Current is App app)
+            app.RestartApplication();
     }
 
     // ==================== PRAWA KOLUMNA: COMMANDS ====================
@@ -573,6 +606,10 @@ public partial class ConfigurationViewModel : ObservableObject
                 ? "ℹ️ Już istniały:\n• " + string.Join("\n• ", result.AlreadyExisted) 
                 : "";
 
+            var columnsAddedList = result.ColumnsAdded.Count > 0
+                ? "➕ Dodane kolumny:\n• " + string.Join("\n• ", result.ColumnsAdded)
+                : "";
+
             if (result.HasErrors)
             {
                 var errorMsg = string.Join("\n", result.Errors);
@@ -583,7 +620,7 @@ public partial class ConfigurationViewModel : ObservableObject
                     $"⚠️ Inicjalizacja zakończona z błędami!\n\n" +
                     $"🗄️ Baza: {result.DatabaseName} @ {result.ServerName}\n" +
                     $"🔌 Typ: {dbTypeName}\n\n" +
-                    $"{createdList}\n\n{existedList}\n\n" +
+                    $"{createdList}\n\n{columnsAddedList}\n\n{existedList}\n\n" +
                     $"❌ Błędy:\n{errorMsg}",
                     "Ostrzeżenie",
                     MessageBoxButton.OK,
@@ -602,7 +639,7 @@ public partial class ConfigurationViewModel : ObservableObject
                     $"✅ Baza danych została zainicjalizowana!\n\n" +
                     $"🗄️ Baza: {result.DatabaseName} @ {result.ServerName}\n" +
                     $"🔌 Typ: {dbTypeName}\n\n" +
-                    $"{createdList}\n\n{existedList}\n\n" +
+                    $"{createdList}\n\n{columnsAddedList}\n\n{existedList}\n\n" +
                     $"📊 Podsumowanie: {result.TotalTables} tabel w bazie",
                     "Sukces",
                     MessageBoxButton.OK,

@@ -290,6 +290,8 @@ public class AsmedDbContext : DbContext
             entity.Property(e => e.PatientId).HasColumnName("Bad_P_ID");
             entity.Property(e => e.ListaBadanId).HasColumnName("Bad_L_ID");
             entity.Property(e => e.FakturaId).HasColumnName("Bad_Fakt_ID");
+            entity.Property(e => e.SkierowanieId).HasColumnName("Bad_S_ID");
+            entity.Property(e => e.RejestracjaId).HasColumnName("Bad_R_ID");
             entity.Property(e => e.TypBadania).HasColumnName("Bad_Typ").HasMaxLength(50);
             entity.Property(e => e.DataBadania).HasColumnName("Bad_Data");
             entity.Property(e => e.DataWaznosci).HasColumnName("Bad_Data_Do");

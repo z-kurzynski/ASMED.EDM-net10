@@ -1,4 +1,5 @@
 using ASMED.EDM.Core.DTOs;
+using ASMED.EDM.Core.Helpers;
 using ASMED.EDM.Core.Interfaces.Services;
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models.ListaDoFaktur;
@@ -220,7 +221,7 @@ public class ListaFaktAddViewModel : ViewModelBase
     // ===== POLA BADANIA (Grid_1) =====
     public ObservableCollection<string> ImionaItems   { get; } = new();
     public ObservableCollection<string> NazwiskaItems { get; } = new();
-    public ObservableCollection<string> WynikOptions  { get; } = new();
+    public IReadOnlyList<WynikBadaniaOption> WynikOptions => WynikBadania.Opcje;
 
     private string? _wybraneImie;
     public string? WybraneImie
@@ -336,9 +337,7 @@ public class ListaFaktAddViewModel : ViewModelBase
         _svc          = new ListaFaktAddService(dbFactory);
         _scopeFactory = scopeFactory;
 
-        WynikOptions.Add("1 - Pozytywne");
-        WynikOptions.Add("2 - Negatywne");
-        SelectedWynik = WynikOptions.FirstOrDefault();
+        SelectedWynik = WynikBadania.Domyslny;
 
         DataBadania     = DateTime.Today;
         DataWaznosci    = DateTime.Today.AddYears(3);
@@ -515,36 +514,7 @@ public class ListaFaktAddViewModel : ViewModelBase
         if (exists) return;
 
         // Kopia z cenami
-        var copy = new BadanieRowDto
-        {
-            Bad_ID        = dto.Bad_ID,
-            Bad_L_ID      = dto.Bad_L_ID,
-            Bad_F_ID      = dto.Bad_F_ID,
-            Bad_P_ID      = dto.Bad_P_ID,
-            Bad_Data      = dto.Bad_Data,
-            Bad_Data_Do   = dto.Bad_Data_Do,
-            Bad_Typ       = dto.Bad_Typ,
-            Bad_Wynik     = dto.Bad_Wynik,
-            Bad_Nr_KS     = dto.Bad_Nr_KS,
-            Bad_END       = dto.Bad_END,
-            Bad_bn_cennik = dto.Bad_bn_cennik,
-            P_imie        = dto.P_imie,
-            P_nazwisko    = dto.P_nazwisko,
-            P_zawod       = dto.P_zawod,
-            FirmaNazwa    = dto.FirmaNazwa,
-            FirmaCennik   = dto.FirmaCennik,
-            Bad_Razem     = dto.Bad_Razem,
-            Bad_Cena1     = dto.Bad_Cena1,
-            Bad_Cena2     = dto.Bad_Cena2,
-            Bad_Cena3     = dto.Bad_Cena3,
-            Bad_Cena4     = dto.Bad_Cena4,
-            Bad_Cena5     = dto.Bad_Cena5,
-            Bad_Cena6     = dto.Bad_Cena6,
-            Bad_Cena7     = dto.Bad_Cena7,
-            Bad_Cena8     = dto.Bad_Cena8,
-            Bad_Cena9     = dto.Bad_Cena9,
-            Bad_Cena10    = dto.Bad_Cena10,
-        };
+        var copy = CopyRow(dto);
 
         SelectedLista.Badania.Add(copy);
 
@@ -570,32 +540,64 @@ public class ListaFaktAddViewModel : ViewModelBase
     public ICommand SaveSelectedAssignedBadanieCommand => _saveSelectedAssignedBadanieCommand
         ??= new RelayCommand(SaveSelectedAssignedBadanie);
 
+    /// <summary>
+    /// Legacy: SaveSelectedAssignedBadanie — zaznaczona pozycja jest aktualizowana danymi z formularza,
+    /// bez zaznaczenia tworzona jest nowa pozycja "ręczna" (Bad_ID = null), zapisywana do bazy
+    /// razem z pacjentem i skierowaniem dopiero przy zapisie listy.
+    /// </summary>
     private void SaveSelectedAssignedBadanie()
     {
-        if (SelectedAssignedBadanie == null) return;
+        var imie     = WybraneImie?.Trim();
+        var nazwisko = WybraneNazwisko?.Trim();
+        if (string.IsNullOrWhiteSpace(imie) || string.IsNullOrWhiteSpace(nazwisko))
+        {
+            MessageBox.Show("Podaj imię i nazwisko pacjenta.", "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
 
-        // Przelicz sumę razem z edytowalnych pól
-        var ba = SelectedAssignedBadanie;
-        ba.Bad_Cena1 = ParseEditable(EditablePriceBasic);
-        ba.Bad_Cena2 = ParseEditable(EditablePriceLaryngologist);
-        ba.Bad_Cena3 = ParseEditable(EditablePriceOphthalmologist);
-        ba.Bad_Cena4 = ParseEditable(EditablePriceSanitary);
-        ba.Bad_Cena5 = ParseEditable(EditablePriceLipidogram);
-        ba.Bad_Cena6 = ParseEditable(EditablePriceEKG);
-        ba.Bad_Cena7 = ParseEditable(EditablePriceHealthClinic);
-        ba.Bad_Cena8 = ParseEditable(EditablePriceOther);
-        ba.Bad_Typ   = TypBadania;
-        ba.Bad_Data  = DataBadania;
+        var source = SelectedAssignedBadanie;
+        if (source == null && SelectedFirmaDto == null)
+        {
+            MessageBox.Show("Wybierz firmę z listy przed dodaniem pozycji ręcznie.", "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var ba = source != null
+            ? CopyRow(source)
+            : new BadanieRowDto
+            {
+                FirmaNazwa    = SelectedFirmaDto!.Nazwa,
+                FirmaCennik   = SelectedCennik,
+                Bad_bn_cennik = SelectedCennik,
+                Bad_END       = false,
+            };
+
+        ba.P_imie      = imie;
+        ba.P_nazwisko  = nazwisko;
+        ba.Bad_Cena1   = ParseEditableOrNull(EditablePriceBasic);
+        ba.Bad_Cena2   = ParseEditableOrNull(EditablePriceLaryngologist);
+        ba.Bad_Cena3   = ParseEditableOrNull(EditablePriceOphthalmologist);
+        ba.Bad_Cena4   = ParseEditableOrNull(EditablePriceSanitary);
+        ba.Bad_Cena5   = ParseEditableOrNull(EditablePriceLipidogram);
+        ba.Bad_Cena6   = ParseEditableOrNull(EditablePriceEKG);
+        ba.Bad_Cena7   = ParseEditableOrNull(EditablePriceHealthClinic);
+        ba.Bad_Cena8   = ParseEditableOrNull(EditablePriceOther);
+        ba.Bad_Typ     = TypBadania;
+        ba.Bad_Data    = DataBadania;
         ba.Bad_Data_Do = DataWaznosci;
-        ba.Bad_Wynik = SelectedWynik;
-        ba.Bad_Nr_KS = NrKsiegi;
+        ba.Bad_Wynik   = SelectedWynik;
+        ba.Bad_Nr_KS   = NrKsiegi;
 
-        var razem = (ba.Bad_Cena1 ?? 0) + (ba.Bad_Cena2 ?? 0) + (ba.Bad_Cena3 ?? 0)
-                  + (ba.Bad_Cena4 ?? 0) + (ba.Bad_Cena5 ?? 0) + (ba.Bad_Cena6 ?? 0)
-                  + (ba.Bad_Cena7 ?? 0) + (ba.Bad_Cena8 ?? 0);
-        ba.Bad_Razem = razem;
+        var ceny = new[] { ba.Bad_Cena1, ba.Bad_Cena2, ba.Bad_Cena3, ba.Bad_Cena4,
+                           ba.Bad_Cena5, ba.Bad_Cena6, ba.Bad_Cena7, ba.Bad_Cena8 };
+        ba.Bad_Razem = ceny.Any(c => c.HasValue) ? ceny.Sum(c => c ?? 0m) : null;
 
-        RecalculateTotalRazem();
+        // BadanieRowDto nie powiadamia o zmianach — podmiana elementu odświeża DataGrid
+        var idx = source != null ? SelectedLista.Badania.IndexOf(source) : -1;
+        if (idx >= 0) SelectedLista.Badania[idx] = ba;
+        else SelectedLista.Badania.Add(ba);
+
+        RenumberAndRecalculate();
         ClearGridFields();
     }
 
@@ -670,9 +672,10 @@ public class ListaFaktAddViewModel : ViewModelBase
 
     private async Task SaveListAsync()
     {
-        if (SelectedFirmaDto == null)
+        var firma = SelectedFirmaDto;
+        if (firma == null)
         {
-            MessageBox.Show("Wybierz firmę przed zapisaniem listy.", "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Wybierz firmę z listy przed zapisaniem listy.", "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         if (SelectedLista.Badania.Count == 0)
@@ -687,6 +690,32 @@ public class ListaFaktAddViewModel : ViewModelBase
             return;
         }
 
+        // Legacy: IsSameFirma — pozycje innej firmy trzeba usunąć albo anulować zapis
+        var niezgodne = SelectedLista.Badania.Where(b => !IsSameFirma(b, firma)).ToList();
+        if (niezgodne.Count > 0)
+        {
+            var opis = string.Join("\n", niezgodne.Take(10).Select(b =>
+                $"Lp {b.Lp}: {b.PacjentDisplay} — {(string.IsNullOrWhiteSpace(b.FirmaNazwa) ? "(brak firmy)" : b.FirmaNazwa)}"));
+            if (niezgodne.Count > 10) opis += "\n…";
+
+            var answer = MessageBox.Show(
+                $"Znaleziono {niezgodne.Count} pozycji niezgodnych z firmą \"{firma.Nazwa}\":\n\n{opis}\n\nCzy usunąć te pozycje z listy przed zapisem?",
+                "Pozycje niezgodne", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (answer != MessageBoxResult.Yes) return;
+
+            foreach (var b in niezgodne) DeleteAssignedBadanie(b);
+            if (SelectedLista.Badania.Count == 0)
+            {
+                MessageBox.Show("Po usunięciu pozycji niezgodnych lista jest pusta.", "Walidacja", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        RenumberAndRecalculate();
+
+        var kwota = string.IsNullOrWhiteSpace(SumaBrutto) ? TotalRazem : ParseEditable(SumaBrutto);
+        bool modyfikacja = SelectedLista.Identyfikator.HasValue;
+
         IsBusy = true;
         BusyMessage = "Zapisywanie listy...";
         try
@@ -694,15 +723,17 @@ public class ListaFaktAddViewModel : ViewModelBase
             using var scope = _scopeFactory.CreateScope();
             var svc = scope.ServiceProvider.GetRequiredService<IFakturaService>();
 
+            var pozycje = SelectedLista.Badania.ToList();
             var request = new SaveListaBadanRequest(
-                FirmaId               : SelectedFirmaDto.Id,
+                FirmaId               : firma.Id,
                 NumerFaktury          : NumerFaktury,
                 DataWystawienia       : DataWystawienia ?? DateTime.Today,
-                KwotaBrutto           : TotalRazem > 0 ? TotalRazem : null,
+                KwotaBrutto           : kwota > 0 ? kwota : null,
                 Uwagi                 : Uwagi,
                 NazwaCennika          : SelectedCennik,
-                BadanieIds            : SelectedLista.Badania.Where(b => b.Bad_ID.HasValue).Select(b => b.Bad_ID!.Value),
-                IstniejacaListaBadanId: SelectedLista.Identyfikator
+                BadanieIds            : pozycje.Where(b => b.Bad_ID.HasValue).Select(b => b.Bad_ID!.Value).ToList(),
+                IstniejacaListaBadanId: SelectedLista.Identyfikator,
+                Pozycje               : pozycje
             );
 
             var progress = new Progress<string>(msg => BusyMessage = msg);
@@ -711,9 +742,20 @@ public class ListaFaktAddViewModel : ViewModelBase
             if (result.Success)
             {
                 SelectedLista.Identyfikator = result.ListaBadanId;
+                SelectedLista.FK_Numer      = string.IsNullOrWhiteSpace(NumerFaktury) ? null : NumerFaktury.Trim();
+                SelectedLista.FK_Data       = DataWystawienia;
                 SaveButtonLabel = "Modyfikuj listę";
                 OnPropertyChanged(nameof(WydrukiVisibility));
-                MessageBox.Show("Lista zapisana pomyślnie.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                await LoadAvailableBadaniaAsync();
+                ApplyAvailableFilter();
+
+                var info = result.FakturaId.HasValue
+                    ? $"Faktura nr {SelectedLista.FK_Numer} (Id={result.FakturaId})."
+                    : "Lista zapisana bez faktury (brak numeru faktury).";
+                MessageBox.Show(
+                    $"{(modyfikacja ? "Lista zmodyfikowana" : "Lista zapisana")} (Id={result.ListaBadanId}, pozycji: {pozycje.Count}).\n{info}",
+                    "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {
@@ -729,6 +771,34 @@ public class ListaFaktAddViewModel : ViewModelBase
             IsBusy = false;
             BusyMessage = null;
         }
+    }
+
+    /// <summary>
+    /// Legacy IsSameFirma: zgodność po znormalizowanej nazwie firmy, potem po cenniku.
+    /// Pozycje bez danych o firmie (np. dodane ręcznie) są akceptowane.
+    /// </summary>
+    private bool IsSameFirma(BadanieRowDto dto, FirmaDto firma)
+    {
+        var selName = NormalizeText(firma.Nazwa);
+        var dtoName = NormalizeText(dto.FirmaNazwa);
+        if (selName.Length > 0 && selName == dtoName) return true;
+
+        var selCennik = NormalizeText(SelectedCennik);
+        var dtoCennik = NormalizeText(dto.FirmaCennik);
+        if (selCennik.Length > 0 && selCennik == dtoCennik) return true;
+
+        return dtoName.Length == 0 && dtoCennik.Length == 0;
+    }
+
+    private static string NormalizeText(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+        var normalized = s.Trim().ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(normalized.Length);
+        foreach (var ch in normalized)
+            if (CharUnicodeInfo.GetUnicodeCategory(ch) != UnicodeCategory.NonSpacingMark)
+                sb.Append(ch);
+        return sb.ToString();
     }
 
     private RelayCommand? _sendEmailCommand;
@@ -782,7 +852,7 @@ public class ListaFaktAddViewModel : ViewModelBase
         TypBadania       = ba.Bad_Typ;
         DataBadania      = ba.Bad_Data;
         DataWaznosci     = ba.Bad_Data_Do;
-        SelectedWynik    = ba.Bad_Wynik;
+        SelectedWynik    = WynikBadania.Normalizuj(ba.Bad_Wynik);
         NrKsiegi         = ba.Bad_Nr_KS;
 
         _priceBasic           = ba.Bad_Cena1 ?? 0m;
@@ -813,7 +883,7 @@ public class ListaFaktAddViewModel : ViewModelBase
         WybraneImie = WybraneNazwisko = TypBadania = NrKsiegi = null;
         DataBadania  = DateTime.Today;
         DataWaznosci = DateTime.Today.AddYears(3);
-        SelectedWynik = WynikOptions.FirstOrDefault();
+        SelectedWynik = WynikBadania.Domyslny;
         _selectedAssignedBadanie = null;
         OnPropertyChanged(nameof(SelectedAssignedBadanie));
 
@@ -844,6 +914,45 @@ public class ListaFaktAddViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(s)) return 0m;
         return decimal.TryParse(s, NumberStyles.Any, _pl, out var v) ? v : 0m;
     }
+
+    private decimal? ParseEditableOrNull(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return null;
+        return decimal.TryParse(s, NumberStyles.Any, _pl, out var v) ? v : null;
+    }
+
+    private static BadanieRowDto CopyRow(BadanieRowDto dto) => new()
+    {
+        Bad_ID        = dto.Bad_ID,
+        Bad_L_ID      = dto.Bad_L_ID,
+        Bad_F_ID      = dto.Bad_F_ID,
+        Bad_P_ID      = dto.Bad_P_ID,
+        Bad_S_ID      = dto.Bad_S_ID,
+        Bad_Data      = dto.Bad_Data,
+        Bad_Data_Do   = dto.Bad_Data_Do,
+        Bad_Typ       = dto.Bad_Typ,
+        Bad_Wynik     = dto.Bad_Wynik,
+        Bad_Nr_KS     = dto.Bad_Nr_KS,
+        Bad_END       = dto.Bad_END,
+        Bad_bn_cennik = dto.Bad_bn_cennik,
+        P_imie        = dto.P_imie,
+        P_nazwisko    = dto.P_nazwisko,
+        P_zawod       = dto.P_zawod,
+        FirmaNazwa    = dto.FirmaNazwa,
+        FirmaCennik   = dto.FirmaCennik,
+        Bad_Razem     = dto.Bad_Razem,
+        Bad_Cena1     = dto.Bad_Cena1,
+        Bad_Cena2     = dto.Bad_Cena2,
+        Bad_Cena3     = dto.Bad_Cena3,
+        Bad_Cena4     = dto.Bad_Cena4,
+        Bad_Cena5     = dto.Bad_Cena5,
+        Bad_Cena6     = dto.Bad_Cena6,
+        Bad_Cena7     = dto.Bad_Cena7,
+        Bad_Cena8     = dto.Bad_Cena8,
+        Bad_Cena9     = dto.Bad_Cena9,
+        Bad_Cena10    = dto.Bad_Cena10,
+        Lp            = dto.Lp,
+    };
 
     private string FormatEditable(decimal v) =>
         v != 0m ? v.ToString("N2", _pl) : string.Empty;

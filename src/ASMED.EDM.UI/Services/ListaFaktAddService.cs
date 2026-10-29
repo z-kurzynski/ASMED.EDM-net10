@@ -196,7 +196,8 @@ public class ListaFaktAddService
                     P_Pacjent.P_nazwisko,
                     P_Pacjent.P_zawod,
                     Firma.Nazwa   AS FirmaNazwa,
-                    Firma.Cennik  AS FirmaCennik
+                    Firma.Cennik  AS FirmaCennik,
+                    Badanie.Bad_S_ID
                 FROM Badanie
                 LEFT JOIN P_Pacjent ON P_Pacjent.P_ID = Badanie.Bad_P_ID
                 LEFT JOIN Firma     ON Firma.id        = P_Pacjent.P_Firma_id
@@ -238,6 +239,7 @@ public class ListaFaktAddService
                     P_zawod       = reader.IsDBNull(24) ? null : reader.GetString(24),
                     FirmaNazwa    = reader.IsDBNull(25) ? null : reader.GetString(25),
                     FirmaCennik   = reader.IsDBNull(26) ? null : reader.GetString(26),
+                    Bad_S_ID      = reader.IsDBNull(27) ? null : reader.GetInt32(27),
                 });
             }
         }

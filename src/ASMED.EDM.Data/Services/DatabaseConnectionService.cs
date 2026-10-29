@@ -37,24 +37,35 @@ public class DatabaseConnectionService : IDatabaseConnectionService
 
     /// <summary>
     /// Pobiera aktywny connection string z automatycznym failover.
-    /// Kolejność prób: Primary → Backup → Local.
+    /// Kolejność prób: połączenie wybrane w rejestrze → Primary → Local.
     /// Wynik (aktywny typ) jest zapisywany w rejestrze per-stacja.
     /// </summary>
     public async Task<string> GetActiveConnectionStringAsync(CancellationToken cancellationToken = default)
     {
         if (!_dbFactory.EnableFailover)
         {
-            _logger.LogInformation("Failover wyłączony, używam Primary connection");
-            return _dbFactory.PrimaryConnectionString;
+            if (Enum.TryParse<ConnectionType>(_dbFactory.ActiveConnectionType, out var active))
+                _currentConnectionType = active;
+
+            _logger.LogInformation("Failover wyłączony, używam połączenia {ConnectionType}", _currentConnectionType);
+            return _dbFactory.ActiveConnectionString;
         }
 
-        // Automatyczny failover tylko: Primary → Local
-        // Backup jest wyłącznie do ręcznego przełączania (testy, podgląd danych)
+        // Najpierw połączenie wybrane w rejestrze (np. ręcznie przełączone na Backup/Local),
+        // a dopiero gdy jest niedostępne — automatyczny failover Primary → Local.
+        // Backup nigdy nie jest celem automatycznego failoveru (tylko ręczne przełączenie).
+        if (Enum.TryParse<ConnectionType>(_dbFactory.ActiveConnectionType, out var selected))
+            _currentConnectionType = selected;
+        else
+            selected = ConnectionType.Primary;
+
         var connections = new[]
-        {
-            (Type: ConnectionType.Primary, ConnectionString: _dbFactory.PrimaryConnectionString),
-            (Type: ConnectionType.Local,   ConnectionString: _dbFactory.LocalConnectionString)
-        };
+            {
+                (Type: selected,               ConnectionString: _dbFactory.ActiveConnectionString),
+                (Type: ConnectionType.Primary, ConnectionString: _dbFactory.PrimaryConnectionString),
+                (Type: ConnectionType.Local,   ConnectionString: _dbFactory.LocalConnectionString)
+            }
+            .DistinctBy(c => c.Type);
 
         foreach (var (type, connectionString) in connections)
         {

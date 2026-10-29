@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using ASMED.EDM.Core.Helpers;
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models.BadaniaEdit;
 using ASMED.EDM.UI.Models.BadaniaNew;
@@ -33,7 +34,7 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
     private int _validityYears = 3;
 
     // Wynik
-    private string _selectedWynik = "pozytywne";
+    private string _selectedWynik = WynikBadania.Domyslny;
 
     // Nr Ksiegi
     private string? _nrKsiegi;
@@ -306,6 +307,8 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
     }
 
     // ---- Wynik ----
+    public IReadOnlyList<WynikBadaniaOption> WynikOptions => WynikBadania.Opcje;
+
     public string SelectedWynik
     {
         get => _selectedWynik;
@@ -397,7 +400,7 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
                 OnPropertyChanged(nameof(ValidityMonth));
 
                 // Wynik
-                SelectedWynik = details.Bad_Wynik ?? "pozytywne";
+                SelectedWynik = WynikBadania.Normalizuj(details.Bad_Wynik);
 
                 // Nr Ksiegi
                 NrKsiegi = details.Bad_Nr_KS;

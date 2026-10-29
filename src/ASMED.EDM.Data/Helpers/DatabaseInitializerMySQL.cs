@@ -43,6 +43,8 @@ public static class DatabaseInitializerMySQL
                 P_telefon           VARCHAR(255),
                 P_email             VARCHAR(255),
                 P_CWUB_ID           VARCHAR(255),
+                P_activ             TINYINT(1),
+                P_brak              TINYINT(1),
                 P_Firma_id          INT,
                 P_Uwagi             TEXT,
 
@@ -173,6 +175,7 @@ public static class DatabaseInitializerMySQL
                 B_ksiazeczka        TINYINT(1),
                 B_Urlop             TINYINT(1),
                 B_Ankieta           TINYINT(1),
+                B_Bad               TINYINT(1),
                 B_Activ             TINYINT(1),
                 B_wywiad            TINYINT(1),
                 B_orzeczenie        TINYINT(1),
@@ -292,6 +295,73 @@ public static class DatabaseInitializerMySQL
                 INDEX idx_BU_P_ID (BU_P_ID),
                 FOREIGN KEY (BU_B_ID) REFERENCES B_Skierowania(B_ID) ON DELETE CASCADE,
                 FOREIGN KEY (BU_P_ID) REFERENCES P_Pacjent(P_ID) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ═══════════════════════════════════════════════════════════════════
+        // TABELA: Orzeczenie (Orzeczenie lekarskie — 1:1 ze skierowaniem, rejestr orzeczeń)
+        // Zapisywane w OrzeczenieView po podpisaniu i zatwierdzeniu.
+        // O_Werdykt: symbol z WynikBadania (21 zdolny / 22 niezdolny / 23 utracił zdolność).
+        // O_P1_*: pod przyszłą wysyłkę dokumentu do P1 (0 = niewysłane).
+        // ═══════════════════════════════════════════════════════════════════
+        ("Orzeczenie", """
+            CREATE TABLE IF NOT EXISTS `Orzeczenie` (
+                O_ID                            INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                O_B_ID                          INT NOT NULL,
+                O_R_ID                          INT,
+                O_P_ID                          INT,
+                O_Firma_ID                      INT,
+                O_Numer                         VARCHAR(30),
+                O_NumerKolejny                  INT,
+                O_Rok                           INT,
+                O_TypBadania                    VARCHAR(20),
+                O_Stanowisko                    VARCHAR(255),
+                O_DataBadania                   DATETIME,
+                O_DataSkierowania               DATETIME,
+                O_DataNastepnegoBadania         DATETIME,
+                O_Werdykt                       VARCHAR(5),
+                O_DataUtratyZdolnosci           DATETIME,
+                O_Uzasadnienie                  TEXT,
+                O_Laryngolog                    TINYINT(1) DEFAULT 0,
+                O_Okulista                      TINYINT(1) DEFAULT 0,
+                O_Sanitarne                     TINYINT(1) DEFAULT 0,
+                O_Urlop                         TINYINT(1) DEFAULT 0,
+                O_Doctor_ID                     INT,
+                O_Lekarz                        VARCHAR(255),
+                O_Lekarz_PWZ                    VARCHAR(20),
+                O_Status                        VARCHAR(20) DEFAULT 'Zatwierdzone',
+                O_PodpisanoAt                   DATETIME,
+                O_ZatwierdzonoAt                DATETIME,
+                O_P1_Status                     INT DEFAULT 0,
+                O_P1_Id                         VARCHAR(100),
+                O_P1_SentAt                     DATETIME,
+                O_CreatedAt                     DATETIME,
+                O_CreatedBy_User_ID             INT,
+                O_UpdatedAt                     DATETIME,
+
+                UNIQUE INDEX idx_O_B_ID (O_B_ID),
+                INDEX idx_O_R_ID (O_R_ID),
+                INDEX idx_O_P_ID (O_P_ID),
+                INDEX idx_O_Firma_ID (O_Firma_ID),
+                INDEX idx_O_Numer (O_Numer),
+                INDEX idx_O_Rok_Nr (O_Rok, O_NumerKolejny),
+                INDEX idx_O_DataBadania (O_DataBadania),
+                INDEX idx_O_P1_Status (O_P1_Status),
+                FOREIGN KEY (O_B_ID) REFERENCES B_Skierowania(B_ID) ON DELETE CASCADE,
+                FOREIGN KEY (O_P_ID) REFERENCES P_Pacjent(P_ID) ON DELETE SET NULL,
+                FOREIGN KEY (O_Firma_ID) REFERENCES Firma(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            """),
+
+        // ═══════════════════════════════════════════════════════════════════
+        // TABELA: Orzeczenie_Numeracja (licznik numerów orzeczeń w danym roku: "nr/rok")
+        // ON_Ostatni = ostatni wydany numer; reset licznika = UPDATE ON_Ostatni.
+        // ═══════════════════════════════════════════════════════════════════
+        ("Orzeczenie_Numeracja", """
+            CREATE TABLE IF NOT EXISTS `Orzeczenie_Numeracja` (
+                ON_Rok                          INT NOT NULL PRIMARY KEY,
+                ON_Ostatni                      INT NOT NULL DEFAULT 0,
+                ON_UpdatedAt                    DATETIME
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
             """),
 
@@ -803,6 +873,9 @@ public static class DatabaseInitializerMySQL
         // Pacjenci — identyfikator w Rejestrze Pacjentów P1 (CWUB)
         ("P_Pacjent", "P_CWUB_ID", "VARCHAR(255) NULL"),
 
+        // Skierowania — znacznik badania podstawowego (lekarz), odpowiada Badanie.Bad_Cena1 (Access: B_Bad)
+        ("B_Skierowania", "B_Bad", "TINYINT(1) NULL"),
+
         // Doctors — autoryzacja podpisu lekarza (TOTP) i dane certyfikatu P1 per-lekarz
         ("Doctors", "TotpSecretKeyEncrypted", "VARCHAR(500) NULL"),
         ("Doctors", "TotpEnabled", "TINYINT(1) NOT NULL DEFAULT 0"),
@@ -839,11 +912,13 @@ public static class DatabaseInitializerMySQL
     // DataMigrations (przepisywanie danych ze starych kolumn do nowych)
     // Uruchamiane po fazie ADD COLUMN, przed seedem. Idempotentne — używają
     // WHERE, które po pierwszym przebiegu nie znajdzie już nic do zrobienia.
+    // RequiredColumns ("Tabela.Kolumna") — krok jest pomijany, jeśli którejś brakuje
+    // (np. baza utworzona od razu w nowym schemacie, bez starych kolumn).
     // ══════════════════════════════════════════════════════════════════
-    private static readonly (string Description, string Sql)[] DataMigrations =
+    private static readonly (string Description, string[] RequiredColumns, string Sql)[] DataMigrations =
     [
         // Users.FullName ("Imię Nazwisko") -> FirstName / LastName
-        ("Users.FullName -> FirstName/LastName", """
+        ("Users.FullName -> FirstName/LastName", ["Users.FullName"], """
             UPDATE `Users`
             SET
                 FirstName = CASE
@@ -862,7 +937,7 @@ public static class DatabaseInitializerMySQL
             """),
 
         // Users.CreatedDate -> CreatedAt
-        ("Users.CreatedDate -> CreatedAt", """
+        ("Users.CreatedDate -> CreatedAt", ["Users.CreatedDate"], """
             UPDATE `Users`
             SET CreatedAt = CreatedDate
             WHERE CreatedDate IS NOT NULL
@@ -870,14 +945,14 @@ public static class DatabaseInitializerMySQL
             """),
 
         // Users.LastLogin -> LastLoginAt
-        ("Users.LastLogin -> LastLoginAt", """
+        ("Users.LastLogin -> LastLoginAt", ["Users.LastLogin"], """
             UPDATE `Users`
             SET LastLoginAt = LastLogin
             WHERE LastLogin IS NOT NULL AND LastLoginAt IS NULL
             """),
 
         // Users.Role — starsze wartości ("Admin") -> nowy enum ("Administrator")
-        ("Users.Role legacy value normalization", """
+        ("Users.Role legacy value normalization", ["Users.Role"], """
             UPDATE `Users`
             SET Role = CASE Role
                 WHEN 'Admin' THEN 'Administrator'
@@ -891,14 +966,14 @@ public static class DatabaseInitializerMySQL
             """),
 
         // Users.Email - puste stringi zamieniamy na NULL, aby unikalny indeks nie traktował ich jako duplikatów
-        ("Users.Email empty string -> NULL", """
+        ("Users.Email empty string -> NULL", ["Users.Email"], """
             UPDATE `Users`
             SET Email = NULL
             WHERE Email = ''
             """),
 
         // Users.Email - kolumna nie może już wymuszać NOT NULL (email jest opcjonalny)
-        ("Users.Email column made nullable", """
+        ("Users.Email column made nullable", ["Users.Email"], """
             ALTER TABLE `Users` MODIFY COLUMN Email VARCHAR(255) NULL
             """)
     ];
@@ -961,17 +1036,12 @@ public static class DatabaseInitializerMySQL
             result.ServerName = conn.DataSource;
 
             // Faza 1 — tworzenie tabel
+            var schemaColumns = LoadSchemaColumns(conn);
             foreach (var (name, sql) in Tables)
             {
                 try
                 {
-                    // Sprawdź czy tabela już istnieje
-                    bool tableExists = false;
-                    using (var checkCmd = new MySqlCommand(
-                        $"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{conn.Database}' AND table_name = '{name}'", conn))
-                    {
-                        tableExists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
-                    }
+                    bool tableExists = schemaColumns.ContainsKey(name);
 
                     using var cmd = new MySqlCommand(sql, conn);
                     cmd.ExecuteNonQuery();
@@ -990,29 +1060,49 @@ public static class DatabaseInitializerMySQL
                     result.Errors.Add($"{name}: {ex.Message}");
                 }
             }
+            schemaColumns = LoadSchemaColumns(conn);
+
+            // Faza 1b — synchronizacja kolumn: CREATE TABLE IF NOT EXISTS nie zmienia istniejących tabel,
+            // więc kolumny dopisane później do definicji dodajemy przez ALTER TABLE (np. bazy Backup/Local).
+            foreach (var (name, sql) in Tables)
+            {
+                if (!schemaColumns.TryGetValue(name, out var existingColumns))
+                    continue;
+
+                foreach (var (column, typeDef) in ParseColumnDefinitions(sql))
+                {
+                    if (existingColumns.Contains(column))
+                        continue;
+
+                    try
+                    {
+                        using var cmd = new MySqlCommand(
+                            $"ALTER TABLE `{name}` ADD COLUMN `{column}` {typeDef}", conn);
+                        cmd.ExecuteNonQuery();
+                        existingColumns.Add(column);
+                        result.ColumnsAdded.Add($"{name}.{column}");
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Errors.Add($"Schema sync {name}.{column}: {ex.Message}");
+                    }
+                }
+            }
 
             // Faza 2 — migracje (ADD COLUMN, jeśli kolumna jeszcze nie istnieje)
+            // Tabele spoza tego inicjalizatora (np. Visits z migracji EF Core) mogą nie istnieć — wtedy pomijamy.
             foreach (var (table, column, typeDef) in Migrations)
             {
                 try
                 {
-                    bool columnExists;
-                    using (var checkCmd = new MySqlCommand(
-                        "SELECT COUNT(*) FROM information_schema.columns " +
-                        "WHERE table_schema = @schema AND table_name = @table AND column_name = @column", conn))
-                    {
-                        checkCmd.Parameters.AddWithValue("@schema", conn.Database);
-                        checkCmd.Parameters.AddWithValue("@table", table);
-                        checkCmd.Parameters.AddWithValue("@column", column);
-                        columnExists = Convert.ToInt32(checkCmd.ExecuteScalar()) > 0;
-                    }
+                    if (!schemaColumns.TryGetValue(table, out var existingColumns) || existingColumns.Contains(column))
+                        continue;
 
-                    if (!columnExists)
-                    {
-                        using var cmd = new MySqlCommand(
-                            $"ALTER TABLE `{table}` ADD COLUMN `{column}` {typeDef}", conn);
-                        cmd.ExecuteNonQuery();
-                    }
+                    using var cmd = new MySqlCommand(
+                        $"ALTER TABLE `{table}` ADD COLUMN `{column}` {typeDef}", conn);
+                    cmd.ExecuteNonQuery();
+                    existingColumns.Add(column);
+                    result.ColumnsAdded.Add($"{table}.{column}");
                 }
                 catch (Exception ex)
                 {
@@ -1021,10 +1111,18 @@ public static class DatabaseInitializerMySQL
             }
 
             // Faza 2b — migracja danych (przepisanie wartości ze starych kolumn do nowych)
-            foreach (var (description, sql) in DataMigrations)
+            foreach (var (description, requiredColumns, sql) in DataMigrations)
             {
                 try
                 {
+                    var allColumnsExist = requiredColumns.All(rc =>
+                    {
+                        var parts = rc.Split('.', 2);
+                        return schemaColumns.TryGetValue(parts[0], out var cols) && cols.Contains(parts[1]);
+                    });
+                    if (!allColumnsExist)
+                        continue;
+
                     using var cmd = new MySqlCommand(sql, conn);
                     cmd.ExecuteNonQuery();
                 }
@@ -1078,6 +1176,64 @@ public static class DatabaseInitializerMySQL
 
         return result;
     }
+
+    /// <summary>
+    /// Odczytuje wszystkie kolumny bieżącej bazy jednym zapytaniem.
+    /// Porównania bez rozróżniania wielkości liter (lower_case_table_names=1 na Windows zwraca np. "p_pacjent").
+    /// </summary>
+    private static Dictionary<string, HashSet<string>> LoadSchemaColumns(MySqlConnection conn)
+    {
+        var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+
+        using var cmd = new MySqlCommand(
+            "SELECT t.table_name, c.column_name FROM information_schema.tables t " +
+            "LEFT JOIN information_schema.columns c " +
+            "  ON c.table_schema = t.table_schema AND c.table_name = t.table_name " +
+            "WHERE t.table_schema = DATABASE()", conn);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            var table = reader.GetString(0);
+            if (!result.TryGetValue(table, out var columns))
+                result[table] = columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (!reader.IsDBNull(1))
+                columns.Add(reader.GetString(1));
+        }
+
+        return result;
+    }
+
+    private static readonly string[] NonColumnPrefixes =
+        ["INDEX", "KEY", "UNIQUE", "PRIMARY", "FOREIGN", "CONSTRAINT", "FULLTEXT", "SPATIAL", "CHECK", "--", "#", "/*"];
+
+    /// <summary>
+    /// Wyciąga definicje kolumn (nazwa, typ) z instrukcji CREATE TABLE — jedna kolumna na linię.
+    /// AUTO_INCREMENT / PRIMARY KEY są pomijane (dotyczą tylko klucza, który istnieje razem z tabelą).
+    /// </summary>
+    private static IEnumerable<(string Column, string TypeDef)> ParseColumnDefinitions(string createTableSql)
+    {
+        var start = createTableSql.IndexOf('(');
+        var end = createTableSql.LastIndexOf(')');
+        if (start < 0 || end <= start)
+            yield break;
+
+        foreach (var rawLine in createTableSql[(start + 1)..end].Split('\n'))
+        {
+            var line = rawLine.Trim().TrimEnd(',').Trim();
+            if (line.Length == 0 || NonColumnPrefixes.Any(p => line.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
+                continue;
+
+            var match = System.Text.RegularExpressions.Regex.Match(line, @"^`?(\w+)`?\s+(.+)$");
+            if (!match.Success)
+                continue;
+
+            var typeDef = System.Text.RegularExpressions.Regex.Replace(
+                match.Groups[2].Value, @"\b(AUTO_INCREMENT|PRIMARY\s+KEY)\b", "",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase).Trim();
+
+            yield return (match.Groups[1].Value, typeDef);
+        }
+    }
 }
 
 /// <summary>
@@ -1089,6 +1245,7 @@ public class InitResult
     public string ServerName { get; set; } = string.Empty;
     public List<string> Created { get; } = [];
     public List<string> AlreadyExisted { get; } = [];
+    public List<string> ColumnsAdded { get; } = [];
     public List<string> Errors { get; } = [];
     public bool HasErrors => Errors.Count > 0;
     public int TotalTables => Created.Count + AlreadyExisted.Count;

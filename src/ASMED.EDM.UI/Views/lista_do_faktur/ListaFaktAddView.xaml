@@ -214,7 +214,9 @@
             <StackPanel x:Name="S_Wynik_S_Nr_Ksiegi" VerticalAlignment="Top" Height="100" Grid.Column="5">
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                     <TextBlock Text="Wynik" FontSize="10" Margin="0,0,0,5" VerticalAlignment="Top" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-                    <ComboBox ItemsSource="{Binding WynikOptions}" SelectedItem="{Binding SelectedWynik, Mode=TwoWay}" Height="28" Margin="0,0,5,0" />
+                    <ComboBox ItemsSource="{Binding WynikOptions}" DisplayMemberPath="Nazwa" SelectedValuePath="Kod"
+                              SelectedValue="{Binding SelectedWynik, Mode=TwoWay}"
+                              ToolTip="{Binding SelectedItem.Nazwa, RelativeSource={RelativeSource Self}}" Height="28" Margin="0,0,5,0" />
                 </StackPanel>
                 <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,0,10,-4">
                     <TextBlock Text="Nr Księgi" FontSize="10" Margin="0,3,0,5" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />

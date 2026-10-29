@@ -40,12 +40,14 @@ public interface IFakturaService
     // ── Zapis transakcyjny ────────────────────────────────────────────────────
 
     /// <summary>
-    /// Zapisuje listę badań i tworzy/aktualizuje fakturę — transakcja EF Core.
+    /// Zapisuje listę badań i tworzy/aktualizuje fakturę — jedna transakcja MySQL.
     /// Odpowiednik legacy: SaveListOfInvoiceAsync
     /// Kroki:
-    ///   1. Utwórz lub znajdź Faktura po NumerFaktury
-    ///   2. Utwórz lub zaktualizuj ListaBadan (z FirmaId, SumaRazem)
-    ///   3. Zaktualizuj Bad_L_ID i Bad_F_ID dla każdego badania na liście
+    ///   1. Znajdź (TRIM(FK_Numer)) lub utwórz Faktura
+    ///   2. Utwórz lub zaktualizuj ListyBadan (przy modyfikacji odpina poprzednie badania)
+    ///   3. Dla <see cref="SaveListaBadanRequest.Pozycje"/>: znajdź/utwórz pacjenta, utwórz skierowanie,
+    ///      INSERT/UPDATE Badanie (wygenerowane Id są wpisywane z powrotem do DTO)
+    ///   4. Ustaw Bad_L_ID, Bad_Fakt_ID, Bad_Fakt oraz FK_Suma_Bad / FK_Num_Listy
     /// </summary>
     Task<SaveListaBadanResult> SaveListaBadanAsync(
         SaveListaBadanRequest request,
@@ -53,7 +55,7 @@ public interface IFakturaService
         CancellationToken ct = default);
 
     /// <summary>
-    /// Odpina badania od listy i faktury — Bad_L_ID = null, Bad_F_ID = null.
+    /// Odpina badania od listy i faktury — Bad_L_ID = null, Bad_Fakt_ID = null.
     /// Access: UPDATE Badanie SET Bad_L_ID = 0, Bad_F_ID = 0
     /// </summary>
     Task UnassignBadaniaAsync(IEnumerable<int> badanieIds, CancellationToken ct = default);
@@ -61,7 +63,12 @@ public interface IFakturaService
 
 // ── DTOs żądania/odpowiedzi ────────────────────────────────────────────────────
 
-/// <summary>Dane żądania zapisu listy badań do faktury</summary>
+/// <summary>
+/// Dane żądania zapisu listy badań do faktury.
+/// Gdy podano <paramref name="Pozycje"/>, zapisywane są pełne dane pozycji (także dodane ręcznie,
+/// bez Bad_ID) a <paramref name="BadanieIds"/> jest ignorowane. Bez pozycji do listy przypisywane są
+/// tylko istniejące badania z <paramref name="BadanieIds"/>.
+/// </summary>
 public record SaveListaBadanRequest(
     int FirmaId,
     string? NumerFaktury,
@@ -70,7 +77,8 @@ public record SaveListaBadanRequest(
     string? Uwagi,
     string? NazwaCennika,
     IEnumerable<int> BadanieIds,
-    int? IstniejacaListaBadanId = null
+    int? IstniejacaListaBadanId = null,
+    IReadOnlyList<BadanieRowDto>? Pozycje = null
 );
 
 /// <summary>Wynik zapisu listy badań</summary>

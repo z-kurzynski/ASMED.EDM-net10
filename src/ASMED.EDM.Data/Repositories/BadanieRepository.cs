@@ -34,6 +34,7 @@ public class BadanieRepository : Repository<Badanie>, IBadanieRepository
                 Badanie.Bad_L_ID,
                 Badanie.Bad_F_ID,
                 Badanie.Bad_P_ID,
+                Badanie.Bad_S_ID,
                 Badanie.Bad_Data,
                 Badanie.Bad_Data_Do,
                 Badanie.Bad_Typ,

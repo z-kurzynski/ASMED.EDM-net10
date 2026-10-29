@@ -114,66 +114,66 @@
                 <TextBlock Text="Data badania:" FontSize="12"
                            VerticalAlignment="Center" Margin="0,0,6,0"
                            Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"/>
-                <DatePicker x:Name="bad_Laryn_data" SelectedDate="{Binding LaryngDataBadania, Mode=TwoWay}" Width="130" FontSize="12"/>
+                <DatePicker x:Name="bad_Laryn_data" SelectedDate="{Binding LaryngDataBadania, Mode=TwoWay}" IsEnabled="{Binding IsEdycjaMozliwa}" Width="130" FontSize="12"/>
             </StackPanel>
         </Grid>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding IsEdycjaMozliwa}">
             <StackPanel>
 
                 <!-- Status wykonania -->
                 <StackPanel Orientation="Horizontal">
                     <GroupBox Header="Status badania" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbLarStatus_Wykonano" Content="Wykonano"     GroupName="LarStatus" Style="{StaticResource ChipDoneStyle}" Width="102" IsChecked="True"/>
-                            <RadioButton x:Name="rbLarStatus_NieWykonano" Content="Nie wykonano" GroupName="LarStatus" Style="{StaticResource ChipNokStyle}" Width="102"/>
+                            <RadioButton x:Name="rbLarStatus_Wykonano" Content="Wykonano"     GroupName="LarStatus" Style="{StaticResource ChipDoneStyle}" Width="102" IsChecked="{Binding LarWykonano, Mode=TwoWay}"/>
+                            <RadioButton x:Name="rbLarStatus_NieWykonano" Content="Nie wykonano" GroupName="LarStatus" Style="{StaticResource ChipNokStyle}" Width="102" IsChecked="{Binding LarWykonano, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Karta VHI" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbVHI_Wypelniona" Content="Wypełniona"     GroupName="VHIStatus" Style="{StaticResource ChipDoneStyle}" Width="102"/>
-                            <RadioButton x:Name="rbVHI_Brak" Content="Brak" GroupName="VHIStatus" Style="{StaticResource ChipNokStyle}" IsChecked="True" Width="50"/>
-                            <TextBox x:Name="txtVHIOpis" TextWrapping="Wrap" Width="40" Margin="2,0,0,0"/>
+                            <RadioButton x:Name="rbVHI_Wypelniona" Content="Wypełniona"     GroupName="VHIStatus" Style="{StaticResource ChipDoneStyle}" Width="102" IsChecked="{Binding LarVhiWypelniona, Mode=TwoWay}"/>
+                            <RadioButton x:Name="rbVHI_Brak" Content="Brak" GroupName="VHIStatus" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarVhiWypelniona, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="50"/>
+                            <TextBox x:Name="txtVHIOpis" TextWrapping="Wrap" Width="40" Margin="2,0,0,0" MaxLength="100" Text="{Binding LarVhiOpis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <GroupBox Header="Krtań" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbKrtan_Prawidlowa" Content="Prawidłowa"    GroupName="LarKrtan" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
-                            <RadioButton x:Name="rbKrtan_Nieprawidlowa" Content="Nieprawidłowa" GroupName="LarKrtan" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                            <RadioButton x:Name="rbKrtan_Prawidlowa" Content="Prawidłowa"    GroupName="LarKrtan" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarKrtanPrawidlowa, Mode=TwoWay}" Width="100"/>
+                            <RadioButton x:Name="rbKrtan_Nieprawidlowa" Content="Nieprawidłowa" GroupName="LarKrtan" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarKrtanPrawidlowa, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="100"/>
                         </StackPanel>
                     </GroupBox>
 
                     <GroupBox Header="Nosogardło" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbNosogardlo_Prawidlowe" Content="Prawidłowe"    GroupName="LarNosogardlo" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
-                            <RadioButton x:Name="rbNosogardlo_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarNosogardlo" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                            <RadioButton x:Name="rbNosogardlo_Prawidlowe" Content="Prawidłowe"    GroupName="LarNosogardlo" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarNosogardloPrawidlowe, Mode=TwoWay}" Width="100"/>
+                            <RadioButton x:Name="rbNosogardlo_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarNosogardlo" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarNosogardloPrawidlowe, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="100"/>
                         </StackPanel>
                     </GroupBox>
 
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <GroupBox Header="Słuch" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbSluch_Prawidlowy" Content="Prawidłowy"    GroupName="LarSluch" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
-                            <RadioButton x:Name="rbSluch_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarSluch" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                            <RadioButton x:Name="rbSluch_Prawidlowy" Content="Prawidłowy"    GroupName="LarSluch" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarSluchPrawidlowy, Mode=TwoWay}" Width="100"/>
+                            <RadioButton x:Name="rbSluch_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarSluch" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarSluchPrawidlowy, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="100"/>
                         </StackPanel>
                     </GroupBox>
 
                     <GroupBox Header="Błony bębenkowe" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbBbebenkowe_Prawidlowe" Content="Prawidłowe"    GroupName="LarBbebenkowe" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
-                            <RadioButton x:Name="rbBbebenkowe_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarBbebenkowe" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                            <RadioButton x:Name="rbBbebenkowe_Prawidlowe" Content="Prawidłowe"    GroupName="LarBbebenkowe" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarBlonyPrawidlowe, Mode=TwoWay}" Width="100"/>
+                            <RadioButton x:Name="rbBbebenkowe_Nieprawidlowe" Content="Nieprawidłowe" GroupName="LarBbebenkowe" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarBlonyPrawidlowe, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="100"/>
                         </StackPanel>
                     </GroupBox>
 
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <GroupBox Header="Równowaga" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbRownowaga_Prawidlowa" Content="Prawidłowa"    GroupName="LarRownowaga" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="100"/>
-                            <RadioButton x:Name="rbRownowaga_Zaburzona" Content="Zaburzona"     GroupName="LarRownowaga" Style="{StaticResource ChipNokStyle}" Width="100"/>
+                            <RadioButton x:Name="rbRownowaga_Prawidlowa" Content="Prawidłowa"    GroupName="LarRownowaga" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarRownowagaPrawidlowa, Mode=TwoWay}" Width="100"/>
+                            <RadioButton x:Name="rbRownowaga_Zaburzona" Content="Zaburzona"     GroupName="LarRownowaga" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarRownowagaPrawidlowa, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="100"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -181,14 +181,14 @@
                 <StackPanel Orientation="Horizontal">
                     <GroupBox Header="Przeciwwskazania do pracy głosem" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbGlos_Brak" Content="brak"    GroupName="Glos_Wynik" Style="{StaticResource ChipOkStyle}" Width="100" IsChecked="True"/>
-                            <RadioButton x:Name="rbGlos_Tak" Content="tak" GroupName="Glos_Wynik" Style="{StaticResource ChipNokStyle}" Width="100" Panel.ZIndex="-3"/>
+                            <RadioButton x:Name="rbGlos_Brak" Content="brak"    GroupName="Glos_Wynik" Style="{StaticResource ChipOkStyle}" Width="100" IsChecked="{Binding LarPrzeciwwskazaniaGlos, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
+                            <RadioButton x:Name="rbGlos_Tak" Content="tak" GroupName="Glos_Wynik" Style="{StaticResource ChipNokStyle}" Width="100" Panel.ZIndex="-3" IsChecked="{Binding LarPrzeciwwskazaniaGlos, Mode=TwoWay}"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Wynik ogólny" Padding="8" Width="240">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbWynik_Prawidlowy" Content="Prawidłowy"    GroupName="LarWynik" Style="{StaticResource ChipOkStyle}" IsChecked="True"/>
-                            <RadioButton x:Name="rbWynik_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarWynik" Style="{StaticResource ChipNokStyle}"/>
+                            <RadioButton x:Name="rbWynik_Prawidlowy" Content="Prawidłowy"    GroupName="LarWynik" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding LarWynikPrawidlowy, Mode=TwoWay}"/>
+                            <RadioButton x:Name="rbWynik_Nieprawidlowy" Content="Nieprawidłowy" GroupName="LarWynik" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding LarWynikPrawidlowy, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -197,7 +197,7 @@
                 <!-- Uwagi -->
                 <GroupBox Header="Uwagi / Opis" Padding="8">
                     <TextBox x:Name="txtUwagi" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
-                             VerticalScrollBarVisibility="Auto"/>
+                             VerticalScrollBarVisibility="Auto" Text="{Binding LarUwagi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </GroupBox>
 
             </StackPanel>
@@ -212,8 +212,8 @@
                 Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
-                    Command="{Binding AnulujLaryngologCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
-                <Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+                    Command="{Binding AnulujLaryngologCommand}" IsEnabled="{Binding IsEdycjaMozliwa}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+                <Syncfusion:ButtonAdv Label="Wyczyść" Command="{Binding WyczyscLaryngologCommand}" IsEnabled="{Binding IsEdycjaMozliwa}"
                     Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
             </StackPanel>
         </Grid>

@@ -19,7 +19,10 @@ public class Badanie : BaseEntity
     /// <summary>Data ważności orzeczenia — Access: Bad_Data_Do</summary>
     public DateTime? DataWaznosci { get; set; }
 
-    /// <summary>Wynik badania (1-Pozytywne / 2-Negatywne) — Access: Bad_Wynik</summary>
+    /// <summary>
+    /// Wynik badania — symbol werdyktu EDM: 21 brak przeciwwskazań / 22 przeciwwskazania zdrowotne /
+    /// 23 utrata zdolności (zob. Helpers.WynikBadania) — Access: Bad_Wynik
+    /// </summary>
     public string? Wynik { get; set; }
 
     /// <summary>Numer księgi — Access: Bad_Nr_KS</summary>

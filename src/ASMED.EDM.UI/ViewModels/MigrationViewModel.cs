@@ -35,6 +35,7 @@ public partial class MigrationViewModel : ViewModelBase
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartMigrationCommand))]
     [NotifyCanExecuteChangedFor(nameof(VerifyCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AlignDataCommand))]
     private DatabaseConnectionItem? _selectedMySqlDatabase;
 
     [ObservableProperty]
@@ -50,6 +51,7 @@ public partial class MigrationViewModel : ViewModelBase
     [NotifyCanExecuteChangedFor(nameof(StartMigrationCommand))]
     [NotifyCanExecuteChangedFor(nameof(CancelMigrationCommand))]
     [NotifyCanExecuteChangedFor(nameof(VerifyCommand))]
+    [NotifyCanExecuteChangedFor(nameof(AlignDataCommand))]
     private bool _isMigrating;
 
     [ObservableProperty]
@@ -108,6 +110,10 @@ public partial class MigrationViewModel : ViewModelBase
         TableGroups.SelectMany(g => g.Tables).Any(t => t.IsSelected);
 
     public bool CanCancel => IsMigrating;
+
+    public bool CanAlignData =>
+        !IsMigrating &&
+        SelectedMySqlDatabase != null;
 
     public bool CanVerify =>
         !IsMigrating &&
@@ -624,6 +630,55 @@ public partial class MigrationViewModel : ViewModelBase
             StatusMessage = $"Błąd: {ex.Message}";
             AddLog($"❌ Błąd przywracania: {ex.Message}");
             _logger.LogError(ex, "Błąd przywracania kopii");
+        }
+        finally
+        {
+            IsMigrating = false;
+        }
+    }
+
+    // ── AlignDataAsync (dopasowanie danych po migracji) ─────────────────────────
+
+    [RelayCommand(CanExecute = nameof(CanAlignData))]
+    private async Task AlignDataAsync()
+    {
+        if (SelectedMySqlDatabase is null) return;
+
+        var confirm = System.Windows.MessageBox.Show(
+            $"Dopasowanie danych zmodyfikuje rekordy w bazie:\n{SelectedMySqlDatabase.DisplayName}\n\nKontynuować?",
+            "Potwierdzenie dopasowania danych",
+            System.Windows.MessageBoxButton.YesNo,
+            System.Windows.MessageBoxImage.Question);
+
+        if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+        IsMigrating = true;
+        StatusMessage = "Dopasowywanie danych...";
+        AddLog($"🔧 Dopasowanie danych w bazie: {SelectedMySqlDatabase.DisplayName}");
+
+        _cts = new CancellationTokenSource();
+
+        try
+        {
+            var progressHandler = new Progress<string>(msg =>
+            {
+                StatusMessage = msg;
+                AddLog($"   {msg}");
+            });
+
+            var (success, _, message) = await _migrationService.AlignDataAsync(
+                SelectedMySqlDatabase.ConnectionString,
+                progressHandler,
+                _cts.Token);
+
+            StatusMessage = message;
+            AddLog(success ? $"✅ {message}" : $"⚠️ {message}");
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Błąd: {ex.Message}";
+            AddLog($"❌ Błąd dopasowania danych: {ex.Message}");
+            _logger.LogError(ex, "Błąd dopasowania danych");
         }
         finally
         {

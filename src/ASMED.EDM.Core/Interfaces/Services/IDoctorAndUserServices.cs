@@ -50,6 +50,13 @@ public interface IUserService
 
     // Authentication & Security
     Task<User?> AuthenticateAsync(string username, string password, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Uwierzytelnia użytkownika i zwraca szczegółowy wynik (m.in. powód niepowodzenia: błędne dane,
+    /// konto nieaktywne, konto zablokowane). Błędy bazy danych są propagowane jako wyjątki.
+    /// </summary>
+    Task<AuthenticationResult> TryAuthenticateAsync(string username, string password, CancellationToken cancellationToken = default);
+
     Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword, CancellationToken cancellationToken = default);
     Task<bool> AdminSetPasswordAsync(int userId, string newPassword, CancellationToken cancellationToken = default);
     Task<string> GeneratePasswordResetTokenAsync(int userId, CancellationToken cancellationToken = default);

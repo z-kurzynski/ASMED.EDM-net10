@@ -13,9 +13,13 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="Orzeczenie" FontSize="20" FontWeight="Bold" Margin="0,0,0,8"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+            <TextBlock Text="Orzeczenie" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="{Binding OrzeczenieNumerInfo}" FontSize="16" FontWeight="SemiBold" Margin="16,0,0,0" VerticalAlignment="Bottom"
+                       Foreground="{DynamicResource UI.Text.Selected}" ToolTip="Numer orzeczenia z rejestru"/>
+        </StackPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding IsEdycjaMozliwa}">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel x:Name="BadnietDatePanel" Height="50" Margin="20,0,0,0">
@@ -60,21 +64,25 @@
                 </StackPanel>
                 <GroupBox Header="Zdolność do pracy" Padding="8" Margin="10,10,10,0" BorderBrush="{DynamicResource UI.Background.Column}">
                     <StackPanel>
-                        <RadioButton x:Name="zdolny" Margin="0,2" Padding="4,0,0,0" IsChecked="True">
+                        <RadioButton x:Name="zdolny" Margin="0,2" Padding="4,0,0,0" GroupName="Werdykt" IsChecked="{Binding IsWerdykt21, Mode=TwoWay}">
                             <TextBlock Text="wobec braku przeciwwskazań zdrowotnych jest zdolny(-na) do wykonywania-podjęcia*) pracy na określonym stanowisku (symbol 21)*) " TextWrapping="Wrap" Foreground="#FF0E7134" Margin="0,0,0,5" FontWeight="Bold"/>
                         </RadioButton>
-                        <RadioButton x:Name="niezdolny" Margin="0,2">
+                        <RadioButton x:Name="niezdolny" Margin="0,2" GroupName="Werdykt" IsChecked="{Binding IsWerdykt22, Mode=TwoWay}">
                             <TextBlock Text="wobec istnienia przeciwwskazań zdrowotnych jest niezdolny(-na) do wykonywania-podjęcia*) pracy na określonym stanowisku (symbol 22)*) " TextWrapping="Wrap" Margin="0,0,0,5" Foreground="{DynamicResource UI.Background.Row}" FontWeight="Bold"/>
                         </RadioButton>
-                        <RadioButton x:Name="utracił_zdolnosc">
+                        <RadioButton x:Name="utracił_zdolnosc" GroupName="Werdykt" IsChecked="{Binding IsWerdykt23, Mode=TwoWay}">
                             <TextBlock Text="wobec istnienia przeciwwskazań zdrowotnych utracił(a) zdolność do wykonywania dotychczasowej pracy z dniem ..  (symbol 23)*).  " TextWrapping="Wrap" Foreground="{DynamicResource UI.Background.Row}" FontWeight="Bold" Margin="0,0,0,8"/>
                         </RadioButton>
                         <StackPanel Orientation="Vertical">
-                            <DatePicker Width="150" HorizontalAlignment="Left" Margin="17,0,0,0"/>
+                            <DatePicker Width="150" HorizontalAlignment="Left" Margin="17,0,0,0"
+                                        SelectedDate="{Binding DataUtratyZdolnosci, Mode=TwoWay}"
+                                        IsEnabled="{Binding IsWerdykt23}"
+                                        ToolTip="Data utraty zdolności do pracy (symbol 23)"/>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" Margin="0,5,0,5">
                             <TextBlock Text="Uzasadnienie:" Width="132" HorizontalAlignment="Left" Margin="0,0,0,5"/>
-                            <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" VerticalScrollBarVisibility="Auto" Height="50"/>
+                            <TextBox AcceptsReturn="True" TextWrapping="Wrap" MinHeight="50" VerticalScrollBarVisibility="Auto" Height="50"
+                                     Text="{Binding Uzasadnienie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
@@ -104,6 +112,7 @@
                               ItemsSource="{Binding DostepniLekarze}"
                               SelectedItem="{Binding SelectedLekarz, Mode=TwoWay}"
                               DisplayMemberPath="Label"
+                              IsEnabled="{Binding IsNiePodpisane}"
                               ToolTip="Wybierz lekarza (orzecznika), w imieniu którego wystawiane jest orzeczenie"
                               Visibility="{Binding IsWyborLekarzaDostepny, Converter={StaticResource BooleanToVisibilityConverter}}" MaxDropDownHeight="200"/>
                     <TextBlock Grid.Row="0" Grid.Column="2" Text="PWZ:" FontWeight="Bold" Margin="0,0,8,4"/>
@@ -135,12 +144,20 @@
                 </Grid>
             </GroupBox>
 
-            <StackPanel Orientation="Horizontal" Height="39" HorizontalAlignment="Right">
-                <Syncfusion:ButtonAdv Label="Podpisz"
-                    Command="{Binding ZatwierdzCommand}" Foreground="{DynamicResource UI.Text.Primary}" BorderBrush="#FF707070" FontStyle="Normal" BorderThickness="1,1,2,2" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
-                <Syncfusion:ButtonAdv Label="Drukuj"
-                    Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource Navigation.TabActive}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding PodpisInfo}" TextWrapping="Wrap" VerticalAlignment="Center"
+                           Margin="10,0,10,0" FontWeight="SemiBold" Foreground="#FF0E7134"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Height="39" HorizontalAlignment="Right">
+                    <Syncfusion:ButtonAdv Label="{Binding PodpiszLabel}"
+                        Command="{Binding PodpiszCommand}" ToolTip="Podpisz orzeczenie (blokuje edycję) — zapis następuje po „Zatwierdź”" Foreground="{DynamicResource UI.Text.Primary}" BorderBrush="#FF707070" FontStyle="Normal" BorderThickness="1,1,2,2" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+                    <Syncfusion:ButtonAdv Label="Drukuj"
+                        Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource Navigation.TabActive}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
+                </StackPanel>
+            </Grid>
         </StackPanel>
     </Grid>
 </UserControl>

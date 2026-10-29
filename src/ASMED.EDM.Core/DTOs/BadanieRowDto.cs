@@ -8,8 +8,11 @@ public class BadanieRowDto
 {
     public int?     Bad_ID        { get; set; }
     public int?     Bad_L_ID      { get; set; }
+    /// <summary>ID faktury (Badanie.Bad_F_ID) — to samo co Bad_Fakt_ID.</summary>
     public int?     Bad_F_ID      { get; set; }
     public int?     Bad_P_ID      { get; set; }
+    /// <summary>ID skierowania (Badanie.Bad_S_ID)</summary>
+    public int?     Bad_S_ID      { get; set; }
 
     public DateTime? Bad_Data     { get; set; }
     public DateTime? Bad_Data_Do  { get; set; }

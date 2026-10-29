@@ -51,7 +51,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
 
         OpenSkierPacjWoborCommand = new RelayCommand(ExecuteOpenSkierPacjWobor);
         AnulujCommand = new RelayCommand(ExecuteAnuluj);
-        ZatwierdzCommand = new RelayCommand(ExecuteZatwierdz, CanExecuteZatwierdz);
+        ZatwierdzCommand = new AsyncRelayCommand(ExecuteZatwierdzAsync, CanExecuteZatwierdz);
 
         _waznoscBadaniaDo = (_customDefaultDate ?? DateTime.Today).AddYears(3);
         _validityYears = 3;
@@ -277,9 +277,10 @@ public partial class OrzeczenieViewModel : ViewModelBase
     public IRelayCommand AnulujCommand { get; }
 
     /// <summary>
-    /// Przycisk "Zatwierdź" - zmienia status wybranej pozycji na "Orzeczenie".
+    /// Przycisk "Zatwierdź" - zapisuje podpisane orzeczenie w całości (OrzeczenieService)
+    /// i zmienia status wizyty na "Orzeczenie". Aktywny dopiero po podpisie.
     /// </summary>
-    public IRelayCommand ZatwierdzCommand { get; }
+    public IAsyncRelayCommand ZatwierdzCommand { get; }
 
     private void ExecuteOpenSkierPacjWobor()
     {
@@ -294,62 +295,6 @@ public partial class OrzeczenieViewModel : ViewModelBase
         SelectedWizyta = null;
     }
 
-    private bool CanExecuteZatwierdz() => SelectedWizyta != null;
-
-    private void ExecuteZatwierdz()
-    {
-        if (SelectedWizyta == null) return;
-
-        var rId = SelectedWizyta.R_ID;
-        if (rId == null) return;
-
-        const string newStatus = "Orzeczenie";
-
-        if (!UpdateStatusInDb(rId.Value, newStatus))
-        {
-            return;
-        }
-
-        SelectedWizyta.R_Status = newStatus;
-        _logger?.LogInformation("OrzeczenieViewModel: status zmieniony na 'Orzeczenie' dla R_ID={R_ID}", rId);
-
-        // Odswiez filtrowana liste - pozycja ze statusem "Orzeczenie" nie spelnia juz kryteriow filtra.
-        ApplyFilter();
-        SelectedWizyta = null;
-    }
-
-    private bool UpdateStatusInDb(int rId, string newStatus)
-    {
-        if (_dbFactory == null)
-        {
-            _logger?.LogWarning("DbConnectionFactory not available, cannot update R_Status");
-            return false;
-        }
-
-        try
-        {
-            using var conn = _dbFactory.CreateConnection();
-            conn.Open();
-            using var cmd = (MySqlCommand)conn.CreateCommand();
-            cmd.CommandText = "UPDATE Rejestracja SET R_Status = @status WHERE R_ID = @id";
-            cmd.Parameters.AddWithValue("@status", newStatus);
-            cmd.Parameters.AddWithValue("@id", rId);
-            var affected = cmd.ExecuteNonQuery();
-
-            if (affected == 0)
-            {
-                _logger?.LogWarning("UpdateStatusInDb: brak zaktualizowanych wierszy dla R_ID={R_ID}", rId);
-            }
-
-            return affected > 0;
-        }
-        catch (Exception ex)
-        {
-            _logger?.LogError(ex, "Blad podczas aktualizacji R_Status dla R_ID={R_ID}", rId);
-            return false;
-        }
-    }
-
     /// <summary>
     /// Przełącza (toggle) fragment typu badania ("W", "K" lub "O") w wartości
     /// SelectedWizyta.B_TypBadania i zapisuje ją do B_Skierowania.B_TypBadania.
@@ -358,7 +303,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     /// </summary>
     private void ToggleTypBadania(string typ)
     {
-        if (SelectedWizyta == null || SelectedWizyta.B_ID == null) return;
+        if (SelectedWizyta == null || SelectedWizyta.B_ID == null || IsPodpisane) return;
 
         var current = SelectedWizyta.B_typ ?? string.Empty;
         var parts = current.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
@@ -437,8 +382,17 @@ public partial class OrzeczenieViewModel : ViewModelBase
 
     partial void OnSelectedWizytaChanged(OrzeczenieListItem? value)
     {
-        ZatwierdzCommand.NotifyCanExecuteChanged();
         OnPropertyChanged(nameof(IsWizytaSelected));
+
+        // Ciche odświeżenie listy podmienia obiekt na nowy z bazy — zachowaj niezapisaną
+        // jeszcze datę skierowania wpisaną dla tego samego skierowania.
+        var poprzednia = _poprzedniaWizyta;
+        _poprzedniaWizyta = value;
+        if (value != null && poprzednia != null && !ReferenceEquals(value, poprzednia)
+            && value.B_ID != null && value.B_ID == poprzednia.B_ID && poprzednia.B_DataSkierowania != null)
+        {
+            value.B_DataSkierowania = poprzednia.B_DataSkierowania;
+        }
 
         if (value != null && value.B_DataSkierowania == null)
         {
@@ -462,9 +416,12 @@ public partial class OrzeczenieViewModel : ViewModelBase
         {
             _suppressDbSave = false;
         }
+
+        OnWizytaFormularzChanged(value);
     }
 
     private bool _suppressDbSave;
+    private OrzeczenieListItem? _poprzedniaWizyta;
 
     /// <summary>
     /// Zwraca dzień poprzedzający podaną datę o 1 dzień, ale zawsze w zakresie
@@ -782,6 +739,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleSanitarne()
     {
+        if (IsPodpisane) return;
         IsSanitarneActive = !IsSanitarneActive;
 
         if (!IsSanitarneActive)
@@ -797,7 +755,10 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void AnulujSanitarne()
     {
+        if (IsPodpisane) return;
         IsSanitarneActive = false;
+        ResetSanitarnePola();
+        SanitarneDataBadania = CustomDefaultDate;
         SelectedTabIndex = 0;
     }
 
@@ -808,6 +769,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleUrlop()
     {
+        if (IsPodpisane) return;
         IsUrlopActive = !IsUrlopActive;
 
         if (!IsUrlopActive)
@@ -823,7 +785,9 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void AnulujUrlop()
     {
+        if (IsPodpisane) return;
         IsUrlopActive = false;
+        ResetUrlopPola();
         SelectedTabIndex = 0;
     }
 
@@ -844,6 +808,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleBadanie()
     {
+        if (IsPodpisane) return;
         IsBadanieActive = !IsBadanieActive;
 
         SelectedTabIndex = IsBadanieActive
@@ -874,6 +839,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleLaryngolog()
     {
+        if (IsPodpisane) return;
         IsLaryngologActive = !IsLaryngologActive;
 
         if (!IsLaryngologActive)
@@ -889,7 +855,10 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void AnulujLaryngolog()
     {
+        if (IsPodpisane) return;
         IsLaryngologActive = false;
+        ResetLaryngologPola();
+        LaryngDataBadania = CustomDefaultDate;
         SelectedTabIndex = 0;
     }
 
@@ -900,6 +869,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleOkulista()
     {
+        if (IsPodpisane) return;
         IsOkulistaActive = !IsOkulistaActive;
 
         if (!IsOkulistaActive)
@@ -915,7 +885,10 @@ public partial class OrzeczenieViewModel : ViewModelBase
     [RelayCommand]
     private void AnulujOkulista()
     {
+        if (IsPodpisane) return;
         IsOkulistaActive = false;
+        ResetOkulistaPola();
+        OkuDataBadania = CustomDefaultDate;
         SelectedTabIndex = 0;
     }
 

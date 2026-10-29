@@ -49,6 +49,9 @@ public partial class App : Application
             e.SetObserved();
         };
 
+        // Błędy zapytań SQL (np. nieznana kolumna) — log + powiadomienie, nawet gdy kod je przechwytuje
+        Services.DatabaseErrorMonitor.Start();
+
         // Ustawienie polskiej kultury
         System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("pl-PL");
         System.Globalization.CultureInfo.DefaultThreadCurrentUICulture = new System.Globalization.CultureInfo("pl-PL");

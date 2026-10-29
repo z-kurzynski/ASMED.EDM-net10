@@ -114,50 +114,50 @@
                 <TextBlock Text="Data badania:" FontSize="12"
                            VerticalAlignment="Center" Margin="0,0,6,0"
                            Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"/>
-                <DatePicker x:Name="bad_Oku_data" Width="130" FontSize="12"
+                <DatePicker x:Name="bad_Oku_data" Width="130" FontSize="12" IsEnabled="{Binding IsEdycjaMozliwa}"
                             SelectedDate="{Binding OkuDataBadania, Mode=TwoWay}"/>
             </StackPanel>
         </Grid>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding IsEdycjaMozliwa}">
             <StackPanel>
 
                 <!-- Status wykonania -->
                 <GroupBox Header="Status badania" Margin="0,0,0,8" Padding="8">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton x:Name="rbOkuStatus_Wykonano" Content="Wykonano"     GroupName="OkuStatus" Style="{StaticResource ChipDoneStyle}" IsChecked="True" Width="110"/>
-                        <RadioButton x:Name="rbOkuStatus_NieWykonano" Content="Nie wykonano" GroupName="OkuStatus" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                        <RadioButton x:Name="rbOkuStatus_Wykonano" Content="Wykonano"     GroupName="OkuStatus" Style="{StaticResource ChipDoneStyle}" IsChecked="{Binding OkuWykonano, Mode=TwoWay}" Width="110"/>
+                        <RadioButton x:Name="rbOkuStatus_NieWykonano" Content="Nie wykonano" GroupName="OkuStatus" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding OkuWykonano, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="110"/>
                     </StackPanel>
                 </GroupBox>
 
                 <!-- Ostrość wzroku -->
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <GroupBox Header="Widzenie barw" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbOkuBarwy_Prawidlowe" Content="Prawidłowe"    GroupName="OkuBarwy" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="110"/>
-                            <RadioButton x:Name="rbOkuBarwy_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuBarwy" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                            <RadioButton x:Name="rbOkuBarwy_Prawidlowe" Content="Prawidłowe"    GroupName="OkuBarwy" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding OkuBarwyPrawidlowe, Mode=TwoWay}" Width="110"/>
+                            <RadioButton x:Name="rbOkuBarwy_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuBarwy" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding OkuBarwyPrawidlowe, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="110"/>
                         </StackPanel>
                     </GroupBox>
 
                     <GroupBox Header="Pole widzenia" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbOkuPoleWidz_Prawidlowe" Content="Prawidłowe"    GroupName="OkuPoleWidz" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="110"/>
-                            <RadioButton x:Name="rbOkuPoleWidz_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuPoleWidz" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                            <RadioButton x:Name="rbOkuPoleWidz_Prawidlowe" Content="Prawidłowe"    GroupName="OkuPoleWidz" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding OkuPolePrawidlowe, Mode=TwoWay}" Width="110"/>
+                            <RadioButton x:Name="rbOkuPoleWidz_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuPoleWidz" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding OkuPolePrawidlowe, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="110"/>
                         </StackPanel>
                     </GroupBox>
 
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <GroupBox Header="Widzenie obuoczne" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbOkuObuoczne_Prawidlowe" Content="Prawidłowe"    GroupName="OkuObuoczne" Style="{StaticResource ChipOkStyle}" Width="110" IsChecked="True"/>
-                            <RadioButton x:Name="rbOkuObuoczne_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuObuoczne" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                            <RadioButton x:Name="rbOkuObuoczne_Prawidlowe" Content="Prawidłowe"    GroupName="OkuObuoczne" Style="{StaticResource ChipOkStyle}" Width="110" IsChecked="{Binding OkuObuocznePrawidlowe, Mode=TwoWay}"/>
+                            <RadioButton x:Name="rbOkuObuoczne_Nieprawidlowe" Content="Nieprawidłowe" GroupName="OkuObuoczne" Style="{StaticResource ChipNokStyle}" Width="110" IsChecked="{Binding OkuObuocznePrawidlowe, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Wynik ogólny" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbOkuWynik_Prawidlowy" Content="Prawidłowe"    GroupName="OkuWynik" Style="{StaticResource ChipOkStyle}" Width="110" IsChecked="True"/>
-                            <RadioButton x:Name="rbOkuWynik_Nieprawidlowy" Content="Nieprawidłowe" GroupName="OkuWynik" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                            <RadioButton x:Name="rbOkuWynik_Prawidlowy" Content="Prawidłowe"    GroupName="OkuWynik" Style="{StaticResource ChipOkStyle}" Width="110" IsChecked="{Binding OkuWynikPrawidlowy, Mode=TwoWay}"/>
+                            <RadioButton x:Name="rbOkuWynik_Nieprawidlowy" Content="Nieprawidłowe" GroupName="OkuWynik" Style="{StaticResource ChipNokStyle}" Width="110" IsChecked="{Binding OkuWynikPrawidlowy, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -165,14 +165,14 @@
                 <StackPanel Orientation="Horizontal">
                     <GroupBox Header="Przeciwwskazania do pracy przy monitorze:" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbMonitor_Brak" Content="Brak"    GroupName="Monitor" Style="{StaticResource ChipOkStyle}" IsChecked="True" Width="110"/>
-                            <RadioButton x:Name="rbMonitor_Przeciwwskazanie" Content="Przeciwskazanie" GroupName="Monitor" Style="{StaticResource ChipNokStyle}" Width="110"/>
+                            <RadioButton x:Name="rbMonitor_Brak" Content="Brak"    GroupName="Monitor" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding OkuPrzeciwwskazaniaMonitor, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}" Width="110"/>
+                            <RadioButton x:Name="rbMonitor_Przeciwwskazanie" Content="Przeciwskazanie" GroupName="Monitor" Style="{StaticResource ChipNokStyle}" IsChecked="{Binding OkuPrzeciwwskazaniaMonitor, Mode=TwoWay}" Width="110"/>
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Header="Używa okularów" Padding="8">
                         <StackPanel Orientation="Horizontal">
-                            <RadioButton x:Name="rbOkulary_Uzywa" Content="Używa"    GroupName="Okulary" Style="{StaticResource ChipOkStyle}" Width="110"/>
-                            <RadioButton x:Name="rbOkulary_Bez" Content="Bez Okularów" GroupName="Okulary" Style="{StaticResource ChipNokStyle}" Width="110" IsChecked="True"/>
+                            <RadioButton x:Name="rbOkulary_Uzywa" Content="Używa"    GroupName="Okulary" Style="{StaticResource ChipOkStyle}" IsChecked="{Binding OkuUzywaOkularow, Mode=TwoWay}" Width="110"/>
+                            <RadioButton x:Name="rbOkulary_Bez" Content="Bez Okularów" GroupName="Okulary" Style="{StaticResource ChipNokStyle}" Width="110" IsChecked="{Binding OkuUzywaOkularow, Mode=TwoWay, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -191,7 +191,7 @@
                 <!-- Uwagi -->
                 <GroupBox Header="Uwagi / Opis" Padding="8">
                     <TextBox x:Name="tbOkuUwagi" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="80"
-                             VerticalScrollBarVisibility="Auto"/>
+                             VerticalScrollBarVisibility="Auto" Text="{Binding OkuUwagi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </GroupBox>
 
             </StackPanel>
@@ -206,8 +206,8 @@
                 Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
-                    Command="{Binding AnulujOkulistaCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
-                <Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+                    Command="{Binding AnulujOkulistaCommand}" IsEnabled="{Binding IsEdycjaMozliwa}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+                <Syncfusion:ButtonAdv Label="Wyczyść" Command="{Binding WyczyscOkulistaCommand}" IsEnabled="{Binding IsEdycjaMozliwa}"
                     Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
             </StackPanel>
         </Grid>

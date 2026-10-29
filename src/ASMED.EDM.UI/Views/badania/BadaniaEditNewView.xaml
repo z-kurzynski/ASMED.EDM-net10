@@ -441,13 +441,13 @@
                                     <TextBlock Text="Data Badania" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <syncfusion:SfDatePicker x:Name="Data_Bad_Karta" Value="{Binding DataBadania, Mode=TwoWay}" 
                                                 FormatString="dd.MM.yyyy" Width="140" 
-                                                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold" AllowNull="True" AllowInlineEditing="True" SelectorFormatString="dd.MM.yyyy" SelectorItemCount="-3"/>
+                                                FontWeight="Bold" AllowNull="False" AllowInlineEditing="True" SelectorFormatString="dd.MM.yyyy" SelectorItemCount="-3"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Data Ważności" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <syncfusion:SfDatePicker x:Name="Data_Waznosci_Bad" Value="{Binding DataWaznosci, Mode=TwoWay}" 
                                                 FormatString="dd.MM.yyyy" Width="140" 
-                                                Foreground="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" FontWeight="Bold" AllowNull="True" AllowInlineEditing="True"/>
+                                                FontWeight="Bold" AllowNull="False" AllowInlineEditing="True" SelectorFormatString="dd.MM.yyyy"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical">
                                     <TextBlock Text="bez Daty" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Margin="0,0,10,0"/>
@@ -458,7 +458,8 @@
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Wynik" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
                                     <ComboBox x:Name="Wynik_Bad" ItemsSource="{Binding WynikOptions}" 
-                                                SelectedItem="{Binding SelectedWynik, Mode=TwoWay}" Width="130" FontSize="11"/>
+                                                DisplayMemberPath="Nazwa" SelectedValuePath="Kod"
+                                                SelectedValue="{Binding SelectedWynik, Mode=TwoWay}" Width="200" FontSize="11"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Vertical" Margin="0,0,8,0">
                                     <TextBlock Text="Nr Księgi" FontSize="11" Foreground="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>

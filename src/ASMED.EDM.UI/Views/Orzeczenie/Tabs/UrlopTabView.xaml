@@ -15,7 +15,7 @@
 
         <TextBlock Grid.Row="0" Text="Urlop dla poratowania zdrowia" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding IsEdycjaMozliwa}">
             <StackPanel>
                 <GroupBox Header="Okres urlopu" Margin="0,0,0,8" Padding="8">
                     <Grid>
@@ -36,7 +36,7 @@
                 </GroupBox>
                 <GroupBox Header="Uzasadnienie" Padding="8">
                     <TextBox x:Name="tbUrlopUzasadnienie" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
-                             VerticalScrollBarVisibility="Auto"/>
+                             VerticalScrollBarVisibility="Auto" Text="{Binding UrlopUzasadnienie, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </GroupBox>
             </StackPanel>
         </ScrollViewer>
@@ -50,10 +50,10 @@
                 Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
-                    Command="{Binding AnulujUrlopCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+                    Command="{Binding AnulujUrlopCommand}" IsEnabled="{Binding IsEdycjaMozliwa}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
                 <Syncfusion:ButtonAdv Label="Drukuj"
                     Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
-                <Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+                <Syncfusion:ButtonAdv Label="Wyczyść" Command="{Binding WyczyscUrlopCommand}" IsEnabled="{Binding IsEdycjaMozliwa}"
                     Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
             </StackPanel>
         </Grid>

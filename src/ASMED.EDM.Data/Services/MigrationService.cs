@@ -854,4 +854,104 @@ public class MigrationService : IMigrationService
             return (false, 0, $"Błąd kopiowania bazy: {ex.Message}");
         }
     }
+
+    // ── AlignDataAsync (dopasowanie danych po migracji) ─────────────────────────────
+
+    // Kolumny wymagane przez kroki dopasowania — dodawane, jeśli nie istnieją.
+    private static readonly (string Table, string Column, string TypeDef)[] AlignRequiredColumns =
+    [
+        ("B_Skierowania", "B_Bad", "TINYINT(1) NULL"),
+    ];
+
+    // Kolejne SQL dopasowujące dane dopisujemy na końcu listy.
+    // Każdy krok musi być idempotentny (bezpieczny do wielokrotnego uruchomienia).
+    private static readonly (string Description, string Sql)[] AlignDataSteps =
+    [
+        // Badanie.Bad_Cena1-7 > 0 → odpowiedni znacznik w B_Skierowania = 1
+        // (ustawia tylko 1, nie kasuje istniejących zaznaczeń)
+        ("B_Skierowania: znaczniki badań wg cen w Badanie (Bad_Cena1-7)", """
+            UPDATE `B_Skierowania` s
+            INNER JOIN `Badanie` b ON s.B_ID = b.Bad_S_ID
+            SET s.B_Bad           = IF(IFNULL(b.Bad_Cena1, 0) > 0, 1, s.B_Bad),
+                s.B_laryngolog    = IF(IFNULL(b.Bad_Cena2, 0) > 0, 1, s.B_laryngolog),
+                s.B_okulista      = IF(IFNULL(b.Bad_Cena3, 0) > 0, 1, s.B_okulista),
+                s.B_ksiazeczka    = IF(IFNULL(b.Bad_Cena4, 0) > 0, 1, s.B_ksiazeczka),
+                s.B_Lipidogram    = IF(IFNULL(b.Bad_Cena5, 0) > 0, 1, s.B_Lipidogram),
+                s.B_EKG           = IF(IFNULL(b.Bad_Cena6, 0) > 0, 1, s.B_EKG),
+                s.B_Zaswiadczenie = IF(IFNULL(b.Bad_Cena7, 0) > 0, 1, s.B_Zaswiadczenie)
+            WHERE IFNULL(b.Bad_Cena1, 0) > 0 OR IFNULL(b.Bad_Cena2, 0) > 0
+               OR IFNULL(b.Bad_Cena3, 0) > 0 OR IFNULL(b.Bad_Cena4, 0) > 0
+               OR IFNULL(b.Bad_Cena5, 0) > 0 OR IFNULL(b.Bad_Cena6, 0) > 0
+               OR IFNULL(b.Bad_Cena7, 0) > 0
+            """),
+    ];
+
+    public async Task<(bool Success, int StepsExecuted, string Message)> AlignDataAsync(
+        string mysqlConnectionString,
+        IProgress<string>? progress = null,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await using var conn = new MySqlConnection(mysqlConnectionString);
+            await conn.OpenAsync(cancellationToken);
+
+            foreach (var (table, column, typeDef) in AlignRequiredColumns)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                await using var checkCmd = new MySqlCommand(
+                    "SELECT COUNT(*) FROM information_schema.columns " +
+                    "WHERE table_schema = DATABASE() AND table_name = @table AND column_name = @column", conn);
+                checkCmd.Parameters.AddWithValue("@table", table);
+                checkCmd.Parameters.AddWithValue("@column", column);
+
+                if (Convert.ToInt32(await checkCmd.ExecuteScalarAsync(cancellationToken)) == 0)
+                {
+                    await using var alterCmd = new MySqlCommand(
+                        $"ALTER TABLE `{table}` ADD COLUMN `{column}` {typeDef}", conn);
+                    await alterCmd.ExecuteNonQueryAsync(cancellationToken);
+                    progress?.Report($"➕ Dodano kolumnę {table}.{column}");
+                }
+            }
+
+            int executed = 0;
+            int errors   = 0;
+
+            for (int i = 0; i < AlignDataSteps.Length; i++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var (description, sql) = AlignDataSteps[i];
+                progress?.Report($"[{i + 1}/{AlignDataSteps.Length}] {description}...");
+
+                try
+                {
+                    await using var cmd = new MySqlCommand(sql, conn) { CommandTimeout = 600 };
+                    var rows = await cmd.ExecuteNonQueryAsync(cancellationToken);
+                    executed++;
+                    progress?.Report($"✅ {description} — wierszy: {rows}");
+                    _logger.LogInformation("Dopasowanie danych: {Step} — {Rows} wierszy", description, rows);
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    errors++;
+                    progress?.Report($"❌ {description}: {ex.Message}");
+                    _logger.LogWarning(ex, "Błąd kroku dopasowania danych: {Step}", description);
+                }
+            }
+
+            var msg = $"Dopasowanie danych zakończone: {executed}/{AlignDataSteps.Length} kroków" +
+                      (errors > 0 ? $", błędów: {errors}." : ".");
+            return (errors == 0, executed, msg);
+        }
+        catch (OperationCanceledException)
+        {
+            return (false, 0, "Dopasowanie danych anulowane.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Błąd dopasowania danych");
+            return (false, 0, $"Błąd dopasowania danych: {ex.Message}");
+        }
+    }
 }

@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.Helpers;
 using ASMED.EDM.Data.Services;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -149,7 +150,7 @@ namespace ASMED.EDM.UI.Views.Skierowania
                         Bad_Typ    = reader["Bad_Typ"]?.ToString(),
                         Bad_Data   = reader["Bad_Data"] == DBNull.Value ? null : Convert.ToDateTime(reader["Bad_Data"]),
                         Bad_Data_Do= reader["Bad_Data_Do"] == DBNull.Value ? null : Convert.ToDateTime(reader["Bad_Data_Do"]),
-                        Bad_Wynik  = reader["Bad_Wynik"]?.ToString()
+                        Bad_Wynik  = WynikBadania.Opis(reader["Bad_Wynik"]?.ToString())
                     });
                 }
             }

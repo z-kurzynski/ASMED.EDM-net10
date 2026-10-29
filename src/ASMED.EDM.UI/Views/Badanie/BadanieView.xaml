@@ -116,6 +116,9 @@
 
                             <syncfusion:SfDatePicker Value="{Binding CustomDefaultDate, Mode=TwoWay}" 
                                 FormatString="dd.MM.yyyy"
+                                SelectorFormatString="dd.MM.yyyy"
+                                AllowNull="True"
+                                AllowInlineEditing="True"
                                 Width="120" 
                                 FontSize="18"
                                 ToolTip="Data która będzie ustawiana jako Data Badania przy wyborze karty" Height="30"/>

@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 using ASMED.EDM.Core.Interfaces.Repositories;
 using ASMED.EDM.Core.Interfaces.Services;
@@ -186,6 +187,9 @@ public class UserService : IUserService
     // ==================== AUTHENTICATION & SECURITY ====================
 
     public async Task<User?> AuthenticateAsync(string username, string password, CancellationToken cancellationToken = default)
+        => (await TryAuthenticateAsync(username, password, cancellationToken)).User;
+
+    public async Task<AuthenticationResult> TryAuthenticateAsync(string username, string password, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Próba logowania użytkownika: {Username}", username);
 
@@ -196,19 +200,30 @@ public class UserService : IUserService
             if (user == null)
             {
                 _logger.LogWarning("Użytkownik {Username} nie istnieje", username);
-                return null;
+                return AuthenticationResult.Failed(AuthenticationFailureReason.InvalidCredentials);
             }
 
             if (!user.IsActive)
             {
                 _logger.LogWarning("Użytkownik {Username} jest nieaktywny", username);
-                return null;
+                return AuthenticationResult.Failed(AuthenticationFailureReason.Inactive);
             }
+
+            var now = DateTime.UtcNow;
 
             if (user.IsLocked)
             {
-                _logger.LogWarning("Konto użytkownika {Username} jest zablokowane", username);
-                return null;
+                // Blokada czasowa (po nieudanych próbach) wygasa automatycznie; blokada bez daty jest bezterminowa
+                if (user.LockedUntil.HasValue && user.LockedUntil.Value <= now)
+                {
+                    _logger.LogInformation("Blokada konta {Username} wygasła — odblokowano", username);
+                    ClearLockout(user);
+                }
+                else
+                {
+                    _logger.LogWarning("Konto użytkownika {Username} jest zablokowane", username);
+                    return AuthenticationResult.Failed(AuthenticationFailureReason.Locked, user.LockedUntil);
+                }
             }
 
             if (!VerifyPassword(password, user.PasswordHash))
@@ -216,44 +231,53 @@ public class UserService : IUserService
                 _logger.LogWarning("Nieprawidłowe hasło dla użytkownika {Username}", username);
 
                 user.FailedLoginAttempts++;
-                user.LastFailedLoginAt = DateTime.UtcNow;
+                user.LastFailedLoginAt = now;
 
                 // Blokada po 5 nieudanych próbach
                 if (user.FailedLoginAttempts >= 5)
                 {
                     user.IsLocked = true;
-                    user.LockedUntil = DateTime.UtcNow.AddMinutes(30);
+                    user.LockedUntil = now.AddMinutes(30);
                     _logger.LogWarning("Konto {Username} zablokowane po 5 nieudanych próbach", username);
                 }
 
                 _unitOfWork.Users.Update(user);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                return null;
+                return user.IsLocked
+                    ? AuthenticationResult.Failed(AuthenticationFailureReason.Locked, user.LockedUntil)
+                    : AuthenticationResult.Failed(AuthenticationFailureReason.InvalidCredentials);
             }
 
             // Sukces logowania
-            user.LastLoginAt = DateTime.UtcNow;
-            user.FailedLoginAttempts = 0;
-            user.LastFailedLoginAt = null;
+            user.LastLoginAt = now;
+            ClearLockout(user);
 
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            await _auditService.LogOperationAsync(
-                userId: user.Id,
-                operationType: "LOGIN",
-                entityName: nameof(User),
-                entityId: user.Id.ToString(),
-                cancellationToken: cancellationToken);
+            try
+            {
+                await _auditService.LogOperationAsync(
+                    userId: user.Id,
+                    operationType: "LOGIN",
+                    entityName: nameof(User),
+                    entityId: user.Id.ToString(),
+                    cancellationToken: cancellationToken);
+            }
+            catch (Exception auditEx)
+            {
+                // Błąd zapisu audytu nie może blokować poprawnego logowania
+                _logger.LogError(auditEx, "Nie udało się zapisać audytu logowania użytkownika {Username}", username);
+            }
 
             _logger.LogInformation("Zalogowano użytkownika {Username}", username);
-            return user;
+            return AuthenticationResult.Success(user);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Błąd podczas uwierzytelniania użytkownika {Username}", username);
-            return null;
+            throw;
         }
     }
 
@@ -322,6 +346,8 @@ public class UserService : IUserService
 
             user.PasswordHash = HashPassword(newPassword);
             user.ModifiedAt = DateTime.UtcNow;
+            // Nowe hasło nadane przez administratora zdejmuje blokadę po nieudanych próbach logowania
+            ClearLockout(user);
 
             _unitOfWork.Users.Update(user);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -387,6 +413,7 @@ public class UserService : IUserService
         user.PasswordResetToken = null;
         user.PasswordResetTokenExpiry = null;
         user.ModifiedAt = DateTime.UtcNow;
+        ClearLockout(user);
 
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -437,10 +464,7 @@ public class UserService : IUserService
             throw new InvalidOperationException($"Użytkownik o ID {userId} nie istnieje");
         }
 
-        user.IsLocked = false;
-        user.LockedUntil = null;
-        user.FailedLoginAttempts = 0;
-        user.LastFailedLoginAt = null;
+        ClearLockout(user);
 
         _unitOfWork.Users.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -454,6 +478,14 @@ public class UserService : IUserService
     }
 
     // ==================== HELPERS ====================
+
+    private static void ClearLockout(User user)
+    {
+        user.IsLocked = false;
+        user.LockedUntil = null;
+        user.FailedLoginAttempts = 0;
+        user.LastFailedLoginAt = null;
+    }
 
     private static string HashPassword(string password)
     {

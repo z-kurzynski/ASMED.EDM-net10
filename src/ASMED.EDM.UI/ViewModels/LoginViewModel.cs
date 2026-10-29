@@ -1,3 +1,4 @@
+using ASMED.EDM.Core.DTOs;
 using ASMED.EDM.Core.Entities;
 using ASMED.EDM.Core.Enums;
 using ASMED.EDM.Core.Interfaces.Services;
@@ -78,26 +79,26 @@ public partial class LoginViewModel : ViewModelBase
                 return;
             }
 
-            User? user;
+            AuthenticationResult result;
             try
             {
-                user = await AuthenticateWithScopeAsync(password);
+                result = await AuthenticateWithScopeAsync(password);
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Brak połączenia z bazą danych: " + ex.GetBaseException().Message;
+                ErrorMessage = "Błąd logowania (baza danych): " + ex.GetBaseException().Message;
                 LoginSucceeded = false;
                 return;
             }
 
-            if (user == null)
+            if (result.User == null)
             {
-                ErrorMessage = "Nieprawidłowa nazwa użytkownika lub hasło.";
+                ErrorMessage = GetFailureMessage(result);
                 LoginSucceeded = false;
                 return;
             }
 
-            _currentUserService.SetCurrentUser(user);
+            _currentUserService.SetCurrentUser(result.User);
             await CompleteLoginAsync();
         }
         finally
@@ -125,10 +126,23 @@ public partial class LoginViewModel : ViewModelBase
     /// </summary>
     public Action? RequestClose { get; set; }
 
-    private async Task<User?> AuthenticateWithScopeAsync(string password)
+    private async Task<AuthenticationResult> AuthenticateWithScopeAsync(string password)
     {
         using var scope = _scopeFactory.CreateScope();
         var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
-        return await userService.AuthenticateAsync(Username, password);
+        return await userService.TryAuthenticateAsync(Username.Trim(), password);
     }
+
+    private static string GetFailureMessage(AuthenticationResult result) => result.FailureReason switch
+    {
+        AuthenticationFailureReason.Inactive =>
+            "Konto jest nieaktywne. Skontaktuj się z administratorem.",
+        AuthenticationFailureReason.Locked when result.LockedUntilUtc.HasValue =>
+            $"Konto zablokowane po zbyt wielu nieudanych próbach logowania do " +
+            $"{DateTime.SpecifyKind(result.LockedUntilUtc.Value, DateTimeKind.Utc).ToLocalTime():HH:mm}. " +
+            "Administrator może je odblokować, ustawiając nowe hasło.",
+        AuthenticationFailureReason.Locked =>
+            "Konto zostało zablokowane. Skontaktuj się z administratorem.",
+        _ => "Nieprawidłowa nazwa użytkownika lub hasło."
+    };
 }

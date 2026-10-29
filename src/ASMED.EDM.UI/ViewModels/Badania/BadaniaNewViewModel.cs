@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ASMED.EDM.Core.Helpers;
 using ASMED.EDM.Data.Services;
 using ASMED.EDM.UI.Models;
 using ASMED.EDM.UI.Models.BadaniaNew;
@@ -231,9 +232,9 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
     }
 
     // Wynik ComboBox
-    public ObservableCollection<string> WynikOptions { get; } = new ObservableCollection<string> { "pozytywne", "negatywne" };
+    public IReadOnlyList<WynikBadaniaOption> WynikOptions => WynikBadania.Opcje;
 
-    private string _selectedWynik = "pozytywne"; // Domyślna wartość
+    private string _selectedWynik = WynikBadania.Domyslny;
     public string SelectedWynik
     {
         get => _selectedWynik;
@@ -539,7 +540,7 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
                 }
 
                 // 📊 Zresetuj wynik do domyślnej wartości
-                SelectedWynik = "pozytywne";
+                SelectedWynik = WynikBadania.Domyslny;
 
                 // 📅 Ustaw Data Badania: CustomDefaultDate (jeśli checkbox zaznaczony) lub dzisiaj
                 // 📅 Zresetuj selektor lat do domyślnej wartości (3 lata)

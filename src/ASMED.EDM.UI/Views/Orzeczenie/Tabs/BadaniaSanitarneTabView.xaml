@@ -24,23 +24,23 @@
 				<TextBlock Text="Data badania:" FontSize="12"
 				 VerticalAlignment="Center" Margin="0,0,6,0"
 				 Foreground="{DynamicResource {x:Static SystemColors.AccentColorBrushKey}}"/>
-				<DatePicker x:Name="bad_Sanit_data" SelectedDate="{Binding SanitarneDataBadania, Mode=TwoWay}" Width="130" FontSize="12"/>
+				<DatePicker x:Name="bad_Sanit_data" SelectedDate="{Binding SanitarneDataBadania, Mode=TwoWay}" IsEnabled="{Binding IsEdycjaMozliwa}" Width="130" FontSize="12"/>
 			</StackPanel>
 
 		</Grid>
 
-		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" IsEnabled="{Binding IsEdycjaMozliwa}">
 			<StackPanel>
 				<GroupBox Header="Wynik badania" Margin="0,0,0,8" Padding="8">
 					<StackPanel>
-						<RadioButton x:Name="rbSanit_Pozytywny" Content="Pozytywny" Margin="0,2" GroupName="badSanKarta" IsChecked="True"/>
-						<RadioButton x:Name="rbSanit_Negatywny" Content="Negatywny" Margin="0,2" GroupName="badSanKarta"/>
-						<RadioButton x:Name="rbSanit_WymagaUzupelnienia" Content="Wymaga uzupełnienia" Margin="0,2" GroupName="badSanKarta"/>
+						<RadioButton x:Name="rbSanit_Pozytywny" Content="Pozytywny" Margin="0,2" GroupName="badSanKarta" IsChecked="{Binding IsSanitWynikPozytywny, Mode=TwoWay}"/>
+						<RadioButton x:Name="rbSanit_Negatywny" Content="Negatywny" Margin="0,2" GroupName="badSanKarta" IsChecked="{Binding IsSanitWynikNegatywny, Mode=TwoWay}"/>
+						<RadioButton x:Name="rbSanit_WymagaUzupelnienia" Content="Wymaga uzupełnienia" Margin="0,2" GroupName="badSanKarta" IsChecked="{Binding IsSanitWynikWymagaUzupelnienia, Mode=TwoWay}"/>
 					</StackPanel>
 				</GroupBox>
 				<GroupBox Header="Uwagi" Padding="8">
 					<TextBox x:Name="tbSanitUwagi" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100"
-							 VerticalScrollBarVisibility="Auto"/>
+							 VerticalScrollBarVisibility="Auto" Text="{Binding SanitarneUwagi, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 				</GroupBox>
 			</StackPanel>
 		</ScrollViewer>
@@ -54,10 +54,10 @@
 				Command="{Binding WrocCommand}" HorizontalAlignment="Left" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.Button}" Height="40"/>
 			<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
 				<Syncfusion:ButtonAdv Content="" Label="Anuluj" IconHeight="0" IconWidth="0" FontSize="16" BorderThickness="1,1,2,2"
-					Command="{Binding AnulujSanitarneCommand}" Click="AnulujButton_Click" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
+					Command="{Binding AnulujSanitarneCommand}" IsEnabled="{Binding IsEdycjaMozliwa}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" Width="125" Background="{DynamicResource UI.Background.ButtonError}" Height="40"/>
 				<Syncfusion:ButtonAdv Label="Drukuj"
 	   Command="{Binding OrzeczeniePrintButton}" Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.ButtonSuccess}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
-				<Syncfusion:ButtonAdv Label="Wyczyść" Click="WyczyscButton_Click"
+				<Syncfusion:ButtonAdv Label="Wyczyść" Command="{Binding WyczyscSanitarneCommand}" IsEnabled="{Binding IsEdycjaMozliwa}"
 	   Foreground="{DynamicResource UI.Text.Primary}" FontStyle="Normal" BorderThickness="1,1,2,2" IsMultiLine="False" Width="125" Background="{DynamicResource UI.Background.Button}" FontSize="16" IconHeight="0" IconWidth="0" Height="40"/>
 			</StackPanel>
 		</Grid>

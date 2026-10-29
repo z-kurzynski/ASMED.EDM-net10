@@ -89,4 +89,13 @@ public interface IMigrationService
         IEnumerable<string>? tableNames = null,
         IProgress<MigrationProgress>? progress = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Dopasowuje dane w bazie MySQL po migracji z Access (uzupełnia pola, których
+    /// w Access brakowało lub były niezgodne z nowym modelem). Kroki są idempotentne.
+    /// </summary>
+    Task<(bool Success, int StepsExecuted, string Message)> AlignDataAsync(
+        string mysqlConnectionString,
+        IProgress<string>? progress = null,
+        CancellationToken cancellationToken = default);
 }

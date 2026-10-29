@@ -367,6 +367,13 @@
                                 Background="#FF4CAF50"
                                 ToolTip="Migruje zaznaczone tabele z Access do MySQL (nadpisuje dane)"/>
 
+                        <!-- Dopasowanie danych po migracji -->
+                        <Button Content="🔧 Dopasuj dane"
+                                Command="{Binding AlignDataCommand}"
+                                Style="{StaticResource ActionButton}"
+                                Background="#FF6A1B9A"
+                                ToolTip="Po migracji: uzupełnia i ujednolica dane w MySQL (np. znaczniki badań w B_Skierowania wg cen w Badanie)"/>
+
                         <!-- Anuluj -->
                         <Button Content="⏹ Anuluj"
                                 Command="{Binding CancelMigrationCommand}"
