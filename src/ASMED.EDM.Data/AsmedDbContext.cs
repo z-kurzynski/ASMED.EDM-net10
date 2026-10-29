@@ -198,8 +198,15 @@ public class AsmedDbContext : DbContext
             entity.Ignore(e => e.CenaEKG);
             entity.Ignore(e => e.CenaPoradnia);
             entity.Ignore(e => e.CenaInne);
+            // brak IsDeleted/RowVersion/audyt w tabeli BAD_Cennik
             entity.Ignore(e => e.IsDeleted);
             entity.Ignore(e => e.RowVersion);
+            entity.Ignore(e => e.CreatedAt);
+            entity.Ignore(e => e.CreatedById);
+            entity.Ignore(e => e.ModifiedAt);
+            entity.Ignore(e => e.ModifiedById);
+            entity.Ignore(e => e.DeletedAt);
+            entity.Ignore(e => e.DeletedById);
 
             entity.HasIndex(e => e.Nazwa);
         });

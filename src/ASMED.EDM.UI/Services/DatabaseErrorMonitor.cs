@@ -87,12 +87,15 @@ public static class DatabaseErrorMonitor
     private static List<string> GetAppCallers()
     {
         var result = new List<string>();
+        var viaEfCore = false;
         foreach (var frame in new StackTrace(2, false).GetFrames())
         {
             var type = frame.GetMethod()?.DeclaringType;
-            if (type?.FullName is not { } fullName
-                || !fullName.StartsWith("ASMED.EDM", StringComparison.Ordinal)
-                || type == typeof(DatabaseErrorMonitor))
+            if (type?.FullName is not { } fullName)
+                continue;
+            if (fullName.StartsWith("Microsoft.EntityFrameworkCore", StringComparison.Ordinal))
+                viaEfCore = true;
+            if (!fullName.StartsWith("ASMED.EDM", StringComparison.Ordinal) || type == typeof(DatabaseErrorMonitor))
                 continue;
 
             // Metody async: ASMED.EDM.X.Klasa+<Metoda>d__12.MoveNext → Klasa.Metoda
@@ -104,6 +107,12 @@ public static class DatabaseErrorMonitor
             if (result.Count == 0 || result[^1] != name)
                 result.Add(name);
         }
+
+        // Asynchroniczne zapytania EF Core nie mają w stosie ramek aplikacji — alias w treści błędu
+        // (np. 'b.CreatedAt') to pierwsza litera tabeli, a kolumna to właściwość encji bez mapowania.
+        if (result.Count == 0 && viaEfCore)
+            result.Add("EF Core (zapytanie LINQ — sprawdź mapowanie encji w AsmedDbContext)");
+
         return result;
     }
 
