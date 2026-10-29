@@ -720,6 +720,21 @@ public class BadaniaEditNewViewModel : INotifyPropertyChanged
     /// </summary>
     public void SetZaswiadczenieStatus(bool value) => SetSkierowanieFlag("B_Zaswiadczenie", value, d => d.B_Zaswiadczenie = value);
 
+    /// <summary>Przycisk "Basic" (Badanie) ↔ B_Bad.</summary>
+    public void SetBadStatus(bool value) => SetSkierowanieFlag("B_Bad", value, d => d.B_Bad = value);
+
+    /// <summary>Przycisk "Laryngologist" ↔ B_laryngolog.</summary>
+    public void SetLaryngologStatus(bool value) => SetSkierowanieFlag("B_laryngolog", value, d => d.B_laryngolog = value);
+
+    /// <summary>Przycisk "Ophthalmologist" ↔ B_okulista.</summary>
+    public void SetOkulistaStatus(bool value) => SetSkierowanieFlag("B_okulista", value, d => d.B_okulista = value);
+
+    /// <summary>Przycisk "EKG" ↔ B_EKG.</summary>
+    public void SetEKGStatus(bool value) => SetSkierowanieFlag("B_EKG", value, d => d.B_EKG = value);
+
+    /// <summary>Przycisk "Lipidogram" ↔ B_Lipidogram.</summary>
+    public void SetLipidogramStatus(bool value) => SetSkierowanieFlag("B_Lipidogram", value, d => d.B_Lipidogram = value);
+
     private void SetSkierowanieFlag(string column, bool value, Action<BadaniaEditDetailsDto> apply)
     {
         if (SelectedDetails == null) return;

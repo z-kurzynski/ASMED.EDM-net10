@@ -17,6 +17,7 @@ public class BadaniaNewDetailsDto
     public string? B_Stanowisko { get; set; }
     public bool? B_Zaswiadczenie { get; set; }
     public bool? B_ksiazeczka { get; set; }
+    public bool? B_Bad { get; set; }
     public bool? B_laryngolog { get; set; }
     public bool? B_okulista { get; set; }
     public bool? B_EKG { get; set; }

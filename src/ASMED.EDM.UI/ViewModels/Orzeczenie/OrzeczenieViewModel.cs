@@ -407,6 +407,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
         _suppressDbSave = true;
         try
         {
+            IsBadanieActive = value?.B_Bad ?? false;
             IsLaryngologActive = value?.B_laryngolog ?? false;
             IsOkulistaActive = value?.B_okulista ?? false;
             IsSanitarneActive = value?.B_ksiazeczka ?? false;
@@ -509,7 +510,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
                 SELECT
                     r.R_ID, r.R_Data, r.R_Status,
                     s.B_ID, s.B_DataSkierowania, s.B_TypBadania, s.B_Stanowisko,
-                    s.B_laryngolog, s.B_okulista, s.B_ksiazeczka, s.B_Urlop,
+                    s.B_Bad, s.B_laryngolog, s.B_okulista, s.B_ksiazeczka, s.B_Urlop,
                     p.P_ID, p.P_imie, p.P_nazwisko, p.P_pesel,
                     p.P_Ades_miasto, p.P_Adres_ulica_numer, p.P_Ades_kod,
                     f.Nazwa AS Firma_Nazwa, f.NIP AS Firma_NIP
@@ -533,6 +534,7 @@ public partial class OrzeczenieViewModel : ViewModelBase
                     B_typ = reader["B_TypBadania"]?.ToString(),
                     B_Stanowisko = reader["B_Stanowisko"]?.ToString(),
 
+                    B_Bad = reader["B_Bad"] != DBNull.Value && Convert.ToBoolean(reader["B_Bad"]),
                     B_laryngolog = reader["B_laryngolog"] != DBNull.Value && Convert.ToBoolean(reader["B_laryngolog"]),
                     B_okulista = reader["B_okulista"] != DBNull.Value && Convert.ToBoolean(reader["B_okulista"]),
                     B_ksiazeczka = reader["B_ksiazeczka"] != DBNull.Value && Convert.ToBoolean(reader["B_ksiazeczka"]),
@@ -652,7 +654,14 @@ public partial class OrzeczenieViewModel : ViewModelBase
     // ── Callbacki VM → DTO (CommunityToolkit.Mvvm partial) ──────────────────
     // Wywoływane automatycznie przez [ObservableProperty] przy każdej zmianie.
 
-    partial void OnIsBadanieActiveChanged(bool value)    => _currentDto.Btn_Badanie    = value;
+    partial void OnIsBadanieActiveChanged(bool value)
+    {
+        _currentDto.Btn_Badanie = value;
+        if (SelectedWizyta != null)
+            SelectedWizyta.B_Bad = value;
+        if (!_suppressDbSave)
+            UpdateBSkierowaniaFlagInDb("B_Bad", value);
+    }
 
     partial void OnIsLaryngologActiveChanged(bool value)
     {

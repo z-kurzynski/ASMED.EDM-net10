@@ -156,6 +156,11 @@ SELECT
     B_Skierowania.B_Stanowisko,
     B_Skierowania.B_Zaswiadczenie,
     B_Skierowania.B_ksiazeczka,
+    B_Skierowania.B_Bad,
+    B_Skierowania.B_laryngolog,
+    B_Skierowania.B_okulista,
+    B_Skierowania.B_EKG,
+    B_Skierowania.B_Lipidogram,
     B_Skierowania.B_ankieta,
     B_Skierowania.B_wywiad,
     B_Skierowania.B_orzeczenie,
@@ -195,6 +200,11 @@ LIMIT 1";
                     B_Stanowisko = reader["B_Stanowisko"]?.ToString(),
                     B_Zaswiadczenie = reader["B_Zaswiadczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_Zaswiadczenie"]),
                     B_ksiazeczka = reader["B_ksiazeczka"] is DBNull ? null : Convert.ToBoolean(reader["B_ksiazeczka"]),
+                    B_Bad = reader["B_Bad"] is DBNull ? null : Convert.ToBoolean(reader["B_Bad"]),
+                    B_laryngolog = reader["B_laryngolog"] is DBNull ? null : Convert.ToBoolean(reader["B_laryngolog"]),
+                    B_okulista = reader["B_okulista"] is DBNull ? null : Convert.ToBoolean(reader["B_okulista"]),
+                    B_EKG = reader["B_EKG"] is DBNull ? null : Convert.ToBoolean(reader["B_EKG"]),
+                    B_Lipidogram = reader["B_Lipidogram"] is DBNull ? null : Convert.ToBoolean(reader["B_Lipidogram"]),
                     B_ankieta = reader["B_ankieta"] is DBNull ? null : Convert.ToBoolean(reader["B_ankieta"]),
                     B_wywiad = reader["B_wywiad"] is DBNull ? null : Convert.ToBoolean(reader["B_wywiad"]),
                     B_orzeczenie = reader["B_orzeczenie"] is DBNull ? null : Convert.ToBoolean(reader["B_orzeczenie"]),
@@ -441,11 +451,11 @@ WHERE B_ID = @bId";
 
     private static readonly HashSet<string> AllowedFlagColumns = new(StringComparer.Ordinal)
     {
-        "B_ksiazeczka", "B_Zaswiadczenie"
+        "B_Bad", "B_laryngolog", "B_okulista", "B_ksiazeczka", "B_Lipidogram", "B_EKG", "B_Zaswiadczenie"
     };
 
     /// <summary>
-    /// Natychmiastowa aktualizacja pojedynczej flagi w B_Skierowania (Książeczka / Urlop),
+    /// Natychmiastowa aktualizacja pojedynczej flagi w B_Skierowania (przyciski przy cenach),
     /// tak jak w BadaniaNewService.UpdateBSkierowaniaFlag.
     /// </summary>
     public bool UpdateBSkierowaniaFlag(int bSkierowaniaId, string columnName, bool value)

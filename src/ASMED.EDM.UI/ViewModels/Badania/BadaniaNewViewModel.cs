@@ -579,8 +579,11 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
                 var healthClinicPrice = GetPriceForExamination("HealthClinic");
                 Cena7 = (details.B_Zaswiadczenie == true && healthClinicPrice > 0) ? healthClinicPrice : null;
 
-                // "Laryngologist" ↔ B_laryngolog, "Ophthalmologist" ↔ B_okulista,
+                // "Basic" (Badanie) ↔ B_Bad, "Laryngologist" ↔ B_laryngolog, "Ophthalmologist" ↔ B_okulista,
                 // "EKG" ↔ B_EKG, "Lipidogram" ↔ B_Lipidogram
+                var basicPrice = GetPriceForExamination("Basic");
+                Cena1 = (details.B_Bad == true && basicPrice > 0) ? basicPrice : null;
+
                 var laryngologPrice = GetPriceForExamination("Laryngologist");
                 Cena2 = (details.B_laryngolog == true && laryngologPrice > 0) ? laryngologPrice : null;
 
@@ -733,6 +736,17 @@ public class BadaniaNewViewModel : INotifyPropertyChanged
         SelectedDetails.B_Zaswiadczenie = value;
         OnPropertyChanged(nameof(SelectedDetails));
         _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_Zaswiadczenie", value);
+    }
+
+    /// <summary>
+    /// Ustawia status pola B_Bad w SelectedDetails (powiązane z przyciskiem "Basic"/Badanie).
+    /// </summary>
+    public void SetBadStatus(bool value)
+    {
+        if (SelectedDetails == null) return;
+        SelectedDetails.B_Bad = value;
+        OnPropertyChanged(nameof(SelectedDetails));
+        _badaniaNewService.UpdateBSkierowaniaFlag(SelectedDetails.B_ID, "B_Bad", value);
     }
 
     /// <summary>

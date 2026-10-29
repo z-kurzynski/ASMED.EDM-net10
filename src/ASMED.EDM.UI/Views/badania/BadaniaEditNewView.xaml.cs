@@ -172,11 +172,18 @@ public partial class BadaniaEditNewView : UserControl
             Console.WriteLine($"🟢 Toggle ON: {examinationType} = {price:N2} zł");
         }
 
-        // Książeczka ↔ B_ksiazeczka, Urlop ↔ B_Zaswiadczenie - natychmiastowy zapis w B_Skierowania
+        // Przyciski przy cenach ↔ flagi w B_Skierowania (natychmiastowy zapis):
+        // Badanie ↔ B_Bad, Laryngolog ↔ B_laryngolog, Okulista ↔ B_okulista, Książeczka ↔ B_ksiazeczka,
+        // Lipidogram ↔ B_Lipidogram, EKG ↔ B_EKG, Urlop ↔ B_Zaswiadczenie
         var newActiveState = !isActive;
         switch (examinationType)
         {
+            case "Basic": vm.SetBadStatus(newActiveState); break;
+            case "Laryngologist": vm.SetLaryngologStatus(newActiveState); break;
+            case "Ophthalmologist": vm.SetOkulistaStatus(newActiveState); break;
             case "Sanitary": vm.SetKsiazeczkaStatus(newActiveState); break;
+            case "Lipidogram": vm.SetLipidogramStatus(newActiveState); break;
+            case "EKG": vm.SetEKGStatus(newActiveState); break;
             case "HealthClinic": vm.SetZaswiadczenieStatus(newActiveState); break;
         }
     }

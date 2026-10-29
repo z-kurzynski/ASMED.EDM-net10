@@ -155,11 +155,12 @@ public partial class BadaniaNewView : UserControl
         }
 
         // Powiązanie wybranych przycisków z polami statusu w B_Skierowania
-        // (Status_Info): "Sanitary" = Książeczka ↔ B_ksiazeczka, "HealthClinic" = Urlop ↔ B_Zaswiadczenie,
+        // (Status_Info): "Basic" = Badanie ↔ B_Bad, "Sanitary" = Książeczka ↔ B_ksiazeczka, "HealthClinic" = Urlop ↔ B_Zaswiadczenie,
         // "Laryngologist" ↔ B_laryngolog, "Ophthalmologist" ↔ B_okulista, "EKG" ↔ B_EKG, "Lipidogram" ↔ B_Lipidogram
         var newActiveState = !isActive;
         switch (examinationType)
         {
+            case "Basic": vm.SetBadStatus(newActiveState); break;
             case "Sanitary": vm.SetKsiazeczkaStatus(newActiveState); break;
             case "HealthClinic": vm.SetZaswiadczenieStatus(newActiveState); break;
             case "Laryngologist": vm.SetLaryngologStatus(newActiveState); break;
@@ -179,6 +180,9 @@ public partial class BadaniaNewView : UserControl
 
         switch (e.PropertyName)
         {
+            case nameof(BadaniaNewViewModel.Cena1):
+                SetToggleButtonVisual(btnNewToggleBasic, vm.Cena1.GetValueOrDefault() > 0);
+                break;
             case nameof(BadaniaNewViewModel.Cena2):
                 SetToggleButtonVisual(btnNewToggleLaryngologist, vm.Cena2.GetValueOrDefault() > 0);
                 break;
