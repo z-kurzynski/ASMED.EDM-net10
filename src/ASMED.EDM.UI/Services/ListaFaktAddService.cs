@@ -70,10 +70,11 @@ public class ListaFaktAddService
             connection.Open();
 
             const string sql = @"
-                SELECT DISTINCT Nazwa
-                FROM Cennik
-                WHERE Activ = 1
-                ORDER BY Nazwa";
+                SELECT DISTINCT b_Cennik
+                FROM BAD_Cennik
+                WHERE b_Cennik IS NOT NULL AND b_Cennik <> ''
+                  AND COALESCE(b_activ, 1) = 1
+                ORDER BY b_Cennik";
 
             using var cmd = connection.CreateCommand();
             cmd.CommandText = sql;

@@ -459,7 +459,8 @@ public class MigrationService : IMigrationService
         string tableName,
         List<(string AccessColumn, string MySqlColumn)> columnMap,
         List<DataRow> rows,
-        CancellationToken ct)
+        CancellationToken ct,
+        MySqlTransaction? transaction = null)
     {
         if (rows.Count == 0) return;
 
@@ -477,7 +478,7 @@ public class MigrationService : IMigrationService
 
         sb.Append(string.Join(",\n", rowPlaceholders));
 
-        await using var cmd = new MySqlCommand(sb.ToString(), conn);
+        await using var cmd = new MySqlCommand(sb.ToString(), conn, transaction);
         cmd.CommandTimeout = 120;
 
         for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
@@ -487,66 +488,6 @@ public class MigrationService : IMigrationService
                 cmd.Parameters.Add(new MySqlParameter(
                     $"@p{rowIdx}_{colIdx}",
                     ConvertValue(rows[rowIdx][columnMap[colIdx].AccessColumn])));
-            }
-        }
-
-        await cmd.ExecuteNonQueryAsync(ct);
-    }
-
-    private static async Task InsertBatchAsync(
-        MySqlConnection conn,
-        string tableName,
-        List<string> columns,
-        List<DataRow> rows,
-        CancellationToken ct)
-    {
-        if (rows.Count == 0) return;
-
-        var colList = string.Join(", ", columns.Select(c => $"`{c}`"));
-        var paramNames = columns.Select((c, i) => $"@p{i}").ToList();
-        var valuePlaceholder = $"({string.Join(", ", paramNames)})";
-        var allValues = string.Join(",\n", rows.Select(_ => valuePlaceholder));
-
-        var sql = $"INSERT IGNORE INTO `{tableName}` ({colList}) VALUES {allValues}";
-
-        await using var cmd = new MySqlCommand(sql, conn);
-        cmd.CommandTimeout = 120;
-
-        for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
-        {
-            for (int colIdx = 0; colIdx < columns.Count; colIdx++)
-            {
-                var paramName = $"@p{colIdx}";
-                // Aby dla wielu wierszy nazwy parametrów były unikalne, dodajemy indeks wiersza
-                // powyższy placeholder to nadpisujemy:
-                cmd.Parameters.Add(new MySqlParameter($"@p{rowIdx}_{colIdx}", ConvertValue(rows[rowIdx][columns[colIdx]])));
-            }
-        }
-
-        // Przebuduj SQL z unikalnymi nazwami parametrów
-        var sb = new StringBuilder();
-        sb.Append($"INSERT IGNORE INTO `{tableName}` ({colList}) VALUES ");
-
-        var rowPlaceholders = new List<string>();
-        for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
-        {
-            var colPlaceholders = columns.Select((_, colIdx) => $"@p{rowIdx}_{colIdx}");
-            rowPlaceholders.Add($"({string.Join(", ", colPlaceholders)})");
-        }
-
-        sb.Append(string.Join(",\n", rowPlaceholders));
-
-        // Wyczyść parametry i użyj poprawnego SQL
-        cmd.Parameters.Clear();
-        cmd.CommandText = sb.ToString();
-
-        for (int rowIdx = 0; rowIdx < rows.Count; rowIdx++)
-        {
-            for (int colIdx = 0; colIdx < columns.Count; colIdx++)
-            {
-                cmd.Parameters.Add(new MySqlParameter(
-                    $"@p{rowIdx}_{colIdx}",
-                    ConvertValue(rows[rowIdx][columns[colIdx]])));
             }
         }
 
@@ -764,19 +705,9 @@ public class MigrationService : IMigrationService
             await dstConn.OpenAsync(cancellationToken);
 
             // Ustal listę tabel — podana lub wszystkie ze źródła
-            List<string> tables;
-            if (tableNames is not null)
-            {
-                tables = tableNames.ToList();
-            }
-            else
-            {
-                tables = [];
-                await using var listCmd = new MySqlCommand("SHOW TABLES;", srcConn);
-                await using var reader = await listCmd.ExecuteReaderAsync(cancellationToken);
-                while (await reader.ReadAsync(cancellationToken))
-                    tables.Add(reader.GetString(0));
-            }
+            var srcSchema = await LoadMySqlSchemaAsync(srcConn, cancellationToken);
+            var dstSchema = await LoadMySqlSchemaAsync(dstConn, cancellationToken);
+            var tables = (tableNames ?? srcSchema.Keys).ToList();
 
             _logger.LogInformation("Kopiowanie bazy MySQL: {Src} → {Dst}, tabel: {Count}",
                 srcConn.Database, dstConn.Database, tables.Count);
@@ -785,64 +716,82 @@ public class MigrationService : IMigrationService
             await disableFk.ExecuteNonQueryAsync(cancellationToken);
 
             int copied = 0;
+            var problems = new List<string>();
 
             for (int i = 0; i < tables.Count; i++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                var tableName = tables[i];
+                var requestedName = tables[i];
 
                 progress?.Report(new MigrationProgress
                 {
-                    CurrentTable       = tableName,
+                    CurrentTable       = requestedName,
                     CurrentTableIndex  = i + 1,
                     TotalTables        = tables.Count,
-                    Message            = $"Kopiowanie tabeli {tableName} ({i + 1}/{tables.Count})..."
+                    Message            = $"Kopiowanie tabeli {requestedName} ({i + 1}/{tables.Count})..."
                 });
 
+                // Nazwy tabel porównujemy bez wielkości liter (lower_case_table_names=1 na Windows),
+                // ale w zapytaniach używamy rzeczywistej nazwy z danej bazy.
+                var srcTable = srcSchema.Keys.FirstOrDefault(t => t.Equals(requestedName, StringComparison.OrdinalIgnoreCase));
+                var dstTable = dstSchema.Keys.FirstOrDefault(t => t.Equals(requestedName, StringComparison.OrdinalIgnoreCase));
+                if (srcTable is null || dstTable is null)
+                {
+                    problems.Add($"⚠️ {requestedName}: brak tabeli w bazie {(srcTable is null ? "źródłowej" : "docelowej")} — pominięto");
+                    continue;
+                }
+
+                // Kopiujemy tylko kolumny istniejące w obu bazach — inaczej INSERT się nie powiedzie
+                var dstColumns = dstSchema[dstTable];
+                var columnMap = srcSchema[srcTable]
+                    .Select(c => (Source: c, Target: dstColumns.FirstOrDefault(d => d.Equals(c, StringComparison.OrdinalIgnoreCase))))
+                    .Where(m => m.Target is not null)
+                    .Select(m => (m.Source, m.Target!))
+                    .ToList();
+                var skippedColumns = srcSchema[srcTable].Except(columnMap.Select(m => m.Source)).ToList();
+                if (skippedColumns.Count > 0)
+                    problems.Add($"ℹ️ {dstTable}: pominięte kolumny (brak w bazie docelowej): {string.Join(", ", skippedColumns.Select(c => $"'{c}'"))}");
+
+                await using var tx = await dstConn.BeginTransactionAsync(cancellationToken);
                 try
                 {
-                    // Pobierz dane ze źródła
-                    await using var selCmd = new MySqlCommand($"SELECT * FROM `{tableName}`;", srcConn);
+                    await using var selCmd = new MySqlCommand(
+                        $"SELECT {string.Join(", ", columnMap.Select(m => $"`{m.Source}`"))} FROM `{srcTable}`;", srcConn);
                     await using var reader = await selCmd.ExecuteReaderAsync(cancellationToken);
 
                     var dt = new System.Data.DataTable();
                     dt.Load(reader);
 
-                    // Wyczyść tabelę docelową
-                    await using var truncCmd = new MySqlCommand(
-                        $"DELETE FROM `{tableName}`;", dstConn);
-                    await truncCmd.ExecuteNonQueryAsync(cancellationToken);
+                    // Czyszczenie i wstawianie w jednej transakcji — błąd przywraca poprzednie dane
+                    await using (var truncCmd = new MySqlCommand($"DELETE FROM `{dstTable}`;", dstConn, tx))
+                        await truncCmd.ExecuteNonQueryAsync(cancellationToken);
 
-                    // Wstaw wiersze partiami
-                    if (dt.Rows.Count > 0)
+                    var rows = dt.Rows.Cast<System.Data.DataRow>().ToList();
+                    for (int offset = 0; offset < rows.Count; offset += BatchSize)
                     {
-                        var columns = dt.Columns.Cast<System.Data.DataColumn>()
-                                                .Select(c => c.ColumnName)
-                                                .ToList();
-                        var rows = dt.Rows.Cast<System.Data.DataRow>().ToList();
-
-                        for (int offset = 0; offset < rows.Count; offset += BatchSize)
-                        {
-                            var batch = rows.Skip(offset).Take(BatchSize).ToList();
-                            await InsertBatchAsync(dstConn, tableName, columns, batch, cancellationToken);
-                        }
+                        var batch = rows.Skip(offset).Take(BatchSize).ToList();
+                        await InsertBatchAsync(dstConn, dstTable, columnMap, batch, cancellationToken, tx);
                     }
 
+                    await tx.CommitAsync(cancellationToken);
                     copied++;
-                    _logger.LogInformation("Skopiowano tabelę {Table}: {Count} wierszy",
-                        tableName, dt.Rows.Count);
+                    _logger.LogInformation("Skopiowano tabelę {Table}: {Count} wierszy", dstTable, rows.Count);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    _logger.LogWarning(ex, "Błąd kopiowania tabeli {Table} — pominięto", tableName);
+                    await tx.RollbackAsync(CancellationToken.None);
+                    problems.Add($"❌ {dstTable}: {ex.Message} — dane w bazie docelowej bez zmian");
+                    _logger.LogWarning(ex, "Błąd kopiowania tabeli {Table} — wycofano zmiany", dstTable);
                 }
             }
 
             await using var enableFk = new MySqlCommand("SET FOREIGN_KEY_CHECKS=1;", dstConn);
             await enableFk.ExecuteNonQueryAsync(cancellationToken);
 
-            var msg = $"Kopiowanie zakończone. Skopiowano {copied}/{tables.Count} tabel.";
-            return (true, copied, msg);
+            var failed = problems.Count(p => p.StartsWith("❌"));
+            var msg = $"Kopiowanie zakończone. Skopiowano {copied}/{tables.Count} tabel." +
+                      (problems.Count > 0 ? "\n" + string.Join("\n", problems) : "");
+            return (failed == 0, copied, msg);
         }
         catch (OperationCanceledException)
         {
@@ -853,6 +802,31 @@ public class MigrationService : IMigrationService
             _logger.LogError(ex, "Błąd kopiowania bazy MySQL");
             return (false, 0, $"Błąd kopiowania bazy: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Tabele i kolumny (w kolejności ORDINAL_POSITION) bieżącej bazy MySQL; klucze bez rozróżniania wielkości liter.
+    /// </summary>
+    private static async Task<Dictionary<string, List<string>>> LoadMySqlSchemaAsync(
+        MySqlConnection conn, CancellationToken ct)
+    {
+        var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        await using var cmd = new MySqlCommand(
+            "SELECT t.table_name, c.column_name FROM information_schema.tables t " +
+            "JOIN information_schema.columns c ON c.table_schema = t.table_schema AND c.table_name = t.table_name " +
+            "WHERE t.table_schema = DATABASE() AND t.table_type = 'BASE TABLE' " +
+            "ORDER BY t.table_name, c.ordinal_position", conn);
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            var table = reader.GetString(0);
+            if (!result.TryGetValue(table, out var columns))
+                result[table] = columns = [];
+            columns.Add(reader.GetString(1));
+        }
+
+        return result;
     }
 
     // ── AlignDataAsync (dopasowanie danych po migracji) ─────────────────────────────
